@@ -1,0 +1,34 @@
+1. start from readme.txt
+
+2a. There are prebuilt example solutions for VS2010 and VS2013:
+=================================================================================================
+- build SDL:
+  - open SDL\include\SDL_config_windows.h in any text editor
+  - find this line:
+    #define SDL_AUDIO_DRIVER_XAUDIO2    1
+  - and comment it:
+    //#define SDL_AUDIO_DRIVER_XAUDIO2    1
+  - goto folder SDL\VisualC\ 
+  - open SDL_VS2010.sln (or any other) and build it as Release
+  - goto golder SDL\VisualC\Win32\Release\
+  - and copy SDL2.lib, SDL2main.lib and SDL2.dll to oxygine-framework/libs
+
+- goto oxygine-framework\examples and choose any example. Lets call it "Demo" 
+- open solution located in oxygine-framework\examples\Demo\proj.win32\
+- try to build Demo
+- copy all dlls from  oxygine-framework\oxygine\third_party\win32\dlls\
+   and SDL2.dll from oxygine-framework/libs 
+   to  oxygine-framework\examples\Demo\data\   
+- working directory of Demo project should point to "../data" folder (right mouse click on Demo -> project->properties->ConfigurationProperties->Debugging->WorkingDirectory)
+- ready! run!
+=================================================================================================
+
+2b. You could generate your own Solution anywhere
+- you need installed Python 2.7
+- you need to run this script
+  oxygine-framework\tools\gen_template.py
+
+example:
+	python gen_template.py MyProject -t win32 -d path/to/MyProject/
+	
+
