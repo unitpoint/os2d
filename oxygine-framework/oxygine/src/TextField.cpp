@@ -47,7 +47,8 @@ namespace oxygine
 	bool TextField::isOn(const Vector2 &localPosition)
 	{
 		Rect r = getTextRect();
-		r.expand(Point(_extendedIsOn, _extendedIsOn), Point(_extendedIsOn, _extendedIsOn));
+		int extendedIsOn = (int)_extendedIsOn;
+		r.expand(Point(extendedIsOn, extendedIsOn), Point(extendedIsOn, extendedIsOn));
 		return r.pointIn(Point((int)localPosition.x, (int)localPosition.y));
 	}
 
