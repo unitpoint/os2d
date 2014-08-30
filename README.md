@@ -3,23 +3,19 @@
 **OS2D** is ObjectScript engine for 2d games. **OS2D** is made on top of Oxygine framework.
 Best Regards to Denis Muratshin (author of the Oxygine framework).
 
-## Build and run on Windows
+## Build and run
 
 ### Windows
 
-Open and run __examples\DemoOS\proj.win32\Demo_vs2010.sln__.
+Open and run <code>examples\DemoOS\proj.win32\Demo_vs2010.sln</code>. Please see more examples.
 
 ### Android
 
-Run __examples\DemoOS\proj.android\build-run.bat__
-
-### Examples
-
-Please see more examples.
+Run <code>examples\DemoOS\proj.android\build-run.bat</code>
 
 ## Getting Started
 
-The main ObjectScript file is __DemoOS\data\main.os__ for DemoOS project. 
+The main ObjectScript file is <code>DemoOS\data\main.os</code> for DemoOS project. 
 
 ### Examples of ObjectScript code:
 
