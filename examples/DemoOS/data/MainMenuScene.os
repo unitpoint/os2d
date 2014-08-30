@@ -4,14 +4,7 @@ MainMenuScene = extends Scene {
 		var sky = Sprite().attrs {
 			resAnim = res.getResAnim("bg"),
 			parent = @view,
-		}
-		var logo = Sprite()
-		logo.resAnim = res.getResAnim("logo2")
-		logo.attrs {		
-			parent = @view,
-			pos = @view.size - logo.size,
-		}
-		
+		}		
 		var btn = MyButton().attrs {
 			name = "play",
 			resAnim = res.getResAnim("play"),		

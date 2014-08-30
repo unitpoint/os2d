@@ -20,10 +20,12 @@ GameScene = extends Scene {
 		@move = Joystick()
 		@move.parent = @view
 		@move.y = @view.height - @move.height
+		@move.priority = 1
 		
 		@fire = Joystick()
 		@fire.parent = @view
 		@fire.pos = @view.size - @move.size
+		@fire.priority = 1
 		
 		@view.addTween(UpdateTween(@update.bind(this)))
 		// @view.addTween(UpdateTween(1000/10, @updateUnits.bind(this)))

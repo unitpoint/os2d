@@ -1,2 +1,2 @@
 res = Resources()
-res.loadXML("xmls/ui.xml")
+res.loadXML("xmls/game.xml")
