@@ -42,6 +42,6 @@ that was used to create the OS2D.
 	sprite = Sprite().attrs {
 		resAnim = res.getResAnim("plus"),
 		scale = 0.5f,
-		arg_pos = vec2(70, 55),
+		pos = vec2(70, 55),
 		parent = root,
 	}
