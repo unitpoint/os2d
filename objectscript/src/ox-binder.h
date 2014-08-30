@@ -1574,7 +1574,7 @@ void callOSEventFunction(ObjectScript::OS * os, int func_id, Event * ev)
 		os->pop();
 		OX_ASSERT(!ev->osValueId);
 
-		ev->_ref_counter--;
+		ev->_ref_counter--; // don't use releaseRef() here to prevent destroy event
 	}
 }
 
