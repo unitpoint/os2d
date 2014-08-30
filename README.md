@@ -64,6 +64,12 @@ The main ObjectScript file is __DemoOS\data\main.os__ for DemoOS project.
 		parent = root,
 	}
 
+## Resources
+
+* [objectscript.org](https://github.com/unitpoint/objectscript.org) is ObjectScript language site
+* [Programming in ObjectScript](https://github.com/unitpoint/objectscript/wiki/Programming-in-ObjectScript)
+* [ObjectScript Reference](https://github.com/unitpoint/objectscript/wiki/ObjectScript-Reference)
+	
 ##Contacts
 Please feel free to contact me at anytime if further information is needed.
 My email is evgeniy.golovin@unitpoint.ru, skype: egolovin
