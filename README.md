@@ -1,7 +1,7 @@
 # OS2D is ObjectScript engine for 2d games
 
-**OS2D** is ObjectScript engine for 2d games. Best Regards to author of the Oxygine framework (Denis Muratshin) 
-that was used to create the OS2D.
+**OS2D** is ObjectScript engine for 2d games. **OS2D** is made on top of Oxygine framework.
+Best Regards to Denis Muratshin (author of the Oxygine framework).
 
 ## Build and run on Windows
 
@@ -63,3 +63,7 @@ The main ObjectScript file is __DemoOS\data\main.os__ for DemoOS project.
 		pos = vec2(70, 55),
 		parent = root,
 	}
+
+##Contacts
+Please feel free to contact me at anytime if further information is needed.
+My email is evgeniy.golovin@unitpoint.ru, skype: egolovin
