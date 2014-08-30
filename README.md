@@ -1,9 +1,27 @@
-#OS2D is ObjectScript engine for 2d games
+# OS2D is ObjectScript engine for 2d games
 
 **OS2D** is ObjectScript engine for 2d games. Best Regards to author of the Oxygine framework (Denis Muratshin) 
 that was used to create the OS2D.
 
-##Examples of ObjectScript code:
+## Build and run on Windows
+
+### Windows
+
+Open and run __examples\DemoOS\proj.win32\Demo_vs2010.sln__.
+
+### Android
+
+Run __examples\DemoOS\proj.android\build-run.bat__
+
+### Examples
+
+Please see more examples.
+
+## Getting Started
+
+The main ObjectScript file is __DemoOS\data\main.os__ for DemoOS project. 
+
+### Examples of ObjectScript code:
 
 	// include std library to autoload user's classes and some other functions
 	require "std.os"
