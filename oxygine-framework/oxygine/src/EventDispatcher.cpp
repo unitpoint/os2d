@@ -74,7 +74,7 @@ namespace oxygine
 
 		for (listeners::iterator i = _listeners->begin(); i != _listeners->end(); )
 		{
-			listener ls = *i;
+			const listener& ls = *i;
 			if (ls.type == et && cb == ls.cb)
 			{
 				i = _listeners->erase(i);
@@ -122,7 +122,7 @@ namespace oxygine
 		listeners copy = *_listeners;//todo, do something!
 		for (listeners::iterator i = copy.begin(); i != copy.end(); ++i)
 		{
-			listener ls = *i;
+			const listener& ls = *i;
 			if (ls.type != ev->type)
 				continue;
 			//todo!

@@ -180,7 +180,7 @@ namespace oxygine
 			os = NULL;
 		}
 		
-		void operator()(Event *ev) // const
+		void operator()(Event *ev) const
 		{
 			if(func_id){
 				OX_ASSERT(os && !cb);
@@ -204,8 +204,7 @@ namespace oxygine
 				OX_ASSERT(os);
 				return func_id == b.func_id && os == b.os;
 			}
-			// bool operator == (const Closure &c) is not const (bug) so use copy argument
-			return OriginEventCallback(cb) == OriginEventCallback(b.cb); 
+			return cb == b.cb; 
 		}
 	};
 #endif

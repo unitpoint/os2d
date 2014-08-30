@@ -52,7 +52,7 @@ struct ClosureBase
   void *p_this;
   p_proxy_type p_proxy;
 
-  R operator()(PARAM_FORM_ARG_LIST) { return p_proxy(p_this PARAM_ARG_LIST_COMMA); }
+  R operator()(PARAM_FORM_ARG_LIST) const { return p_proxy(p_this PARAM_ARG_LIST_COMMA); }
 };
 
 } //namespace CLOSURE_NUM
@@ -103,7 +103,7 @@ struct Closure<R(PARAM_TYPE_LIST)>: public detail::CLOSURE_NUM::ClosureBase<R PA
         return !safe_bool(*this);
     }
 
-	bool operator == (const Closure &c)
+	bool operator == (const Closure &c) const
 	{
 		return this->p_proxy == c.p_proxy && this->p_this == c.p_this;
 	}
