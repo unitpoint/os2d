@@ -1,9 +1,12 @@
 Level = extends Actor {
-	walls = "level-01-walls",
-	elevator = "elevator-inside-01",
+	wallsName = "level-01-walls",
+	elevatorName = "elevator-inside-01",
+	elevatorInsideButtonName = "elevator-inside-up-button",
+	levelNum = 0,
 	
-	__construct = function(){
+	__construct = function(game){
 		super()
+		@game = game
 		@size = stage.size
 		
 		var hudPanel = Sprite().attrs {
@@ -38,63 +41,74 @@ Level = extends Actor {
 				// touchEnabled = false,
 			}
 			slot.selectedSprite = selectedSprite
-			slot.addEventListener(TouchEvent.CLICK, {|ev|
-				// print "slot click: ${ev.target}"
-				if(ev.target.slotNum != @selectedSlotNum){
-					@slots[@selectedSlotNum].selectedSprite.visible = false
-					@selectedSlotNum = ev.target.slotNum
-					@slots[@selectedSlotNum].selectedSprite.visible = true
-				}
-			}.bind(this))
 			slotX = slotX + slot.width + padding
 			@slots[] = slot
 		}
-		/* @addTween(UpdateTween(1000/30, {|ev|
-			var num = (@selectedSlotNum + 1) % #@slots
-			@slots[num].dispatchEvent{TouchEvent.CLICK, target = @slots[num]}
-		}.bind(this))) */
+		@addEventListener(TouchEvent.CLICK, {|ev|
+			// print "slot click: ${ev.target}"
+			if("slotNum" in ev.target && ev.target.slotNum != @selectedSlotNum){
+				@slots[@selectedSlotNum].selectedSprite.visible = false
+				@selectedSlotNum = ev.target.slotNum
+				@slots[@selectedSlotNum].selectedSprite.visible = true
+			}
+		}.bind(this))
 		
-		var walls = Sprite().attrs {
-			resAnim = res.getResAnim(@walls),
+		var wallsName = Sprite().attrs {
+			resAnim = res.getResAnim(@wallsName),
 			parent = this,
-			anchor = vec2(0.5, 0),
+			pivot = vec2(0.5, 0),
 			x = @width/2,
 			y = 0,
 			priority = 2,
+			touchEnabled = false,
 		}
 		@elevatorInside = Sprite().attrs {
-			resAnim = res.getResAnim(@elevator),
+			resAnim = res.getResAnim(@elevatorName),
 			parent = this,
-			anchor = vec2(0.5, 0),
+			pivot = vec2(0.5, 0),
 			pos = vec2(@width/2, 218),
 			priority = 1,
 		}
 		@elevatorInsideButton = Sprite().attrs {
-			resAnim = res.getResAnim("elevator-inside-up-button"),
+			resAnim = res.getResAnim(@elevatorInsideButtonName),
 			parent = @elevatorInside,
-			anchor = vec2(0.5, 0.5),
+			pivot = vec2(0.5, 0.5),
 			pos = @elevatorInside.size / 2,
+			opacity = 0,
+			priority = 100,
 		}
 		@initDoors()
 	},
 	
-	doorLeft = "door-01-left",
-	doorRight = "door-01-right",
+	nextLevelOpened = false,
+	allowNextLevel = function(){
+		if(!@nextLevelOpened){
+			@nextLevelOpened = true
+			@elevatorInsideButton.addTween("opacity", 1, 300)
+			@elevatorInsideButton.addEventListener(TouchEvent.CLICK, {||
+				// print "next level clicked, ${this}"
+				@game.nextLevel(@levelNum + 1)
+			}.bind(this))
+		}
+	},
+	
+	doorLeftName = "door-01-left",
+	doorRightName = "door-01-right",
 	
 	initDoors = function(){
 		@doorLeft = Sprite().attrs {
-			resAnim = res.getResAnim(@doorLeft),
+			resAnim = res.getResAnim(@doorLeftName),
 			parent = @elevatorInside,
-			anchor = vec2(0, 0),
+			pivot = vec2(0, 0),
 			pos = vec2(0, 0),
 		}
 		@doorLeft.closedPos = @doorLeft.pos
 		@doorLeft.openPos = @doorLeft.pos - vec2(@doorLeft.width, 0)
 		
 		@doorRight = Sprite().attrs {
-			resAnim = res.getResAnim(@doorRight),
+			resAnim = res.getResAnim(@doorRightName),
 			parent = @elevatorInside,
-			anchor = vec2(1, 0),
+			pivot = vec2(1, 0),
 			pos = vec2(@elevatorInside.width, 0),
 		}
 		@doorRight.closedPos = @doorRight.pos
@@ -103,7 +117,7 @@ Level = extends Actor {
 			@doorRight = Sprite().attrs {
 				resAnim = res.getResAnim("door-01-right"),
 				parent = @doorLeft,
-				anchor = vec2(0, 0),
+				pivot = vec2(0, 0),
 				pos = vec2(@doorLeft.width, 0),
 				priority = -1,
 			}
@@ -129,7 +143,7 @@ Level = extends Actor {
 			name = name,
 			resAnim = res.getResAnim(name.."-slot"),
 			parent = slot,
-			anchor = vec2(0.5, 0.5),
+			pivot = vec2(0.5, 0.5),
 			pos = slot.size / 2,
 			priority = 2,
 			// visible = false,
