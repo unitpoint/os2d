@@ -24970,6 +24970,15 @@ void OS::initFileClass()
 			}
 			return 0;
 		}
+
+		static int existsFunc(OS * os, int params, int, int, void*)
+		{
+			if(params > 0){
+				os->pushBool(os->isFileExist(os->toString(-params+0)));
+				return 1;
+			}
+			return 0;
+		}
 	};
 
 	OS::FuncDef funcs[] = {
@@ -24982,6 +24991,7 @@ void OS::initFileClass()
 		def(OS_TEXT("__get@size"), &Core::File::getSize),
 		def(OS_TEXT("__get@pos"), &Core::File::getPos),
 		def(OS_TEXT("__set@pos"), &Core::File::setPos),
+		{OS_TEXT("exists"), Lib::existsFunc},
 		{}
 	};
 	registerUserClass<Core::File>(this, funcs);
