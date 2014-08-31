@@ -9,10 +9,10 @@ Rocket = extends Actor {
 			parent = this,
 			rotation = math.atan2(dir.y, dir.x),
 			scale = 0,
-			// alpha = 0,
+			// opacity = 0,
 		}
 		sp.addTween("scale", 1.0, 500)
-		// sp.addTween("alpha", 1.0, 100)
+		// sp.addTween("opacity", 1.0, 100)
 		
 		@dir = dir.clone().normalize()
 		@isAlive = true
@@ -66,6 +66,6 @@ Rocket = extends Actor {
 		tween.detachActor = true
 
 		//hide rocket and then detach it
-		@addTween("alpha", 0, 500).detachActor = true
+		@addTween("opacity", 0, 500).detachActor = true
 	},
 }

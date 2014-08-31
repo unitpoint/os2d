@@ -9,7 +9,7 @@ Scene = extends EventDispatcher {
 			// @view.detach()
 		}.bind(this))
 		
-		@view.alpha = 0
+		@view.opacity = 0
 		@transition = null
 	},
 	
@@ -22,7 +22,7 @@ Scene = extends EventDispatcher {
 		@transition = "show"
 		@view.parent = stage
 		@view.removeTweensByName("transition")
-		@view.addTween("alpha", 1, 1000).attrs {
+		@view.addTween("opacity", 1, 1000).attrs {
 			name = "transition",
 			doneCallback = function(){
 				@transition = null
@@ -34,7 +34,7 @@ Scene = extends EventDispatcher {
 	hide = function(){
 		@transition = "hide"
 		@view.removeTweensByName("transition")
-		@view.addTween("alpha", 0, 1000).attrs {
+		@view.addTween("opacity", 0, 1000).attrs {
 			name = "transition",
 			detachActor = true,
 			doneCallback = function(){

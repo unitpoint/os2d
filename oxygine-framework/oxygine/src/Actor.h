@@ -132,7 +132,8 @@ namespace oxygine
 		Vector2				getSize() const {return _size;}
 		float				getWidth() const {return getSize().x;}
 		float				getHeight() const {return getSize().y;}		
-		unsigned char		getAlpha() const {return _alpha;}
+		unsigned char		getAlpha() const {return (unsigned char)(_opacity * 255); } // _alpha;}
+		float				getOpacity() const {return _opacity;}
 		const spClock&		getClock() const;
 		virtual RectF		getDestRect() const;
 		bool				getTouchEnabled() const {return (_flags & flag_touchEnabled) != 0;}
@@ -186,7 +187,8 @@ namespace oxygine
 		void setCull(bool enable) {_flags &= ~flag_cull; if (enable) _flags |= flag_cull;}
 		bool getCull() const { return (_flags & flag_cull) != 0; }
 		/**Sets transparency. if alpha is 0 actor and children are completely invisible, don't rendering and don't receive events.*/
-		void setAlpha(unsigned char alpha){_alpha = alpha;}
+		void setAlpha(unsigned char alpha){ setOpacity(alpha / 255.0f); } // _alpha = alpha;}
+		void setOpacity(float opacity){ _opacity = opacity; }
 		
 		/**Enables/Disables Touch events for Actor.*/
 		void setTouchEnabled(bool enabled) { _flags &= ~flag_touchEnabled; if (enabled) _flags |= flag_touchEnabled; }
@@ -269,7 +271,7 @@ namespace oxygine
 		typedef GetSet<float, float, Actor, &Actor::getScaleX, &Actor::setScaleX>								TweenScaleX;
 		typedef GetSet<float, float, Actor, &Actor::getScaleY, &Actor::setScaleY>								TweenScaleY;
 		typedef GetSet<unsigned char, unsigned char, Actor, &Actor::getAlpha, &Actor::setAlpha>					TweenAlpha;
-		
+		typedef GetSet<float, float, Actor, &Actor::getOpacity, &Actor::setOpacity>								TweenOpacity;
 
 		void serialize(serializedata* data);
 		void deserialize(const deserializedata* data);
@@ -334,7 +336,8 @@ namespace oxygine
 		};
 
 
-		unsigned char	_alpha;
+		// unsigned char	_alpha;
+		float _opacity;
 		float _extendedIsOn;
 
 		spClock _clock;	

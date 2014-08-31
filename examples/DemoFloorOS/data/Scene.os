@@ -3,7 +3,7 @@ Scene = extends Actor {
 		@size = stage.size
 		// print "${@classname}.size: ${@size}"
 		
-		@alpha = 1
+		@opacity = 1
 		@transition = null
 	},
 	
@@ -16,7 +16,7 @@ Scene = extends Actor {
 		@transition = "show"
 		@parent = stage
 		@removeTweensByName("sceneTransition")
-		@alpha != 1 && @addTween("alpha", 1, 1000).attrs {
+		@opacity != 1 && @addTween("opacity", 1, 1000).attrs {
 			name = "sceneTransition",
 			doneCallback = function(){
 				@transition = null
@@ -27,7 +27,7 @@ Scene = extends Actor {
 	hide = function(){
 		@transition = "hide"
 		@removeTweensByName("sceneTransition")
-		@addTween("alpha", 0, 1000).attrs {
+		@addTween("opacity", 0, 1000).attrs {
 			name = "sceneTransition",
 			detachActor = true,
 			doneCallback = function(){

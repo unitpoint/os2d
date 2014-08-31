@@ -28,3 +28,5 @@ oxygine-framework/oxygine/SDL/win32/Release
 
 oxygine-framework/oxygine/SDL/android/lib/bin
 oxygine-framework/oxygine/SDL/android/lib/gen
+
+examples/DemoFloorOS/gamedev-doc

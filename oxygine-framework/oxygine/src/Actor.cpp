@@ -36,7 +36,8 @@ namespace oxygine
 			_rotation(0),
 			_flags(flag_visible | flag_touchEnabled | flag_touchChildrenEnabled | flag_childrenRelative | flag_fastTransform),
 			_parent(0),
-			_alpha(255),
+			// _alpha(255),
+			_opacity(1),
 			_pressed(0),
 			_overed(0)
 	{
@@ -58,7 +59,8 @@ namespace oxygine
 		_rotation = src._rotation;
 		_flags = src._flags;
 		_parent = 0;
-		_alpha = src._alpha;
+		// _alpha = src._alpha;
+		_opacity = src._opacity;
 		_overed = 0;
 		_pressed = 0;
 
@@ -958,7 +960,7 @@ namespace oxygine
 		if (!(_flags & flag_visible))
 			return false;
 
-		unsigned char alpha = (parentRS.alpha * _alpha) / 255;
+		unsigned char alpha = (parentRS.alpha * getAlpha()) / 255;
 		if (!alpha)
 			return false;
 
