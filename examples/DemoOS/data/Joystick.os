@@ -3,7 +3,7 @@ Joystick = extends Sprite {
 		super()
 		
 		@resAnim = res.getResAnim("joystick")
-		@alpha = 0.5
+		@opacity = 0.5
 		
 		@addEventListener(TouchEvent.TOUCH_DOWN, @onEvent.bind(this))
 		@addEventListener(TouchEvent.TOUCH_UP, @onEvent.bind(this))
