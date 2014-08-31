@@ -1,6 +1,6 @@
-# OS2D is ObjectScript engine for 2d games
+# OS2D is ObjectScript engine for 2d mobile games
 
-**OS2D** is ObjectScript engine for 2d games. **OS2D** is made on top of Oxygine framework.
+**OS2D** is ObjectScript engine for 2d mobile games. **OS2D** is made on top of Oxygine framework.
 Best Regards to Denis Muratshin (author of the Oxygine framework).
 
 ## Build and run

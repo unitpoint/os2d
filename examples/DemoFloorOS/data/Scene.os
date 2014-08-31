@@ -1,7 +1,7 @@
 Scene = extends Actor {
 	__construct = function(){
 		@size = stage.size
-		print "${@classname}.size: ${@size}"
+		// print "${@classname}.size: ${@size}"
 		
 		@alpha = 1
 		@transition = null
