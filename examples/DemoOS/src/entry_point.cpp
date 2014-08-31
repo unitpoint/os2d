@@ -99,7 +99,7 @@ void run()
 #endif
 	//marmalade settings could be changed from emulator's menu
 #endif
-
+	desc.title = "Demo OS2D";
 
 	example_preinit();
 	core::init(&desc);

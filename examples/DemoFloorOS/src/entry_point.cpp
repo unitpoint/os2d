@@ -90,6 +90,7 @@ void run()
 	desc.h = (int)(960/1.5);
 	//marmalade settings could be changed from emulator's menu
 #endif
+	desc.title = "DemoFloor OS2D";
 
 	example_preinit();
 	core::init(&desc);
