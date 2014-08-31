@@ -1,6 +1,6 @@
 Scene = extends Actor {
 	__construct = function(){
-		@size = root.size
+		@size = stage.size
 		print "${@classname}.size: ${@size}"
 		
 		@alpha = 1
@@ -14,7 +14,7 @@ Scene = extends Actor {
 	
 	show = function(){
 		@transition = "show"
-		@parent = root
+		@parent = stage
 		@removeTweensByName("sceneTransition")
 		@alpha != 1 && @addTween("alpha", 1, 1000).attrs {
 			name = "sceneTransition",

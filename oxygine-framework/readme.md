@@ -59,8 +59,8 @@ Source code is available under MIT license (use for free anywhere).
 - Components of the engine have weak links between each other. Can be used together, separately or not at all.
 - Fast creation and deletion of objects using memory pools for all engine objects.
 - SceneGraph is somewhat similar to Flash ([diagrams with inheritance models](https://dl.dropbox.com/u/12679384/oxygine/actor_inheritance.png)). It is built on smart pointers (analogue boost:intrusive_ptr). No need to hassle with memory control, memory leaks. If you want to use your own scene graph you can use just low level images rendering system from Oxygine.
-- Debug Tools ([screenshot](https://dl.dropboxusercontent.com/u/12679384/oxygine/debug_tools.gif)). Tree Inspector is вЂњVisual profilerвЂќ for Scene Graph. Right in the game you can view the graph and different branches to analyze and errors search. вЂњTextures InspectorвЂќ shows you currently loaded textures into memory.
-вЂњTextures InspectorвЂќ shows you currently loaded textures into memory ([screenshot](https://dl.dropbox.com/u/12679384/oxygine/textures_inspector.png))
+- Debug Tools ([screenshot](https://dl.dropboxusercontent.com/u/12679384/oxygine/debug_tools.gif)). Tree Inspector is “Visual profiler” for Scene Graph. Right in the game you can view the graph and different branches to analyze and errors search. “Textures Inspector” shows you currently loaded textures into memory.
+“Textures Inspector” shows you currently loaded textures into memory ([screenshot](https://dl.dropbox.com/u/12679384/oxygine/textures_inspector.png))
 - Render to texture.
 - Resources description is stored in xml file. It has multiple different parameters: you can add your own resources types, format can be set, in which you will store the texture(atlas) in memory, number of columns and rows for animation, etc. Any resource can have user-data attributes.
 - Tweens for frame by frame animation, color, position, rotation, etc. Your own can be easily created
@@ -70,11 +70,11 @@ Command-line tool on Python to process your resources: Build you resources from 
 For different event handlers(or tweens) you can setup callbacks based on Winnie.Closure.
 - It is possible to write code and dialogs in blocking style (concurency programming/coroutines).
 - Accurate rendering of text with line wraps, vertical and horizontal alignment support, localization, utf-8. Base HTML tags support ([screenshot](https://dl.dropboxusercontent.com/u/12679384/oxygine/text_align.gif)).
-- If you want to add multiple sets of assets for different game resolutions it can be done on the engine level by writing just a few lines of code. You wonвЂ™t need to adjust coordinates manually for different resolution. It is enough just to keep initial art in high-res.
+- If you want to add multiple sets of assets for different game resolutions it can be done on the engine level by writing just a few lines of code. You won’t need to adjust coordinates manually for different resolution. It is enough just to keep initial art in high-res.
 - Masking ([screenshot](https://dl.dropboxusercontent.com/u/12679384/oxygine/masking.gif), [screenshot](https://dl.dropboxusercontent.com/u/12679384/oxygine/mask.png))
 - Atlas assembling on the fly during the loading, if you didn't make it before.
 - Multi-threaded resources loading.
-- It is possible to partially unload from memory вЂњheavyвЂќ resources, like atlases. The resouce handle to work with atlas will be still valid (as well as his size) and will even have texture point, but the texture itself will be empty. This is very important when you have strict memory limitations: for example if you created all UI with all resources loaded, but there is no need to display them.
+- It is possible to partially unload from memory “heavy” resources, like atlases. The resouce handle to work with atlas will be still valid (as well as his size) and will even have texture point, but the texture itself will be empty. This is very important when you have strict memory limitations: for example if you created all UI with all resources loaded, but there is no need to display them.
 - Fast automatic batching.
 - Bitmap fonts based on [BMFont](http://www.angelcode.com/products/bmfont/). Possibility to add your own font type.
 

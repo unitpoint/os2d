@@ -22,7 +22,7 @@ GameScene = extends Scene {
 				anchor = vec2(0, 0.5),
 				pos = vec2(slotX, hudPanel.y - hudPanel.height/2),
 				priority = 12,
-				inputChildrenEnabled = false,
+				touchChildrenEnabled = false,
 				slotNum = i,
 				object = null,
 			}
@@ -33,7 +33,7 @@ GameScene = extends Scene {
 				pos = slot.size / 2,
 				priority = 1,
 				visible = false,
-				// inputEnabled = false,
+				// touchEnabled = false,
 			}
 			slot.selectedSprite = selectedSprite
 			slot.addEventListener(TouchEvent.CLICK, {|ev|
@@ -127,7 +127,7 @@ GameScene = extends Scene {
 			pos = slot.size / 2,
 			priority = 2,
 			// visible = false,
-			// inputEnabled = false,
+			// touchEnabled = false,
 		}
 	},
 	

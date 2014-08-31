@@ -175,11 +175,11 @@ namespace oxygine
 
 	const Rect &TextField::getTextRect()
 	{
-		getRootNode();
+		getStageNode();
 		return _textRect;
 	}
 
-	text::Node *TextField::getRootNode()
+	text::Node *TextField::getStageNode()
 	{
 		if ((_flags & flag_rebuild) && _style.font)
 		{
@@ -308,7 +308,7 @@ namespace oxygine
 
 	void TextField::doRender(RenderState const& rs)
 	{
-		text::Node *root = getRootNode();
+		text::Node *root = getStageNode();
 		if (!root)
 			return;
 

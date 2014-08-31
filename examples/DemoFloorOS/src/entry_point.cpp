@@ -6,7 +6,7 @@ You could start from example.cpp and example.h it has main functions being calle
 */
 #include <stdio.h>
 #include "core/Renderer.h"
-#include "RootActor.h"
+#include "Stage.h"
 #include "DebugActor.h"
 
 #include "example.h"
@@ -19,15 +19,15 @@ Renderer renderer;
 Rect viewport;
 
 
-class ExampleRootActor : public RootActor
+class ExampleRootActor : public Stage
 {
 public:
 	ExampleRootActor()
 	{
 		//each mobile application should handle focus lost
 		//and free/restore GPU resources
-		addEventListener(RootActor::DEACTIVATE, CLOSURE(this, &ExampleRootActor::onDeactivate));
-		addEventListener(RootActor::ACTIVATE, CLOSURE(this, &ExampleRootActor::onActivate));
+		addEventListener(Stage::DEACTIVATE, CLOSURE(this, &ExampleRootActor::onDeactivate));
+		addEventListener(Stage::ACTIVATE, CLOSURE(this, &ExampleRootActor::onActivate));
 	}
 
 	void onDeactivate(Event *)
@@ -47,14 +47,14 @@ int mainloop()
 	example_update();
 	//update our rootActor
 	//Actor::update would be called also for children
-	getRoot()->update();
+	getStage()->update();
 
 	Color clear(33, 33, 33, 255);
 	//start rendering and clear viewport
 	if (renderer.begin(0, viewport, &clear))
 	{
 		//begin rendering from RootActor.
-		getRoot()->render(renderer);
+		getStage()->render(renderer);
 		//rendering done
 		renderer.end();
 
@@ -95,15 +95,15 @@ void run()
 	core::init(&desc);
 
 	//create RootActor. RootActor is a root node
-	RootActor::instance = new ExampleRootActor();
+	Stage::instance = new ExampleRootActor();
 	Point size = core::getDisplaySize();
-	getRoot()->init(size, size);
+	getStage()->init(size, size);
 
 	//DebugActor is a helper node it shows FPS and memory usage and other useful stuff
 	DebugActor::initialize();
 
 	//create and add new DebugActor to root actor as child
-	getRoot()->addChild(new DebugActor());
+	getStage()->addChild(new DebugActor());
 
 	Matrix view = makeViewMatrix(size.x, size.y);
 

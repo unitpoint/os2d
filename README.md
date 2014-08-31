@@ -25,7 +25,7 @@ The main ObjectScript file is <code>DemoOS\data\main.os</code> for DemoOS projec
 	// create sprite and display it
 	var sprite = Sprite()
 	sprite.resAnim = res.getResAnim("anim")
-	sprite.parent = root
+	sprite.parent = stage
 	sprite.scale = 0.5
 	
 	// run animation tween
@@ -57,7 +57,7 @@ The main ObjectScript file is <code>DemoOS\data\main.os</code> for DemoOS projec
 		resAnim = res.getResAnim("plus"),
 		scale = 0.5f,
 		pos = vec2(70, 55),
-		parent = root,
+		parent = stage,
 	}
 
 ## Resources

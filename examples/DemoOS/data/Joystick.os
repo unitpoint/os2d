@@ -14,7 +14,7 @@ Joystick = extends Sprite {
 			parent = this,
 			visible = false,
 			anchor = vec2(0.5f, 0.5f),
-			inputEnabled = false,
+			touchEnabled = false,
 		}
 		@active = false
 		@dir = vec2(0, 0)

@@ -4,13 +4,13 @@
 
 namespace oxygine
 {
-	DECLARE_SMART(RootActor, spRootActor);
+	DECLARE_SMART(Stage, spStage);
 
 	class DebugActor;
-	class RootActor : public Actor
+	class Stage : public Actor
 	{
 	public:
-		OS_DECLARE_CLASSINFO(RootActor);
+		OS_DECLARE_CLASSINFO(Stage);
 
 		enum
 		{
@@ -19,13 +19,13 @@ namespace oxygine
 			LOST_CONTEXT = makefourcc('_', 'R', 'L', 'C'),
 		};
 
-		static spRootActor instance;
+		static spStage instance;
 		static Rect	calcCenteredViewport(const Point &displaySize, const Point &gameSize);
 
-		RootActor();
-		~RootActor();
+		Stage();
+		~Stage();
 
-		/**Initializes size, scale and position of RootActor 
+		/**Initializes size, scale and position of Stage 
 		@param is real display size of device.
 		@param is your "virtual" preferred size. You could change it to any size you need
 		*/
@@ -59,5 +59,5 @@ namespace oxygine
 		friend class DebugActor;
 	};
 
-	inline const spRootActor& getRoot() {return RootActor::instance;}
+	inline const spStage& getStage() {return Stage::instance;}
 }

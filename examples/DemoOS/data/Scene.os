@@ -1,7 +1,7 @@
 Scene = extends EventDispatcher {
 	__construct = function(){
 		@view = Actor()
-		@view.size = root.size
+		@view.size = stage.size
 		print "${@classname}.view.size: ${@view.size}"
 		
 		@addEventListener("hidden", function(ev){
@@ -20,7 +20,7 @@ Scene = extends EventDispatcher {
 	
 	show = function(){
 		@transition = "show"
-		@view.parent = root
+		@view.parent = stage
 		@view.removeTweensByName("transition")
 		@view.addTween("alpha", 1, 1000).attrs {
 			name = "transition",

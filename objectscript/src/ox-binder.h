@@ -1315,8 +1315,8 @@ static void registerActor(OS * os)
 
 		// virtual RectF		getDestRect() const;
 
-		DEF_PROP(inputEnabled, Actor, InputEnabled),
-		DEF_PROP(inputChildrenEnabled, Actor, InputChildrenEnabled),
+		DEF_PROP(touchEnabled, Actor, TouchEnabled),
+		DEF_PROP(touchChildrenEnabled, Actor, TouchChildrenEnabled),
 		DEF_PROP(childrenRelative, Actor, ChildrenRelative),
 
 		// const Renderer::transform&		getTransform() const;
@@ -1428,21 +1428,21 @@ static bool __registerSprite = addRegFunc(registerSprite);
 
 // =====================================================================
 
-OS_DECL_OX_CLASS(RootActor);
-static void registerRootActor(OS * os)
+OS_DECL_OX_CLASS(Stage);
+static void registerStage(OS * os)
 {
 	OS::FuncDef funcs[] = {
 		{}
 	};
 	OS::NumberDef nums[] = {
-		{"ACTIVATE", RootActor::ACTIVATE},
-		{"DEACTIVATE", RootActor::DEACTIVATE},
-		{"LOST_CONTEXT", RootActor::LOST_CONTEXT},
+		{"ACTIVATE", Stage::ACTIVATE},
+		{"DEACTIVATE", Stage::DEACTIVATE},
+		{"LOST_CONTEXT", Stage::LOST_CONTEXT},
 		{}
 	};
-	registerOXClass<RootActor, Actor>(os, funcs, nums);
+	registerOXClass<Stage, Actor>(os, funcs, nums);
 }
-static bool __registerRootActor = addRegFunc(registerRootActor);
+static bool __registerStage = addRegFunc(registerStage);
 
 // =====================================================================
 
@@ -1527,9 +1527,9 @@ struct Oxygine
 	{
 		os->setGCStartWhenUsedBytes(32*1024);
 
-		// pushCtypeValue(os, getRoot().get());
-		pushCtypeValue(os, getRoot());
-		os->setGlobal("root");
+		// pushCtypeValue(os, getStage().get());
+		pushCtypeValue(os, getStage());
+		os->setGlobal("stage");
 
 		os->require("main.os");
 	}

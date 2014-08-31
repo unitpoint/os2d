@@ -5,21 +5,21 @@ require "std.os"
 
 GAME_SIZE = vec2(540, 960)
 
-var displaySize = root.size
+var displaySize = stage.size
 var scale = displaySize / GAME_SIZE
 // scale = math.max(scale.x, scale.y)
 scale = math.min(scale.x, scale.y)
-root.size = displaySize / scale
-root.scale = scale
+stage.size = displaySize / scale
+stage.scale = scale
 
-root.addEventListener(RootActor.ACTIVATE, function(){
-	print "RootActor.ACTIVATE"
+stage.addEventListener(Stage.ACTIVATE, function(){
+	print "Stage.ACTIVATE"
 })
 
-root.addEventListener(RootActor.DEACTIVATE, function(){
-	print "RootActor.DEACTIVATE"
+stage.addEventListener(Stage.DEACTIVATE, function(){
+	print "Stage.DEACTIVATE"
 })
 
-print "root.size: ${root.size}, scale: ${root.scale}, display: ${displaySize}"
+print "stage.size: ${stage.size}, scale: ${stage.scale}, display: ${displaySize}"
 
 GameScene().show()
