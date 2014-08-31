@@ -27,6 +27,12 @@ public:
 	{
 	}
 
+	void handleErrorPolicyVa(const char *format, va_list va)
+	{
+		String str = String::formatVa(this, format, va);
+		setException(str);
+	}
+
 	void retainFromEventCallback(EventCallback * cb)
 	{
 		// retain();
@@ -156,6 +162,7 @@ template <class T> struct CtypeOXClass<T*>
 		const OS_ClassInfo& classinfo = val->getClassInfo();
 		if(val->osValueId){
 			os->pushValueById(val->osValueId);
+			OX_ASSERT(!os->isNull());
 			OX_ASSERT(os->isUserdata(classinfo.instance_id, -1, classinfo.class_id));
 			return;
 		}
@@ -205,6 +212,7 @@ template <class T> struct CtypeOXSmartClass
 		const OS_ClassInfo& classinfo = val->getClassInfo();
 		if(val->osValueId){
 			os->pushValueById(val->osValueId);
+			OX_ASSERT(!os->isNull());
 			OX_ASSERT(os->isUserdata(classinfo.instance_id, -1, classinfo.class_id));
 			return;
 		}
@@ -1214,14 +1222,16 @@ static void registerActor(OS * os)
 			timeMS delay = params > 5 ? os->toInt(-params+5) : 0;
 			Tween::EASE ease = params > 6 ? (Tween::EASE)os->toInt(-params+6) : Tween::ease_linear;
 
-			if(name == "alpha"){
+			/* if(name == "alpha"){
 				float dest = os->toFloat(-params+1);
 				if(dest < 0) dest = 0; else if(dest > 1) dest = 1;
 				pushCtypeValue(os, self->addTween(Actor::TweenAlpha((unsigned char)(dest * 255)), 
 					duration, loops, twoSides, delay, ease));
 				return 1;
-			}
+			} */
 
+			CASE_OX_TWEEN("alpha", unsigned char, Actor::TweenAlpha);
+			CASE_OX_TWEEN("opacity", unsigned char, Actor::TweenOpacity);
 			CASE_OX_TWEEN("pos", Vector2, Actor::TweenPosition);
 			CASE_OX_TWEEN("x", float, Actor::TweenX);
 			CASE_OX_TWEEN("y", float, Actor::TweenY);
@@ -1246,7 +1256,7 @@ static void registerActor(OS * os)
 			return 0;
 		}
 
-		static int getAlpha(OS * os, int params, int, int, void*)
+		/* static int getAlpha(OS * os, int params, int, int, void*)
 		{
 			OS_GET_SELF(Actor*);
 			os->pushNumber((float)self->getAlpha() / 255.0f);
@@ -1260,7 +1270,7 @@ static void registerActor(OS * os)
 			if(alpha < 0) alpha = 0; else if(alpha > 1) alpha = 1;
 			self->setAlpha((unsigned char)(alpha * 255));
 			return 0;
-		}
+		} */
 	};
 
 	OS::FuncDef funcs[] = {
@@ -1307,9 +1317,10 @@ static void registerActor(OS * os)
 		DEF_PROP(width, Actor, Width),
 		DEF_PROP(height, Actor, Height),
 
-		// DEF_PROP(alpha, Actor, Alpha),
-		{"__get@alpha", &Lib::getAlpha},
-		{"__set@alpha", &Lib::setAlpha},
+		DEF_PROP(opacity, Actor, Opacity),
+		DEF_PROP(alpha, Actor, Alpha),
+		// {"__get@alpha", &Lib::getAlpha},
+		// {"__set@alpha", &Lib::setAlpha},
 
 		DEF_PROP(clock, Actor, Clock),
 
@@ -1341,8 +1352,8 @@ static void registerActor(OS * os)
 		// it's virtual method
 		// def("dispatchEvent", &Actor::dispatchEvent),
 
-		DEF_PROP(pressed, Actor, Pressed),
-		DEF_PROP(overed, Actor, Overed),
+		DEF_PROP(pressedTouchIndex, Actor, Pressed),
+		DEF_PROP(overedTouchIndex, Actor, Overed),
 
 		def("updateState", &Actor::updateState),
 
@@ -1425,6 +1436,22 @@ static void registerSprite(OS * os)
 	registerOXClass<Sprite, VStyleActor>(os, funcs);
 }
 static bool __registerSprite = addRegFunc(registerSprite);
+
+// =====================================================================
+
+OS_DECL_OX_CLASS(Button);
+static void registerButton(OS * os)
+{
+	OS::FuncDef funcs[] = {
+		DEF_PROP("row", Button, Row), 
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<Button, Actor>(os, funcs, nums);
+}
+static bool __registerButton = addRegFunc(registerButton);
 
 // =====================================================================
 
@@ -1576,6 +1603,12 @@ void callOSEventFunction(ObjectScript::OS * os, int func_id, Event * ev)
 
 		ev->_ref_counter--; // don't use releaseRef() here to prevent destroy event
 	}
+}
+
+void handleOSErrorPolicyVa(const char *format, va_list args)
+{
+	OX_ASSERT(dynamic_cast<OxygineOS*>(ObjectScript::os));
+	dynamic_cast<OxygineOS*>(ObjectScript::os)->handleErrorPolicyVa(format, args);
 }
 
 #include <sstream>
