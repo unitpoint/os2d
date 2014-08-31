@@ -13,7 +13,7 @@ Joystick = extends Sprite {
 			resAnim = res.getResAnim("finger"),
 			parent = this,
 			visible = false,
-			anchor = vec2(0.5f, 0.5f),
+			pivot = vec2(0.5f, 0.5f),
 			touchEnabled = false,
 		}
 		@active = false

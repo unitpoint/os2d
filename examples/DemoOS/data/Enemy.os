@@ -6,7 +6,7 @@ Enemy = extends Actor {
 		var sprite = Sprite().attrs {
 			resAnim = res.getResAnim("asteroid"),
 			parent = this,
-			anchor = vec2(0.5f, 0.5f),
+			pivot = vec2(0.5f, 0.5f),
 		}
 		
 		//it random scale and rotation

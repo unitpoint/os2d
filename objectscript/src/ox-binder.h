@@ -1286,9 +1286,14 @@ static void registerActor(OS * os)
 		DEF_GET(firstTween, Actor, FirstTween),
 		DEF_GET(lastTween, Actor, LastTween),
 		
+		// deprecated
 		DEF_GET(anchor, Actor, Anchor),
 		def("__set@anchor", (void(Actor::*)(const Vector2 &))&Actor::setAnchor),
 		def("__get@isAnchorInPixels", &Actor::getIsAnchorInPixels),
+
+		DEF_GET(pivot, Actor, Anchor),
+		def("__set@pivot", (void(Actor::*)(const Vector2 &))&Actor::setAnchor),
+		def("__get@isPivotInPixels", &Actor::getIsAnchorInPixels),
 
 		def("__get@pos", &Actor::getPosition),
 		def("__set@pos", (void(Actor::*)(const Vector2 &))&Actor::setPosition),

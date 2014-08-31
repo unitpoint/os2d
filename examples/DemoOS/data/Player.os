@@ -3,7 +3,7 @@ Player = extends Actor {
 		@ship = Sprite().attrs {
 			resAnim = res.getResAnim("ship"),
 			parent = this,
-			anchor = vec2(0.5f, 0.5f),
+			pivot = vec2(0.5f, 0.5f),
 		}
 		@engine = Sprite().attrs {
 			resAnim = res.getResAnim("shipengine"),

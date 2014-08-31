@@ -9,7 +9,7 @@ GameScene = extends Scene {
 		var btn = MyButton().attrs {
 			name = "play",
 			resAnim = res.getResAnim("menu"),		
-			anchor = vec2(1, 0),
+			pivot = vec2(1, 0),
 			parent = @view,	
 		}
 		btn.x = @view.width

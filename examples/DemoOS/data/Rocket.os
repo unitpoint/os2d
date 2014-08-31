@@ -5,7 +5,7 @@ Rocket = extends Actor {
 		@pos = pos
 		var sp = Sprite().attrs {
 			resAnim = res.getResAnim("rocket"),
-			anchor = vec2(0.5f, 0.5f),
+			pivot = vec2(0.5f, 0.5f),
 			parent = this,
 			rotation = math.atan2(dir.y, dir.x),
 			scale = 0,
@@ -57,7 +57,7 @@ Rocket = extends Actor {
 			parent = @parent,
 			blendMode = BLEND_ADD,
 			pos = @pos,
-			anchor = vec2(0.5f, 0.5f),
+			pivot = vec2(0.5f, 0.5f),
 		}
 		
 		//run tween with explosion animation
