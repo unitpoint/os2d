@@ -108,6 +108,10 @@ struct Closure<R(PARAM_TYPE_LIST)>: public detail::CLOSURE_NUM::ClosureBase<R PA
 		return this->p_proxy == c.p_proxy && this->p_this == c.p_this;
 	}
 
+	bool operator != (const Closure &c) const
+	{
+		return !(*this == c);
+	}
 };
 
 //====================================================================================================

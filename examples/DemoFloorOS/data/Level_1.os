@@ -55,7 +55,7 @@ Level_1 = extends Level {
 	},
 	
 	click = function(ev){
-		if("btnIndex" in ev.target && !@openDoors[ev.target.btnIndex]){
+		if("btnIndex" in ev.target){
 			ev.target.resAnim = res.getResAnim("light-green")
 			@openDoor(ev.target.btnIndex)
 		}

@@ -261,6 +261,16 @@ namespace oxygine
 		osValueId = 0;
 #endif
 	}
+
+#ifdef OX_WITH_OBJECTSCRIPT
+	Object::~Object()
+	{
+		if(osValueId){
+			destroyOSValueById(osValueId);
+		}
+	}
+#endif
+
 #ifdef OX_DEBUG
 	void Object::__doCheck()
 	{

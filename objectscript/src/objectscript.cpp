@@ -15621,7 +15621,7 @@ void OS::Core::clearValue(GCValue * val)
 	switch(val->type){
 	// case OS_VALUE_TYPE_UNKNOWN:
 	case OS_VALUE_TYPE_NULL:
-		return;
+		break;
 
 	case OS_VALUE_TYPE_BOOL:
 	case OS_VALUE_TYPE_NUMBER:

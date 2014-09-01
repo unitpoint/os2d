@@ -99,6 +99,7 @@ namespace oxygine
 
 #ifdef OX_WITH_OBJECTSCRIPT
 		int osValueId;
+		virtual ~Object();
 #endif
 
 	protected:

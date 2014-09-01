@@ -3,6 +3,10 @@ GameScene = extends Scene {
 		super()
 		@loadConfig()
 		@nextLevel(@config.levelNum)
+		
+		/* @addTween(UpdateTween(1000/100, function(){
+			@nextLevel(@level.levelNum + 1)
+		}.bind(this))) */
 	},
 	
 	configFilename = "config.json",
@@ -22,7 +26,13 @@ GameScene = extends Scene {
 			@saveConfig()
 		}
 		@level.parent = null
-		@level = _G["Level_${levelNum}"](this).attrs {
+		try{
+			var LevelClass = _G["Level_${levelNum}"]
+		}catch(e){
+			// workaround now
+			return @nextLevel(1)
+		}
+		@level = LevelClass(this).attrs {
 			parent = this
 		}
 	},

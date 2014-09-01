@@ -33,24 +33,36 @@ public:
 		setException(str);
 	}
 
+	void destroyValueById(int id)
+	{
+		Core::GCValue * value = core->values.get(id);
+		if(value){
+			core->clearValue(value);
+		}
+	}
+
 	void retainFromEventCallback(EventCallback * cb)
 	{
 		// retain();
+		OX_ASSERT(cb->os == this && cb->os_func_id);
 		EventCallbacks::iterator it = eventCallbacks.find(cb);
 		if(it != eventCallbacks.end()){
 			OX_ASSERT(false);
 			it->second++;
 		}else{
 			eventCallbacks[cb] = 1;
+			retainValueById(cb->os_func_id);
 		}
 	}
 
 	void releaseFromEventCallback(EventCallback * cb)
 	{
+		OX_ASSERT(cb->os == this && cb->os_func_id);
 		EventCallbacks::iterator it = eventCallbacks.find(cb);
 		if(it != eventCallbacks.end()){
 			if(--it->second <= 0){
 				eventCallbacks.erase(it);
+				releaseValueById(cb->os_func_id);
 			}
 		}else{
 			OX_ASSERT(false);
@@ -131,9 +143,33 @@ public:
 	}
 };
 
-// #define OS_USE_OX_USERPOINTER
-
 namespace ObjectScript {
+
+struct OXObjectInfo
+{
+	Object * obj;
+	bool retained;
+
+	OXObjectInfo(Object * _obj)
+	{
+		obj = _obj;
+		if((retained = obj->_ref_counter > 0)){
+			obj->addRef();
+		}
+	}
+
+	~OXObjectInfo()
+	{
+		if(!obj){
+			return;
+		}
+		if(retained){
+			obj->releaseRef();
+		}else if(!obj->_ref_counter){
+			delete obj;
+		}
+	}
+};
 
 template <class T> struct CtypeOXClass{};
 template <class T> struct CtypeOXClass<T*>
@@ -146,12 +182,8 @@ template <class T> struct CtypeOXClass<T*>
 	static type getArg(ObjectScript::OS * os, int offs)
 	{
 		const OS_ClassInfo& classinfo = ttype::getClassInfoStatic();
-#ifdef OS_USE_OX_USERPOINTER
-		return (type)os->toUserdata(classinfo.instance_id, offs, classinfo.class_id);
-#else
-		type * p = (type*)os->toUserdata(classinfo.instance_id, offs, classinfo.class_id);
-		return p ? *p : NULL;
-#endif
+		OXObjectInfo * info = (OXObjectInfo*)os->toUserdata(classinfo.instance_id, offs, classinfo.class_id);
+		return info ? (type)info->obj : NULL;
 	}
 	static void push(ObjectScript::OS * os, const type& val)
 	{
@@ -166,15 +198,10 @@ template <class T> struct CtypeOXClass<T*>
 			OX_ASSERT(os->isUserdata(classinfo.instance_id, -1, classinfo.class_id));
 			return;
 		}
-#ifdef OS_USE_OX_USERPOINTER
-		os->pushUserPointer(classinfo.instance_id, val, UserDataDestructor<ttype>::dtor);
-#else
-		void ** data = (void**)os->pushUserdata(classinfo.instance_id, sizeof(void*), UserDataDestructor<ttype>::dtor);
-		OX_ASSERT(data);
-		data[0] = val;
-#endif
+		OXObjectInfo * info = (OXObjectInfo*)os->pushUserdata(classinfo.instance_id, sizeof(OXObjectInfo), UserDataDestructor<ttype>::dtor);
+		OX_ASSERT(info);
+		new (info) OXObjectInfo(val);
 		val->osValueId = os->getValueId();
-		val->addRef();
 		os->pushStackValue();
 		os->getGlobal(classinfo.classname);
 		if(!os->isUserdata(classinfo.class_id, -1)){
@@ -196,12 +223,8 @@ template <class T> struct CtypeOXSmartClass
 	static type getArg(ObjectScript::OS * os, int offs)
 	{
 		const OS_ClassInfo& classinfo = ttype::getClassInfoStatic();
-#ifdef OS_USE_OX_USERPOINTER
-		return (type)os->toUserdata(classinfo.instance_id, offs, classinfo.class_id);
-#else
-		type * p = (type*)os->toUserdata(classinfo.instance_id, offs, classinfo.class_id);
-		return p ? *p : NULL;
-#endif
+		OXObjectInfo * info = (OXObjectInfo*)os->toUserdata(classinfo.instance_id, offs, classinfo.class_id);
+		return info ? (type)info->obj : NULL;
 	}
 	static void push(ObjectScript::OS * os, const T& val)
 	{
@@ -216,15 +239,10 @@ template <class T> struct CtypeOXSmartClass
 			OX_ASSERT(os->isUserdata(classinfo.instance_id, -1, classinfo.class_id));
 			return;
 		}
-#ifdef OS_USE_OX_USERPOINTER
-		os->pushUserPointer(classinfo.instance_id, val.get(), UserDataDestructor<ttype>::dtor);
-#else
-		void ** data = (void**)os->pushUserdata(classinfo.instance_id, sizeof(void*), UserDataDestructor<ttype>::dtor);
-		OX_ASSERT(data);
-		data[0] = val.get();
-#endif
+		OXObjectInfo * info = (OXObjectInfo*)os->pushUserdata(classinfo.instance_id, sizeof(OXObjectInfo), UserDataDestructor<ttype>::dtor);
+		OX_ASSERT(info);
+		new (info) OXObjectInfo(val.get());
 		val->osValueId = os->getValueId();
-		val->addRef();
 		os->pushStackValue();
 		os->getGlobal(classinfo.classname);
 		if(!os->isUserdata(classinfo.class_id, -1)){
@@ -236,25 +254,23 @@ template <class T> struct CtypeOXSmartClass
 	}
 };
 
-static void releaseOXObject(Object * obj)
+static void destroyOXObjectInfo(OXObjectInfo * info)
 {
-	OX_ASSERT(obj->osValueId);
-	obj->osValueId = 0;
-	obj->releaseRef();
+	if(!info->obj){
+		return;
+	}
+	OX_ASSERT(info->obj->osValueId);
+	info->obj->osValueId = 0;
+	info->~OXObjectInfo();
 }
 
-#ifdef OS_USE_OX_USERPOINTER
-#define OS_DECL_OX_CLASS_DTOR(type) \
-	template <> struct UserObjectDestructor<type>{ static void dtor(type * p){ releaseOXObject(p); } };
-#else
 #define OS_DECL_OX_CLASS_DTOR(type) \
 	template <> struct UserDataDestructor<type>{ \
 		static void dtor(ObjectScript::OS * os, void * data, void *){ \
 			OX_ASSERT(data); \
-			releaseOXObject(*(type**)data); \
+			destroyOXObjectInfo((OXObjectInfo*)data); \
 		} \
 	};
-#endif
 
 #define OS_DECL_OX_CLASS(type) \
 	template <> struct CtypeName<type> { static const OS_CHAR * getName(){ return type::getClassInfoStatic().classname; } }; \
@@ -508,7 +524,8 @@ struct CtypeValue<EventCallback>
 
 	static void push(ObjectScript::OS * os, const type& p)
 	{
-		os->pushValueById(p.func_id);
+		os->pushValueById(p.os_func_id);
+		OX_ASSERT(os->isFunction());
 	}
 };
 
@@ -1573,13 +1590,13 @@ struct Oxygine
 void retainOSEventCallback(ObjectScript::OS * os, EventCallback * cb)
 {
 	OX_ASSERT(dynamic_cast<OxygineOS*>(os));
-	dynamic_cast<OxygineOS*>(os)->retainFromEventCallback(cb);
+	((OxygineOS*)os)->retainFromEventCallback(cb);
 }
 
 void releaseOSEventCallback(ObjectScript::OS * os, EventCallback * cb)
 {
 	OX_ASSERT(dynamic_cast<OxygineOS*>(os));
-	dynamic_cast<OxygineOS*>(os)->releaseFromEventCallback(cb);
+	((OxygineOS*)os)->releaseFromEventCallback(cb);
 }
 
 void callOSEventFunction(ObjectScript::OS * os, int func_id, Event * ev)
@@ -1613,7 +1630,22 @@ void callOSEventFunction(ObjectScript::OS * os, int func_id, Event * ev)
 void handleOSErrorPolicyVa(const char *format, va_list args)
 {
 	OX_ASSERT(dynamic_cast<OxygineOS*>(ObjectScript::os));
-	dynamic_cast<OxygineOS*>(ObjectScript::os)->handleErrorPolicyVa(format, args);
+	ObjectScript::os->handleErrorPolicyVa(format, args);
+}
+
+void destroyOSValueById(int id)
+{
+	OX_ASSERT(dynamic_cast<OxygineOS*>(ObjectScript::os));
+
+	ObjectScript::os->pushValueById(id);
+	const OS_ClassInfo& classinfo = Object::getClassInfoStatic();
+	ObjectScript::OXObjectInfo * info = (ObjectScript::OXObjectInfo*)ObjectScript::os->toUserdata(classinfo.instance_id, -1, classinfo.class_id);
+	if(info){
+		OX_ASSERT(info->obj->osValueId == id);
+		info->obj = NULL;
+	}
+	ObjectScript::os->pop();
+	ObjectScript::os->destroyValueById(id);
 }
 
 #include <sstream>
