@@ -94,6 +94,7 @@ void run()
 
 	example_preinit();
 	core::init(&desc);
+	example_postinit();
 
 	//create RootActor. RootActor is a root node
 	Stage::instance = new ExampleRootActor();

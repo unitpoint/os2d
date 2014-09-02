@@ -13888,6 +13888,9 @@ void OS::Core::gcFreeCandidateValues(bool full)
 					break;
 				}
 
+			case OS_VALUE_TYPE_NULL:
+				break;
+
 			default:
 				OS_ASSERT(false);
 			}
@@ -15858,6 +15861,9 @@ bool OS::Core::isValueUsed(GCValue * val)
 					break;
 				}
 
+			case OS_VALUE_TYPE_NULL:
+				break;
+
 			default:
 				OS_ASSERT(false);
 			}
@@ -16057,6 +16063,9 @@ bool OS::Core::isValueExist(GCValue * p_val)
 					}
 					break;
 				}
+
+			case OS_VALUE_TYPE_NULL:
+				break;
 
 			default:
 				OS_ASSERT(false);

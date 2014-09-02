@@ -92,15 +92,10 @@ namespace oxygine
 	class Object: public ref_counter, public ObjectBase
 	{
 	public:
-		OS_DECLARE_CLASSINFO_STATIC_NAME(Object, "OxygineObject"); // name 'Object' is already used by ObjectScript
+		OS_DECLARE_CLASSINFO_STATIC_NAME(Object, "OS2DObject"); // name 'Object' is already used by ObjectScript
 
 		Object(const Object &src);
 		Object(bool assignUniqueID = true);
-
-#ifdef OX_WITH_OBJECTSCRIPT
-		int osValueId;
-		virtual ~Object();
-#endif
 
 	protected:
 #ifdef OX_DEBUG

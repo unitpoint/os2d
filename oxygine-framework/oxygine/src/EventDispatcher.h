@@ -63,125 +63,64 @@ namespace oxygine
 	typedef Closure<void (Event *ev)> EventCallback;
 #else
 	typedef Closure<void (Event *ev)> OriginEventCallback;
-	class EventCallback
+	class EventCallback: public OriginEventCallback
 	{
-		bool checkOSFunction()
-		{
-			os->pushValueById(os_func_id);
-			OX_ASSERT(os->isFunction());
-			os->pop();
-			return true;
-		}
-
 	public:
 
-		OriginEventCallback cb;
-		void * p_this; // used by OX
-
-		ObjectScript::OS * os; // not retained
-		int os_func_id; // retained
+		int os_func_id;
 
 		EventCallback()
 		{
-			p_this = NULL;
-			os = NULL;
 			os_func_id = 0;
 		}
 
-		EventCallback(const OriginEventCallback& _cb): cb(_cb)
+		EventCallback(const OriginEventCallback& _cb): OriginEventCallback(_cb)
 		{
-			p_this = cb.p_this;
-			os = NULL;
 			os_func_id = 0;
 		}
 
-		EventCallback(const EventCallback& b): cb(b.cb)
+		EventCallback(const EventCallback& b): OriginEventCallback(b)
 		{
-			p_this = cb.p_this;
-			os = b.os;
 			os_func_id = b.os_func_id;
-			OX_ASSERT(os_func_id && os && checkOSFunction() || !os_func_id && !os);
-			retainOS();
 		}
 
-		EventCallback(ObjectScript::OS * _os, int _func_id)
+		EventCallback(int _func_id)
 		{
-			OX_ASSERT(_os && _func_id);
-			p_this = NULL;
-			os = _os; 
+			OX_ASSERT(_func_id);
 			os_func_id = _func_id;
-			OX_ASSERT(checkOSFunction());
-			retainOS();
-		}
-
-		~EventCallback()
-		{
-			releaseOS();
-		}
-
-		void retainOS()
-		{
-			if(os){
-				OX_ASSERT(os_func_id);
-				retainOSEventCallback(os, this);
-			}
-		}
-
-		void releaseOS()
-		{
-			if(os){
-				OX_ASSERT(os_func_id);
-				releaseOSEventCallback(os, this);
-			}
 		}
 
 		EventCallback& operator=(const EventCallback& b)
 		{
 			OX_ASSERT(this != &b);
-			if(*this != b){
-				releaseOS();
-				
-				cb = b.cb;
-				p_this = cb.p_this;
-				
-				os = b.os;
-				os_func_id = b.os_func_id;
-				
-				retainOS();
-			}
+			OriginEventCallback::operator=(b);
+			os_func_id = b.os_func_id;
 			return *this;
 		}
 
-		void reset()
-		{
-			releaseOS();
-			cb = OriginEventCallback();
-			p_this = NULL;
-			os = NULL;
-			os_func_id = 0;
-		}
-		
 		void operator()(Event *ev) const
 		{
 			if(os_func_id){
-				OX_ASSERT(os && !cb);
-				// extern void callOSEventFunction(ObjectScript::OS*, int, Event*);
-				callOSEventFunction(os, os_func_id, ev);
+				OX_ASSERT(!OriginEventCallback::operator bool());
+				callOSEventFunction(os_func_id, ev);
 			}else{
-				OX_ASSERT(!os);
-				// OriginEventCallback cb = this->cb;
-				cb(ev);
+				OriginEventCallback::operator()(ev);
 			}
 		}
 
 		operator bool() const
 		{
-			return os_func_id || cb;
+			return os_func_id || OriginEventCallback::operator bool();
+		}
+
+		bool operator!() const
+		{
+			return !bool(*this);
 		}
 
 		bool operator==(const EventCallback& b) const
 		{
-			return cb == b.cb && os_func_id == b.os_func_id && os == b.os;
+			return OriginEventCallback::operator==(b) && os_func_id == b.os_func_id;
 		}
 
 		bool operator!=(const EventCallback& b) const

@@ -362,6 +362,69 @@ function Object.attrs(attrs){
 	return this
 }
 
+function OS2DObject.__get@_externalCallbacks(){
+	@setProperty("_externalCallbacks", {})
+	return @_externalCallbacks
+}
+
+function OS2DObject._registerExternalCallback(id, func){
+	@_externalCallbacks[id] = func
+	// print "${@classname}#${@__id}._registerExternalCallback: ${@_externalCallbacks}"
+}
+
+function OS2DObject._unregisterExternalCallback(id, func){
+	delete @_externalCallbacks[id]
+	// print "${@classname}#${@__id}._unregisterExternalCallback: ${@_externalCallbacks}"
+}
+
+function OS2DObject._unregisterAllExternalCallbacks(){
+	// @_externalCallbacks = {}
+	@setProperty("_externalCallbacks", {})
+	// print "${@classname}#${@__id}._unregisterAllExternalCallbacks"
+}
+
+function OS2DObject.__get@_externalTweens(){
+	@setProperty("_externalTweens", {})
+	return @_externalTweens
+}
+
+function OS2DObject._registerExternalTween(tween){
+	@_externalTweens[tween] = true
+	// print "${@classname}#${@__id}._registerExternalTween(${tween.classname}#${tween.__id}): ${@_externalTweens}"
+}
+
+function OS2DObject._unregisterExternalTween(tween){
+	delete @_externalTweens[tween]
+	// print "${@classname}#${@__id}._unregisterExternalTween(${tween.classname}#${tween.__id}): ${@_externalTweens}"
+}
+
+function OS2DObject._unregisterAllExternalTweens(){
+	// @_externalTweens = {}
+	@setProperty("_externalTweens", {})
+	// print "${@classname}#${@__id}._unregisterAllExternalTweens"
+}
+
+function OS2DObject.__get@_externalChildren(){
+	@setProperty("_externalChildren", {})
+	return @_externalChildren
+}
+
+function OS2DObject._registerExternalChild(child){
+	@_externalChildren[child] = true
+	// print "${@classname}#${@__id}._registerExternalChild(${child.classname}#${child.__id}): ${@_externalChildren}"
+}
+
+function OS2DObject._unregisterExternalChild(child){
+	delete @_externalChildren[child]
+	// print "${@classname}#${@__id}._unregisterExternalChild(${child.classname}#${child.__id}): ${@_externalChildren}"
+}
+
+function OS2DObject._unregisterAllExternalChildren(){
+	// @_externalChildren = {}
+	@setProperty("_externalChildren", {})
+	// print "${@classname}#${@__id}._unregisterAllExternalChildren"
+}
+
 /*	
 url || throw "url module required"
 

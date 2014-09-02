@@ -11,8 +11,23 @@ namespace oxygine
 	public:
 		int _ref_counter;
 
-		ref_counter():_ref_counter(0){}
-		virtual ~ref_counter(){}
+#ifdef OX_WITH_OBJECTSCRIPT
+		int osValueId;
+#endif
+
+		ref_counter():_ref_counter(0)
+		{
+#ifdef OX_WITH_OBJECTSCRIPT
+			osValueId = 0;
+#endif
+		}
+
+		virtual ~ref_counter()
+		{
+#ifdef OX_WITH_OBJECTSCRIPT
+			OX_ASSERT(!osValueId);
+#endif
+		}
 
 		void addRef()
 		{
@@ -21,8 +36,12 @@ namespace oxygine
 
 		void releaseRef()
 		{
-			if (0 == --_ref_counter)
+			if (0 == --_ref_counter){
+#ifdef OX_WITH_OBJECTSCRIPT
+				OX_ASSERT(!osValueId);
+#endif
 				delete this;
+			}
 		}
 
 

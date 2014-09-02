@@ -15,6 +15,7 @@ namespace oxygine
 	class Sprite : public VStyleActor
 	{
 	public:
+		OS_DECLARE_CLASSINFO(Sprite);
 		DECLARE_COPYCLONE_NEW(Sprite);
 
 		Sprite();

@@ -32,6 +32,7 @@ namespace oxygine
 	class VStyleActor: public Actor
 	{
 	public:
+		OS_DECLARE_CLASSINFO(VStyleActor);
 		DECLARE_COPYCLONE_NEW(VStyleActor);
 		VStyleActor(){}
 

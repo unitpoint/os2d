@@ -95,6 +95,8 @@ namespace oxygine
 	class TweenEvent: public Event
 	{
 	public:
+		OS_DECLARE_CLASSINFO(TweenEvent);
+
 		enum 
 		{
 			DONE = _et_Complete

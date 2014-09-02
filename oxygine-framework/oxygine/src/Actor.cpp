@@ -746,6 +746,7 @@ namespace oxygine
 		else
 			_children.append(actor);
 		setParent(actor.get(), this);
+		registerOSActorChild(this, actor.get());
 	}
 
 	void Actor::insertChildBefore(spActor actor, spActor insertBefore)
@@ -773,6 +774,7 @@ namespace oxygine
 		else
 			_children.prepend(actor);
 		setParent(actor.get(), this);
+		registerOSActorChild(this, actor.get());
 	}
 
 	void Actor::attachTo(spActor parent)
@@ -850,6 +852,7 @@ namespace oxygine
 			OX_ASSERT(actor->_parent == this);
 			if (actor->_parent == this)
 			{
+				unregisterOSActorChild(this, actor.get());
 				setParent(actor.get(), 0);
 				_children.remove(actor);
 			}			
@@ -888,8 +891,10 @@ namespace oxygine
 			bool done = false;
 			if (tween->getParentList())
 				tween->update(*this, us);
-			if (tween->isDone() && tween->getParentList())
+			if (tween->isDone() && tween->getParentList()){
+				unregisterOSActorTween(this, tween.get());
 				_tweens.remove(tween);
+			}
 			tween = tweenNext;
 		}
 
@@ -1055,6 +1060,7 @@ namespace oxygine
 		
 		tween->start(*this);
 		_tweens.append(tween);
+		registerOSActorTween(this, tween.get());
 
 		return tween;
 	}
@@ -1087,6 +1093,7 @@ namespace oxygine
 		if (v->getParentList() == &_tweens)
 		{
 			v->setClient(0);
+			unregisterOSActorTween(this, v.get());
 			_tweens.remove(v);
 		}
 	}

@@ -9,21 +9,31 @@
 #include <string>
 
 namespace oxygine { class EventCallback; class Event; }
-void retainOSEventCallback(ObjectScript::OS * os, oxygine::EventCallback * cb);
-void releaseOSEventCallback(ObjectScript::OS * os, oxygine::EventCallback * cb);
-void callOSEventFunction(ObjectScript::OS * os, int func_id, oxygine::Event * ev);
+
+void registerOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
+void unregisterOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
+void unregisterOSAllEventCallbacks(oxygine::EventDispatcher*);
+
+void registerOSActorTween(oxygine::Actor*, oxygine::Tween*);
+void unregisterOSActorTween(oxygine::Actor*, oxygine::Tween*);
+void unregisterOSAllActorTweens(oxygine::Actor*);
+
+void registerOSActorChild(oxygine::Actor*, oxygine::Actor*);
+void unregisterOSActorChild(oxygine::Actor*, oxygine::Actor*);
+void unregisterOSAllActorChildren(oxygine::Actor*);
+
+void callOSEventFunction(int func_id, oxygine::Event * ev);
+void handleOSErrorPolicyVa(const char *format, va_list args);
+// void destroyOSValueById(int);
 std::string getOSDebugStr();
 
 using namespace oxygine;
 
-class OxygineOS: public ObjectScript::OS
+class OS2D: public ObjectScript::OS
 {
 public:
 
-	typedef std::map<EventCallback*, int> EventCallbacks;
-	EventCallbacks eventCallbacks;
-
-	OxygineOS()
+	OS2D()
 	{
 	}
 
@@ -33,51 +43,7 @@ public:
 		setException(str);
 	}
 
-	void destroyValueById(int id)
-	{
-		Core::GCValue * value = core->values.get(id);
-		if(value){
-			core->clearValue(value);
-		}
-	}
-
-	void retainFromEventCallback(EventCallback * cb)
-	{
-		// retain();
-		OX_ASSERT(cb->os == this && cb->os_func_id);
-		EventCallbacks::iterator it = eventCallbacks.find(cb);
-		if(it != eventCallbacks.end()){
-			OX_ASSERT(false);
-			it->second++;
-		}else{
-			eventCallbacks[cb] = 1;
-			retainValueById(cb->os_func_id);
-		}
-	}
-
-	void releaseFromEventCallback(EventCallback * cb)
-	{
-		OX_ASSERT(cb->os == this && cb->os_func_id);
-		EventCallbacks::iterator it = eventCallbacks.find(cb);
-		if(it != eventCallbacks.end()){
-			if(--it->second <= 0){
-				eventCallbacks.erase(it);
-				releaseValueById(cb->os_func_id);
-			}
-		}else{
-			OX_ASSERT(false);
-		}
-		// release();
-	}
-
-	void resetAllEventCallbacks()
-	{
-		EventCallbacks::iterator it = eventCallbacks.begin();
-		for(; it != eventCallbacks.end();){
-			it->first->reset();
-			it = eventCallbacks.begin();
-		}
-	}
+	// void destroyValueById(int id);
 
 	int getNumValues() const
 	{
@@ -148,26 +114,19 @@ namespace ObjectScript {
 struct OXObjectInfo
 {
 	Object * obj;
-	bool retained;
 
-	OXObjectInfo(Object * _obj)
+	OXObjectInfo(Object * _obj, int id)
 	{
 		obj = _obj;
-		if((retained = obj->_ref_counter > 0)){
-			obj->addRef();
-		}
+		obj->osValueId = id;
+		obj->addRef();
 	}
 
 	~OXObjectInfo()
 	{
-		if(!obj){
-			return;
-		}
-		if(retained){
-			obj->releaseRef();
-		}else if(!obj->_ref_counter){
-			delete obj;
-		}
+		OX_ASSERT(obj && obj->osValueId);
+		obj->osValueId = 0;
+		obj->releaseRef();
 	}
 };
 
@@ -200,8 +159,7 @@ template <class T> struct CtypeOXClass<T*>
 		}
 		OXObjectInfo * info = (OXObjectInfo*)os->pushUserdata(classinfo.instance_id, sizeof(OXObjectInfo), UserDataDestructor<ttype>::dtor);
 		OX_ASSERT(info);
-		new (info) OXObjectInfo(val);
-		val->osValueId = os->getValueId();
+		new (info) OXObjectInfo(val, os->getValueId());
 		os->pushStackValue();
 		os->getGlobal(classinfo.classname);
 		if(!os->isUserdata(classinfo.class_id, -1)){
@@ -241,8 +199,7 @@ template <class T> struct CtypeOXSmartClass
 		}
 		OXObjectInfo * info = (OXObjectInfo*)os->pushUserdata(classinfo.instance_id, sizeof(OXObjectInfo), UserDataDestructor<ttype>::dtor);
 		OX_ASSERT(info);
-		new (info) OXObjectInfo(val.get());
-		val->osValueId = os->getValueId();
+		new (info) OXObjectInfo(val.get(), os->getValueId());
 		os->pushStackValue();
 		os->getGlobal(classinfo.classname);
 		if(!os->isUserdata(classinfo.class_id, -1)){
@@ -256,11 +213,7 @@ template <class T> struct CtypeOXSmartClass
 
 static void destroyOXObjectInfo(OXObjectInfo * info)
 {
-	if(!info->obj){
-		return;
-	}
-	OX_ASSERT(info->obj->osValueId);
-	info->obj->osValueId = 0;
+	// OX_ASSERT(info->obj && info->obj->osValueId);
 	info->~OXObjectInfo();
 }
 
@@ -516,9 +469,11 @@ struct CtypeValue<EventCallback>
 	static type getArg(ObjectScript::OS * os, int offs)
 	{
 		if(os->isFunction(offs)){
-			return type(os, os->getValueId(offs));
+			return type(os->getValueId(offs));
 		}
-		os->setException("function required");
+		if(!os->isNull()){
+			os->setException("function or null required");
+		}
 		return type();
 	}
 
@@ -578,13 +533,6 @@ template <class T>
 void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * list, const ObjectScript::OS::NumberDef * numbers = NULL, bool instantiable = true)
 {
 	const OS_ClassInfo& classinfo = T::getClassInfoStatic();
-	/* OS_ClassInfos::iterator it = classinfos.find(classinfo.classname);
-	if(it != classinfos.end()){
-		OX_ASSERT(false);
-	}
-	classinfos.insert(OS_ClassInfos:: classinfo.classname, classinfo);
-	*/
-
 	os->pushGlobals();
 	os->pushString(classinfo.classname);
 	os->pushUserdata(classinfo.class_id, 0, NULL, NULL);
@@ -599,13 +547,6 @@ template <class T, class Prototype>
 void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * list, const ObjectScript::OS::NumberDef * numbers = NULL, bool instantiable = true)
 {
 	const OS_ClassInfo& classinfo = T::getClassInfoStatic();
-	/* OS_ClassInfos::iterator it = classinfos.find(classinfo.classname);
-	if(it != classinfos.end()){
-		OX_ASSERT(false);
-	}
-	classinfos.insert(classinfo.classname, classinfo);
-	*/
-
 	os->pushGlobals();
 	os->pushString(classinfo.classname);
 	os->pushUserdata(classinfo.class_id, 0, NULL, NULL);
@@ -615,11 +556,6 @@ void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * li
 	os->setProperty(-2, OS_TEXT("__instantiable"), false);
 
 	const OS_ClassInfo& classinfo_proto = Prototype::getClassInfoStatic();
-	/* it = classinfos.find(classinfo_proto.classname);
-	if(it == classinfos.end()){
-		OX_ASSERT(false);
-	} */
-
 	os->pushStackValue();
 	os->getGlobal(classinfo_proto.classname);
 	os->setPrototype(classinfo.class_id);
@@ -816,7 +752,7 @@ static void registerEventDispatcher(OS * os)
 				os->setException("the first argument should be string or number");
 				return 0;
 			}
-			os->pushNumber(self->addEventListener(ev, EventCallback(os, funcId)));
+			os->pushNumber(self->addEventListener(ev, EventCallback(funcId)));
 			return 1;
 		}
 
@@ -853,7 +789,7 @@ static void registerEventDispatcher(OS * os)
 				return 0;
 			}
 			int funcId = os->getValueId(-params+1);
-			self->removeEventListener(ev, EventCallback(os, funcId));
+			self->removeEventListener(ev, EventCallback(funcId));
 			return 0;
 		}
 
@@ -923,6 +859,14 @@ void registerTween(OS * os)
 		/* static Tween * __newinstance()
 		{
 			return new Tween();
+		} */
+		/* static int setDoneCallback(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Tween*);
+			EventCallback cb = CtypeValue<EventCallback>::getArg(os, -params+0);
+			self->setDoneCallback(cb);
+			registerOSEventCallback(self, (intptr_t)self, cb);
+			return 0;
 		} */
 	};
 	OS::FuncDef funcs[] = {
@@ -1055,7 +999,12 @@ public:
 	}
 
 	const EventCallback& getUpdateCallback() const { return updateCallback; }
-	void setUpdateCallback(const EventCallback& cb){ updateCallback = cb; }
+	void setUpdateCallback(const EventCallback& cb)
+	{ 
+		unregisterOSEventCallback(this, (intptr_t)this, updateCallback);
+		updateCallback = cb;
+		registerOSEventCallback(this, (intptr_t)this, updateCallback);
+	}
 
 	timeMS getInterval() const { return interval; }
 	void setInterval(timeMS _interval){ interval = _interval; curInterval = fixInterval = 0; }
@@ -1183,6 +1132,7 @@ static bool __registerResAnim = addRegFunc(registerResAnim);
 
 // =====================================================================
 
+//		registerOSActorTween(self, t.get());
 #define CASE_OX_TWEEN(prop, type, tween) \
 	if(name == prop){ \
 		type dest = CtypeValue<type>::getArg(os, -params+1); \
@@ -1548,13 +1498,13 @@ static bool __registerResources = addRegFunc(registerResources);
 
 // =====================================================================
 
-OxygineOS * os;
+OS2D * os;
 
 struct Oxygine
 {
 	static void init()
 	{
-		os = OS::create(new OxygineOS());
+		os = OS::create(new OS2D());
 
 		initDateTimeExtension(os);
 
@@ -1565,10 +1515,13 @@ struct Oxygine
 		}
 	}
 
+	static void postInit()
+	{
+		os->require("std.os");
+	}
+
 	static void shutdown()
 	{
-		os->resetAllEventCallbacks();
-		// os->gcFull();
 		os->release();
 	}
 
@@ -1587,20 +1540,194 @@ struct Oxygine
 
 } // namespace ObjectScript
 
-void retainOSEventCallback(ObjectScript::OS * os, EventCallback * cb)
+void registerOSEventCallback(EventDispatcher * ed, int id, const EventCallback& cb)
 {
-	OX_ASSERT(dynamic_cast<OxygineOS*>(os));
-	((OxygineOS*)os)->retainFromEventCallback(cb);
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	if(!ed->osValueId && cb.os_func_id){
+		ObjectScript::pushCtypeValue(os, ed);
+		os->pop();
+	}
+	if(ed->osValueId && cb.os_func_id){
+#ifdef OS_DEBUG
+		ObjectScript::pushCtypeValue(os, ed);
+		OX_ASSERT(os->getValueId() == ed->osValueId);
+		os->pop();
+#endif
+		os->pushValueById(ed->osValueId);
+		os->getProperty("_registerExternalCallback");
+		OX_ASSERT(os->isFunction());
+		os->pushValueById(ed->osValueId); // this
+		os->pushNumber(id);
+		os->pushValueById(cb.os_func_id);
+		OX_ASSERT(os->isFunction());
+		os->call(2);
+		os->handleException();
+	}
 }
 
-void releaseOSEventCallback(ObjectScript::OS * os, EventCallback * cb)
+void unregisterOSEventCallback(EventDispatcher * ed, int id, const EventCallback& cb)
 {
-	OX_ASSERT(dynamic_cast<OxygineOS*>(os));
-	((OxygineOS*)os)->releaseFromEventCallback(cb);
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	if(ed->osValueId && cb.os_func_id){
+#ifdef OS_DEBUG
+		ObjectScript::pushCtypeValue(os, ed);
+		OX_ASSERT(os->getValueId() == ed->osValueId);
+		os->pop();
+#endif
+		os->pushValueById(ed->osValueId);
+		os->getProperty("_unregisterExternalCallback");
+		OX_ASSERT(os->isFunction());
+		os->pushValueById(ed->osValueId); // this
+		os->pushNumber(id);
+		os->pushValueById(cb.os_func_id);
+		OX_ASSERT(os->isFunction());
+		os->call(2);
+		os->handleException();
+	}
 }
 
-void callOSEventFunction(ObjectScript::OS * os, int func_id, Event * ev)
+void unregisterOSAllEventCallbacks(EventDispatcher * ed)
 {
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	if(ed->osValueId){
+#ifdef OS_DEBUG
+		ObjectScript::pushCtypeValue(os, ed);
+		OX_ASSERT(os->getValueId() == ed->osValueId);
+		os->pop();
+#endif
+		os->pushValueById(ed->osValueId);
+		os->getProperty("_unregisterAllExternalCallbacks");
+		OX_ASSERT(os->isFunction());
+		os->pushValueById(ed->osValueId); // this
+		os->call(0);
+		os->handleException();
+	}
+}
+
+void registerOSActorTween(Actor * a, Tween * t)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	ObjectScript::pushCtypeValue(os, a);
+	OX_ASSERT(os->getValueId() == a->osValueId);
+	os->getProperty("_registerExternalTween");
+	OX_ASSERT(os->isFunction());
+	ObjectScript::pushCtypeValue(os, a); // os->pushValueById(a->osValueId); // this
+	ObjectScript::pushCtypeValue(os, t);
+	OX_ASSERT(os->getValueId() == t->osValueId);
+	os->call(1);
+	os->handleException();
+}
+
+void unregisterOSActorTween(Actor * a, Tween * t)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	if(a->osValueId && t->osValueId){
+#ifdef OS_DEBUG
+		ObjectScript::pushCtypeValue(os, a);
+		OX_ASSERT(os->getValueId() == a->osValueId);
+		os->pop();
+
+		ObjectScript::pushCtypeValue(os, t);
+		OX_ASSERT(os->getValueId() == t->osValueId);
+		os->pop();
+#endif
+		os->pushValueById(a->osValueId);
+		os->getProperty("_unregisterExternalTween");
+		OX_ASSERT(os->isFunction());
+		os->pushValueById(a->osValueId); // this
+		os->pushValueById(t->osValueId);
+		os->call(1);
+		os->handleException();
+	}
+}
+
+void unregisterOSAllActorTweens(Actor * a)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	if(a->osValueId){
+#ifdef OS_DEBUG
+		ObjectScript::pushCtypeValue(os, a);
+		OX_ASSERT(os->getValueId() == a->osValueId);
+		os->pop();
+#endif
+		os->pushValueById(a->osValueId);
+		os->getProperty("_unregisterAllExternalTweens");
+		OX_ASSERT(os->isFunction());
+		os->pushValueById(a->osValueId); // this
+		os->call(0);
+		os->handleException();
+	}
+}
+
+void registerOSActorChild(Actor * a, Actor * child)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	ObjectScript::pushCtypeValue(os, a);
+	OX_ASSERT(os->getValueId() == a->osValueId);
+	os->getProperty("_registerExternalChild");
+	OX_ASSERT(os->isFunction());
+	ObjectScript::pushCtypeValue(os, a); // os->pushValueById(a->osValueId); // this
+	ObjectScript::pushCtypeValue(os, child);
+	OX_ASSERT(os->getValueId() == child->osValueId);
+	os->call(1);
+	os->handleException();
+}
+
+void unregisterOSActorChild(Actor * a, Actor * child)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	if(a->osValueId && child->osValueId){
+#ifdef OS_DEBUG
+		ObjectScript::pushCtypeValue(os, a);
+		OX_ASSERT(os->getValueId() == a->osValueId);
+		os->pop();
+
+		ObjectScript::pushCtypeValue(os, child);
+		OX_ASSERT(os->getValueId() == child->osValueId);
+		os->pop();
+#endif
+		os->pushValueById(a->osValueId);
+		os->getProperty("_unregisterExternalChild");
+		OX_ASSERT(os->isFunction());
+		os->pushValueById(a->osValueId); // this
+		os->pushValueById(child->osValueId);
+		os->call(1);
+		os->handleException();
+	}
+}
+
+void unregisterOSAllActorChildren(Actor * a)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+	if(a->osValueId){
+#ifdef OS_DEBUG
+		ObjectScript::pushCtypeValue(os, a);
+		OX_ASSERT(os->getValueId() == a->osValueId);
+		os->pop();
+#endif
+		os->pushValueById(a->osValueId);
+		os->getProperty("_unregisterAllExternalChildren");
+		OX_ASSERT(os->isFunction());
+		os->pushValueById(a->osValueId); // this
+		os->call(0);
+		os->handleException();
+	}
+}
+
+void callOSEventFunction(int func_id, Event * ev)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
+	ObjectScript::OS * os = ObjectScript::os;
+
 	int is_stack_event = !ev->_ref_counter; // ((intptr_t)ev < (intptr_t)&ev) ^ ObjectScript::Oxygine::stackOrder;
 	if(is_stack_event){
 		// ev = ev->clone();
@@ -1608,12 +1735,15 @@ void callOSEventFunction(ObjectScript::OS * os, int func_id, Event * ev)
 	}
 	
 	os->pushValueById(func_id);
-	OX_ASSERT(os->isFunction());
-	os->pushNull(); // this
-	pushCtypeValue(os, ev);
-	// int eventId = os->getValueId();
-	os->call(1);
-	os->handleException();
+	if(os->isFunction()){
+		os->pushNull(); // this
+		pushCtypeValue(os, ev);
+		// int eventId = os->getValueId();
+		os->call(1);
+		os->handleException();
+	}else{
+		os->pop();
+	}
 	
 	if(is_stack_event){
 		OX_ASSERT(ev->osValueId);
@@ -1629,24 +1759,40 @@ void callOSEventFunction(ObjectScript::OS * os, int func_id, Event * ev)
 
 void handleOSErrorPolicyVa(const char *format, va_list args)
 {
-	OX_ASSERT(dynamic_cast<OxygineOS*>(ObjectScript::os));
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::os->handleErrorPolicyVa(format, args);
 }
 
-void destroyOSValueById(int id)
+/*
+void OS2D::destroyValueById(int id)
 {
-	OX_ASSERT(dynamic_cast<OxygineOS*>(ObjectScript::os));
-
-	ObjectScript::os->pushValueById(id);
+#if 0
+	Core::GCValue * value = core->values.get(id);
+	if(value){
+		core->saveFreeCandidateValue(value);
+	}
+#else
+	pushValueById(id);
 	const OS_ClassInfo& classinfo = Object::getClassInfoStatic();
-	ObjectScript::OXObjectInfo * info = (ObjectScript::OXObjectInfo*)ObjectScript::os->toUserdata(classinfo.instance_id, -1, classinfo.class_id);
+	ObjectScript::OXObjectInfo * info = (ObjectScript::OXObjectInfo*)toUserdata(classinfo.instance_id, -1, classinfo.class_id);
 	if(info){
 		OX_ASSERT(info->obj->osValueId == id);
 		info->obj = NULL;
 	}
-	ObjectScript::os->pop();
+	pop();
+	Core::GCValue * value = core->values.get(id);
+	if(value){
+		core->clearValue(value);
+	}
+#endif
+}
+
+void destroyOSValueById(int id)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::os->destroyValueById(id);
 }
+*/
 
 #include <sstream>
 

@@ -4,9 +4,10 @@ GameScene = extends Scene {
 		@loadConfig()
 		@nextLevel(@config.levelNum)
 		
-		/* @addTween(UpdateTween(1000/100, function(){
+		// debug, check mem leaks
+		false && @addTween(UpdateTween(1000/100, function(){
 			@nextLevel(@level.levelNum + 1)
-		}.bind(this))) */
+		}.bind(this)))
 	},
 	
 	configFilename = "config.json",

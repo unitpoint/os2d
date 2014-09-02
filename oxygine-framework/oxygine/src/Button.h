@@ -10,6 +10,7 @@ namespace oxygine
 	class Button: public Sprite
 	{
 	public:
+		OS_DECLARE_CLASSINFO(Button);
 		DECLARE_COPYCLONE_NEW(Button);
 
 		Button();

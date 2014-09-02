@@ -57,14 +57,12 @@ namespace oxygine
 
 
 #define DECLARE_COPYCLONE(type) type(const type &src, cloneOptions);\
-	virtual type* clone(cloneOptions opt=0) const {return new type(*this, opt);}\
-	OS_DECLARE_CLASSINFO(type)
+	virtual type* clone(cloneOptions opt=0) const {return new type(*this, opt);}
 
 
 #define DECLARE_COPYCLONE_NEW(type)  type(const type &src, cloneOptions opt = 0){copyFrom(src, opt);}\
 	virtual type* clone(cloneOptions opt=0) const {type *tp = new type(); tp->copyFrom(*this, opt); return tp;}\
-	virtual void copyFrom(const type &src, cloneOptions opt = 0); \
-	OS_DECLARE_CLASSINFO(type)
+	virtual void copyFrom(const type &src, cloneOptions opt = 0);
 
 	struct serializedata;
 	struct deserializedata;
@@ -82,6 +80,7 @@ namespace oxygine
 	{
 		typedef intrusive_list_item<spActor> intr_list;
 	public:
+		OS_DECLARE_CLASSINFO(Actor);
 		DECLARE_COPYCLONE_NEW(Actor);
 
 		Actor();

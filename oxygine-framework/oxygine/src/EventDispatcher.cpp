@@ -9,6 +9,7 @@ namespace oxygine
 	EventDispatcher::~EventDispatcher()
 	{
 		__doCheck();
+		// removeOSAllEventListeners(this);
 		delete _listeners;
 	}
 
@@ -40,6 +41,8 @@ namespace oxygine
 		ls.id = _lastID;
 		_listeners->push_back(ls);
 
+		registerOSEventCallback(this, ls.id, ls.cb);
+
 		return ls.id;
 	}
 
@@ -56,6 +59,7 @@ namespace oxygine
 			const listener &ls = *i;
 			if (ls.id == id)
 			{
+				unregisterOSEventCallback(this, ls.id, ls.cb);
 				i = _listeners->erase(i);
 				break;
 			}
@@ -77,6 +81,7 @@ namespace oxygine
 			const listener& ls = *i;
 			if (ls.type == et && cb == ls.cb)
 			{
+				unregisterOSEventCallback(this, ls.id, ls.cb);
 				i = _listeners->erase(i);
 			}
 			else
@@ -93,9 +98,10 @@ namespace oxygine
 
 		for (listeners::iterator i = _listeners->begin(); i != _listeners->end(); )
 		{
-			listener ls = *i;
+			const listener& ls = *i;
 			if (ls.cb.p_this == CallbackThis)
 			{
+				unregisterOSEventCallback(this, ls.id, ls.cb);
 				i = _listeners->erase(i);
 			}
 			else
@@ -105,6 +111,7 @@ namespace oxygine
 
 	void EventDispatcher::removeAllEventListeners()
 	{
+		unregisterOSAllEventCallbacks(this);
 		delete _listeners;
 		_listeners = 0;
 	}

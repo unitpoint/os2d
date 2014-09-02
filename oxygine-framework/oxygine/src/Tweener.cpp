@@ -40,7 +40,9 @@ namespace oxygine
 
 	void Tween::setDoneCallback(EventCallback cb)
 	{
+		unregisterOSEventCallback(this, (intptr_t)this, _cbDone);
 		_cbDone = cb;
+		registerOSEventCallback(this, (intptr_t)this, _cbDone);
 	}
 
 	EventCallback Tween::getDoneCallback() const

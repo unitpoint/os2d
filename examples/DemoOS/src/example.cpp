@@ -7,6 +7,11 @@ void example_preinit()
 	ObjectScript::Oxygine::init();
 }
 
+void example_postinit()
+{
+	ObjectScript::Oxygine::postInit();
+}
+
 void example_init()
 {
 	ObjectScript::Oxygine::run();

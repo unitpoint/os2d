@@ -90,17 +90,18 @@ struct Closure<R(PARAM_TYPE_LIST)>: public detail::CLOSURE_NUM::ClosureBase<R PA
     //return value which can be implicitly casted to bool.
     //true, if object initialized with some non-NULL function
     //false, otherwise
-    operator safe_bool() const
+    operator bool() const
     { 
-        if(this->p_proxy) 
+		return this->p_proxy ? true : false;
+        /* if(this->p_proxy) 
           return &dummy::nonnull;
         else        
-          return 0;
+          return 0; */
     }
   
     bool operator!() const
     { 
-        return !safe_bool(*this);
+        return !bool(*this);
     }
 
 	bool operator == (const Closure &c) const

@@ -146,12 +146,23 @@ struct OS_ClassInfo
 
 #include <string>
 
-namespace oxygine { class EventCallback; class Event; }
-void retainOSEventCallback(ObjectScript::OS * os, oxygine::EventCallback * cb);
-void releaseOSEventCallback(ObjectScript::OS * os, oxygine::EventCallback * cb);
-void callOSEventFunction(ObjectScript::OS * os, int func_id, oxygine::Event * ev);
+namespace oxygine { class EventCallback; class Event; class EventDispatcher; class Actor; class Tween; }
+
+void registerOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
+void unregisterOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
+void unregisterOSAllEventCallbacks(oxygine::EventDispatcher*);
+
+void registerOSActorTween(oxygine::Actor*, oxygine::Tween*);
+void unregisterOSActorTween(oxygine::Actor*, oxygine::Tween*);
+void unregisterOSAllActorTweens(oxygine::Actor*);
+
+void registerOSActorChild(oxygine::Actor*, oxygine::Actor*);
+void unregisterOSActorChild(oxygine::Actor*, oxygine::Actor*);
+void unregisterOSAllActorChildren(oxygine::Actor*);
+
+void callOSEventFunction(int func_id, oxygine::Event * ev);
 void handleOSErrorPolicyVa(const char *format, va_list args);
-void destroyOSValueById(int);
+// void destroyOSValueById(int);
 std::string getOSDebugStr();
 
 #else // OX_WITH_OBJECTSCRIPT
