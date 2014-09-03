@@ -892,7 +892,7 @@ namespace oxygine
 			if (tween->getParentList())
 				tween->update(*this, us);
 			if (tween->isDone() && tween->getParentList()){
-				unregisterOSActorTween(this, tween.get());
+				unregisterOSTween(this, tween.get());
 				_tweens.remove(tween);
 			}
 			tween = tweenNext;
@@ -1060,7 +1060,7 @@ namespace oxygine
 		
 		tween->start(*this);
 		_tweens.append(tween);
-		registerOSActorTween(this, tween.get());
+		registerOSTween(this, tween.get());
 
 		return tween;
 	}
@@ -1093,7 +1093,7 @@ namespace oxygine
 		if (v->getParentList() == &_tweens)
 		{
 			v->setClient(0);
-			unregisterOSActorTween(this, v.get());
+			unregisterOSTween(this, v.get());
 			_tweens.remove(v);
 		}
 	}

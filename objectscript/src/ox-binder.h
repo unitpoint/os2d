@@ -14,9 +14,9 @@ void registerOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::E
 void unregisterOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
 void unregisterOSAllEventCallbacks(oxygine::EventDispatcher*);
 
-void registerOSActorTween(oxygine::Actor*, oxygine::Tween*);
-void unregisterOSActorTween(oxygine::Actor*, oxygine::Tween*);
-void unregisterOSAllActorTweens(oxygine::Actor*);
+void registerOSTween(oxygine::Object*, oxygine::Tween*);
+void unregisterOSTween(oxygine::Object*, oxygine::Tween*);
+void unregisterOSAllTweens(oxygine::Object*);
 
 void registerOSActorChild(oxygine::Actor*, oxygine::Actor*);
 void unregisterOSActorChild(oxygine::Actor*, oxygine::Actor*);
@@ -28,6 +28,9 @@ void handleOSErrorPolicyVa(const char *format, va_list args);
 std::string getOSDebugStr();
 
 using namespace oxygine;
+
+#define OUTPUT_FILENAME "out.txt"
+#define OUTPUT_FILENAME2 "out-prev.txt"
 
 class OS2D: public ObjectScript::OS
 {
@@ -101,8 +104,7 @@ public:
 
 	virtual void echo(const void * buf, int size)
 	{
-		const char * output_filename = "out.txt";
-		FileHandle * f = openFile(output_filename, "a");
+		FileHandle * f = openFile(OUTPUT_FILENAME, "a");
 		OS_ASSERT(f);
 		writeFile((const char*)buf, size, f);
 		closeFile(f);
@@ -587,14 +589,18 @@ static void registerObject(OS * os)
 		static int getName(OS * os, int params, int, int, void*)
 		{
 			OS_GET_SELF(Object*);
-			pushCtypeValue(os, self->getName());
-			return 1;
+			std::string name = self->getName();
+			if(name.length() > 0){
+				pushCtypeValue(os, name);
+				return 1;
+			}
+			return 0;
 		}
 
 		static int setName(OS * os, int params, int, int, void*)
 		{
 			OS_GET_SELF(Object*);
-			self->setName(params > 0 ? os->toString(-params+0).toChar() : "");
+			self->setName(params > 0 && !os->isNull(-params+0) ? os->toString(-params+0).toChar() : "");
 			return 0;
 		}
 	};
@@ -851,26 +857,73 @@ static bool __registerEventDispatcher = addRegFunc(registerEventDispatcher);
 
 // =====================================================================
 
+OS_DECL_OX_CLASS(ResAnim);
+static void registerResAnim(OS * os)
+{
+	OS::FuncDef funcs[] = {
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<ResAnim, Resource>(os, funcs, nums);
+}
+static bool __registerResAnim = addRegFunc(registerResAnim);
+
+// =====================================================================
+
+#define CASE_OX_TWEEN(prop, type, tween, func) \
+	if(name == prop){ \
+		type dest = CtypeValue<type>::getArg(os, -params+1); \
+		pushCtypeValue(os, func(tween(dest), \
+			duration, loops, twoSides, delay, ease)); \
+		return 1; \
+	}
+
+#define SWITCH_OX_TWEENS(func) \
+	CASE_OX_TWEEN("alpha", unsigned char, Actor::TweenAlpha, func); \
+	CASE_OX_TWEEN("opacity", unsigned char, Actor::TweenOpacity, func); \
+	CASE_OX_TWEEN("pos", Vector2, Actor::TweenPosition, func); \
+	CASE_OX_TWEEN("x", float, Actor::TweenX, func); \
+	CASE_OX_TWEEN("y", float, Actor::TweenY, func); \
+	CASE_OX_TWEEN("width", float, Actor::TweenWidth, func); \
+	CASE_OX_TWEEN("height", float, Actor::TweenHeight, func); \
+	CASE_OX_TWEEN("rotation", float, Actor::TweenRotation, func); \
+	CASE_OX_TWEEN("rotationDegrees", float, Actor::TweenRotationDegrees, func); \
+	CASE_OX_TWEEN("angle", float, Actor::TweenRotationDegrees, func); \
+	CASE_OX_TWEEN("scale", Vector2, Actor::TweenScale, func); \
+	CASE_OX_TWEEN("scaleX", float, Actor::TweenScaleX, func); \
+	CASE_OX_TWEEN("scaleY", float, Actor::TweenScaleY, func); \
+	CASE_OX_TWEEN("width", float, Actor::TweenWidth, func); \
+	CASE_OX_TWEEN("color", Color, VStyleActor::TweenColor, func); \
+	CASE_OX_TWEEN("resAnim", ResAnim*, TweenAnim, func);
+
 OS_DECL_OX_CLASS(Tween);
 void registerTween(OS * os)
 {
 	struct Lib
 	{
-		/* static Tween * __newinstance()
+		/* static int myCreateTween(OS * os, int params, int, int, void*)
 		{
-			return new Tween();
-		} */
-		/* static int setDoneCallback(OS * os, int params, int, int, void*)
-		{
-			OS_GET_SELF(Tween*);
-			EventCallback cb = CtypeValue<EventCallback>::getArg(os, -params+0);
-			self->setDoneCallback(cb);
-			registerOSEventCallback(self, (intptr_t)self, cb);
+			if(params < 3){
+				os->setException("3 arguments required");
+				return 0;
+			}
+			OS::String name = os->toString(-params+0);
+			timeMS duration = os->toInt(-params+2);
+			int loops = params > 3 ? os->toInt(-params+3) : 1;
+			bool twoSides = params > 4 ? os->toBool(-params+4) : false;
+			timeMS delay = params > 5 ? os->toInt(-params+5) : 0;
+			Tween::EASE ease = params > 6 ? (Tween::EASE)os->toInt(-params+6) : Tween::ease_linear;
+
+			SWITCH_OX_TWEENS(createTween);
+
 			return 0;
 		} */
 	};
 	OS::FuncDef funcs[] = {
 		// def("__newinstance", &Lib::__newinstance),
+		// {"createTween", &Lib::myCreateTween},
 		DEF_PROP(loops, Tween, Loops),
 		DEF_GET(duration, Tween, Duration),
 		DEF_PROP(ease, Tween, Ease),
@@ -892,22 +945,81 @@ void registerTween(OS * os)
 		// static float calcEase(EASE ease, float v);
 		{}
 	};
+#define DEF_EASY(Easy, EASY) \
+	{"EASE_IN" OS_MAKE_STRING(EASY), Tween::ease_in ## Easy}, \
+	{"EASE_OUT" OS_MAKE_STRING(EASY), Tween::ease_out ## Easy}, \
+	{"EASE_INOUT" OS_MAKE_STRING(EASY), Tween::ease_inOut ## Easy}, \
+	{"EASE_OUTIN" OS_MAKE_STRING(EASY), Tween::ease_outIn ## Easy}
+
 	OS::NumberDef nums[] = {
 		{"EASE_LINEAR", Tween::ease_linear},
-		{"EASE_INEXPO", Tween::ease_inExpo},
-		{"EASE_OUTEXPO", Tween::ease_outExpo},
-		{"EASE_INSIN", Tween::ease_inSin},
-		{"EASE_OUTSIN", Tween::ease_outSin},
-		{"EASE_INCUBIC", Tween::ease_inCubic},
-		{"EASE_OUTCUBIC", Tween::ease_outCubic},
-		{"EASE_INOUTBACK", Tween::ease_inOutBack},
-		{"EASE_INBACK", Tween::ease_inBack},
-		{"EASE_OUTBACK", Tween::ease_outBack},
+		DEF_EASY(Quad, QUAD),
+		DEF_EASY(Cubic, CUBIC),
+		DEF_EASY(Quart, QUART),
+		DEF_EASY(Quint, QUINT),
+		DEF_EASY(Sine, SINE),
+		DEF_EASY(Expo, EXPO),
+		DEF_EASY(Circ, CIRC),
+		DEF_EASY(Back, BACK),
+		DEF_EASY(Bounce, BOUNCE),
 		{}
 	};
 	registerOXClass<Tween, EventDispatcher>(os, funcs, nums);
+#undef DEF_EASY
 }
 static bool __registerTween = addRegFunc(registerTween);
+
+// =====================================================================
+
+OS_DECL_OX_CLASS(TweenQueue);
+void registerTweenQueue(OS * os)
+{
+	struct Lib
+	{
+		static TweenQueue * __newinstance()
+		{
+			return new TweenQueue();
+		}
+
+		static int add(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(TweenQueue*);
+			if(params < 1){
+				os->setException("argument required");
+				return 0;
+			}
+			Tween * tween = CtypeValue<Tween*>::getArg(os, -params+0);
+			if(tween){
+				pushCtypeValue(os, self->add(tween));
+				return 1;
+			}
+			if(params < 3){
+				os->setException("3 arguments required");
+				return 0;
+			}
+			OS::String name = os->toString(-params+0);
+			timeMS duration = os->toInt(-params+2);
+			int loops = params > 3 ? os->toInt(-params+3) : 1;
+			bool twoSides = params > 4 ? os->toBool(-params+4) : false;
+			timeMS delay = params > 5 ? os->toInt(-params+5) : 0;
+			Tween::EASE ease = params > 6 ? (Tween::EASE)os->toInt(-params+6) : Tween::ease_linear;
+
+			SWITCH_OX_TWEENS(self->add);
+
+			return 0;
+		}
+	};
+	OS::FuncDef funcs[] = {
+		def("__newinstance", &Lib::__newinstance),
+		{"add", &Lib::add},
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<TweenQueue, Tween>(os, funcs, nums);
+}
+static bool __registerTweenQueue = addRegFunc(registerTweenQueue);
 
 // =====================================================================
 /*
@@ -1117,30 +1229,6 @@ static bool __registerBaseDoneTween = addRegFunc(registerBaseDoneTween);
 
 // =====================================================================
 
-OS_DECL_OX_CLASS(ResAnim);
-static void registerResAnim(OS * os)
-{
-	OS::FuncDef funcs[] = {
-		{}
-	};
-	OS::NumberDef nums[] = {
-		{}
-	};
-	registerOXClass<ResAnim, Resource>(os, funcs, nums);
-}
-static bool __registerResAnim = addRegFunc(registerResAnim);
-
-// =====================================================================
-
-//		registerOSActorTween(self, t.get());
-#define CASE_OX_TWEEN(prop, type, tween) \
-	if(name == prop){ \
-		type dest = CtypeValue<type>::getArg(os, -params+1); \
-		pushCtypeValue(os, self->addTween(tween(dest), \
-			duration, loops, twoSides, delay, ease)); \
-		return 1; \
-	}
-
 OS_DECL_OX_CLASS(Actor);
 static void registerActor(OS * os)
 {
@@ -1189,55 +1277,20 @@ static void registerActor(OS * os)
 			timeMS delay = params > 5 ? os->toInt(-params+5) : 0;
 			Tween::EASE ease = params > 6 ? (Tween::EASE)os->toInt(-params+6) : Tween::ease_linear;
 
-			/* if(name == "alpha"){
-				float dest = os->toFloat(-params+1);
-				if(dest < 0) dest = 0; else if(dest > 1) dest = 1;
-				pushCtypeValue(os, self->addTween(Actor::TweenAlpha((unsigned char)(dest * 255)), 
-					duration, loops, twoSides, delay, ease));
-				return 1;
-			} */
+			SWITCH_OX_TWEENS(self->addTween);
 
-			CASE_OX_TWEEN("alpha", unsigned char, Actor::TweenAlpha);
-			CASE_OX_TWEEN("opacity", unsigned char, Actor::TweenOpacity);
-			CASE_OX_TWEEN("pos", Vector2, Actor::TweenPosition);
-			CASE_OX_TWEEN("x", float, Actor::TweenX);
-			CASE_OX_TWEEN("y", float, Actor::TweenY);
-			CASE_OX_TWEEN("width", float, Actor::TweenWidth);
-			CASE_OX_TWEEN("height", float, Actor::TweenHeight);
-			CASE_OX_TWEEN("rotation", float, Actor::TweenRotation);
-			CASE_OX_TWEEN("rotationDegrees", float, Actor::TweenRotationDegrees);
-			CASE_OX_TWEEN("angle", float, Actor::TweenRotationDegrees);
-			CASE_OX_TWEEN("scale", Vector2, Actor::TweenScale);
-			CASE_OX_TWEEN("scaleX", float, Actor::TweenScaleX);
-			CASE_OX_TWEEN("scaleY", float, Actor::TweenScaleY);
-			CASE_OX_TWEEN("width", float, Actor::TweenWidth);
-
+			/*
 			VStyleActor * styleActor = dynamic_cast<VStyleActor*>(self);
 			if(styleActor){
-				CASE_OX_TWEEN("color", Color, VStyleActor::TweenColor);
+				CASE_OX_TWEEN("color", Color, VStyleActor::TweenColor, self->addTween);
 			}
 			Sprite * sprite = dynamic_cast<Sprite*>(self);
 			if(sprite){
-				CASE_OX_TWEEN("resAnim", ResAnim*, TweenAnim);
+				CASE_OX_TWEEN("resAnim", ResAnim*, TweenAnim, self->addTween);
 			}
+			*/
 			return 0;
 		}
-
-		/* static int getAlpha(OS * os, int params, int, int, void*)
-		{
-			OS_GET_SELF(Actor*);
-			os->pushNumber((float)self->getAlpha() / 255.0f);
-			return 1;
-		}
-
-		static int setAlpha(OS * os, int params, int, int, void*)
-		{
-			OS_GET_SELF(Actor*);
-			float alpha = os->toFloat(-params+0);
-			if(alpha < 0) alpha = 0; else if(alpha > 1) alpha = 1;
-			self->setAlpha((unsigned char)(alpha * 255));
-			return 0;
-		} */
 	};
 
 	OS::FuncDef funcs[] = {
@@ -1506,6 +1559,9 @@ struct Oxygine
 	{
 		os = OS::create(new OS2D());
 
+		file::rename(OUTPUT_FILENAME, OUTPUT_FILENAME2, ep_ignore_error);
+		file::deleteFile(OUTPUT_FILENAME, ep_ignore_error);
+
 		initDateTimeExtension(os);
 
 		std::vector<RegisterFunction>::iterator it = registerFunctions.begin();
@@ -1517,6 +1573,14 @@ struct Oxygine
 
 	static void postInit()
 	{
+#ifdef OS_DEBUG
+		bool debug = true;
+#else
+		bool debug = false;
+#endif
+		os->pushBool(debug);
+		os->setGlobal("DEBUG");
+
 		os->require("std.os");
 	}
 
@@ -1607,7 +1671,7 @@ void unregisterOSAllEventCallbacks(EventDispatcher * ed)
 	}
 }
 
-void registerOSActorTween(Actor * a, Tween * t)
+void registerOSTween(Object * a, Tween * t)
 {
 	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::OS * os = ObjectScript::os;
@@ -1622,7 +1686,7 @@ void registerOSActorTween(Actor * a, Tween * t)
 	os->handleException();
 }
 
-void unregisterOSActorTween(Actor * a, Tween * t)
+void unregisterOSTween(Object * a, Tween * t)
 {
 	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::OS * os = ObjectScript::os;
@@ -1646,7 +1710,7 @@ void unregisterOSActorTween(Actor * a, Tween * t)
 	}
 }
 
-void unregisterOSAllActorTweens(Actor * a)
+void unregisterOSAllTweens(Object * a)
 {
 	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::OS * os = ObjectScript::os;

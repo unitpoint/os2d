@@ -117,10 +117,10 @@ struct OS_ClassInfo
 };
 
 #define OS_MAKE_STRING(name) #name
-#define OS_CHECK_CLASSNAME(info, type) \
-	if(strcmp(info.classname, OS_MAKE_STRING(type)) != 0){ \
+#define OS_CHECK_CLASSNAME(info, type)
+	/* if(strcmp(info.classname, OS_MAKE_STRING(type)) != 0){ \
 		OX_ASSERT(false && "Error classname " OS_MAKE_STRING(type)); \
-	}
+	} */
 
 #define OS_DECLARE_CLASSINFO_STATIC_NAME(type, name) \
 	static const OS_ClassInfo& getClassInfoStatic(){ \
@@ -146,15 +146,15 @@ struct OS_ClassInfo
 
 #include <string>
 
-namespace oxygine { class EventCallback; class Event; class EventDispatcher; class Actor; class Tween; }
+namespace oxygine { class Object; class EventCallback; class Event; class EventDispatcher; class Actor; class Tween; }
 
 void registerOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
 void unregisterOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
 void unregisterOSAllEventCallbacks(oxygine::EventDispatcher*);
 
-void registerOSActorTween(oxygine::Actor*, oxygine::Tween*);
-void unregisterOSActorTween(oxygine::Actor*, oxygine::Tween*);
-void unregisterOSAllActorTweens(oxygine::Actor*);
+void registerOSTween(oxygine::Object*, oxygine::Tween*);
+void unregisterOSTween(oxygine::Object*, oxygine::Tween*);
+void unregisterOSAllTweens(oxygine::Object*);
 
 void registerOSActorChild(oxygine::Actor*, oxygine::Actor*);
 void unregisterOSActorChild(oxygine::Actor*, oxygine::Actor*);
