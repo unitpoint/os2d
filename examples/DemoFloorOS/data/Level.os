@@ -14,7 +14,7 @@ Level = extends Actor {
 			parent = this,
 			anchor = vec2(0.5, 1),
 			pos = vec2(@width/2, @height),
-			priority = 10,
+			priority = 100,
 		}
 		
 		@slots, @selectedSlotNum = [], -1
@@ -26,7 +26,7 @@ Level = extends Actor {
 				parent = this,
 				anchor = vec2(0, 0.5),
 				pos = vec2(slotX, hudPanel.y - hudPanel.height/2),
-				priority = 12,
+				priority = 102,
 				touchChildrenEnabled = false,
 				slotNum = i,
 				object = null,
@@ -47,9 +47,7 @@ Level = extends Actor {
 		@addEventListener(TouchEvent.CLICK, {|ev|
 			// print "slot click: ${ev.target}"
 			if("slotNum" in ev.target && ev.target.slotNum != @selectedSlotNum){
-				@slots[@selectedSlotNum].selectedSprite.visible = false
-				@selectedSlotNum = ev.target.slotNum
-				@slots[@selectedSlotNum].selectedSprite.visible = true
+				@selectSlotNum(ev.target.slotNum)
 			}
 		}.bind(this))
 		
@@ -134,6 +132,40 @@ Level = extends Actor {
 		}
 		*/
 	},
+
+	selectSlotNum = function(i){
+		@slots[@selectedSlotNum].selectedSprite.visible = false
+		@selectedSlotNum = i
+		@slots[@selectedSlotNum].selectedSprite.visible = true
+	},
+	
+	getSlotObjectSelected = function(name){
+		name is Sprite && name = name.name
+		return @selectedSlotNum && @slots[@selectedSlotNum].object.name == name
+	},
+	
+	addSlotObject = function(name){
+		name is Sprite && name = name.name
+		var emptySlot, emptySlotNum = null
+		for(var i, slot in @slots){
+			if(!emptySlot && !slot.object){
+				emptySlot, emptySlotNum = slot, i
+			}
+			slot.object.name == name && return;
+		}
+		if(emptySlot){
+			emptySlot.object = Sprite().attrs {
+				name = name,
+				resAnim = res.getResAnim(name.."-slot"),
+				parent = emptySlot,
+				pivot = vec2(0.5, 0.5),
+				pos = emptySlot.size / 2,
+				priority = 2,
+			}
+			@selectSlotNum(emptySlotNum)
+			return true
+		}
+	},
 	
 	setSlotObject = function(i, name){
 		var slot = @slots[i]
@@ -151,10 +183,18 @@ Level = extends Actor {
 		}
 	},
 	
-	removeSlotObject = function(i){
-		var slot = @slots[i]
-		slot.object.parent = null
-		slot.object = null
+	removeSlotObject = function(name){
+		name is Sprite && name = name.name
+		for(var i, slot in @slots){
+			if(slot.object.name == name){
+				if(@selectedSlotNum == i){
+					slot.selectedSprite.visible = false
+					@selectedSlotNum = null
+				}
+				slot.object.parent = null
+				slot.object = null
+			}
+		}
 	},
 	
 	getDoorPos = function(i, move){ // 0 - open, 1 - close
@@ -165,5 +205,71 @@ Level = extends Actor {
 		for(var i, door in @doors){
 			door.pos = @getDoorPos(i, move)
 		}
+	},
+	
+	dirToAngle = function(dir){
+		return math.deg(math.atan2(dir.y, dir.x))
+	},
+	
+	normAngle = function(angle){
+		if(angle < 0){
+			return 360 + angle - math.floor(angle / 360) * 360
+		}
+		if(angle >= 360){
+			return angle - math.floor(angle / 360) * 360
+		}
+		return angle
+	},
+	
+	normAngle180 = function(angle){
+		angle = @normAngle(angle)
+		return angle > 180 ? angle - 360 : angle
+	},	
+	
+	anglesDiff = function(a, b){
+		a = @normAngle(a)
+		b = @normAngle(b)
+		var diff = b - a
+		if(diff > 180){
+			return diff - 360
+		}
+		if(diff < -180){
+			return diff + 360
+		}
+		return diff
+	},	
+	
+	prepareRotateByTouchEvent = function(actor, ev){
+		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
+	},
+	
+	rotateByTouchEvent = function(actor, ev, minAngle, maxAngle){
+		var pos = actor.pos
+		var prevAngle = @dirToAngle(actor.parent.global2local(actor.prevTouchPoint) - pos)
+		var curAngle = @dirToAngle(ev.localPosition - pos)
+		var newAngle = actor.angle - prevAngle + curAngle
+		if(minAngle){
+			if(minAngle > maxAngle){
+				minAngle, maxAngle = maxAngle, minAngle
+			}
+			if(newAngle < minAngle || newAngle > maxAngle){
+				var offs1 = math.abs(@anglesDiff(minAngle, newAngle))
+				var offs2 = math.abs(@anglesDiff(maxAngle, newAngle))
+				newAngle = offs1 < offs2 ? minAngle : maxAngle
+			}
+		}
+		actor.angle = newAngle
+		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
+	},
+	
+	prepareMoveByTouchEvent = function(actor, ev){
+		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
+	},
+	
+	horizMoveByTouchEvent = function(actor, ev){
+		var prevPos = actor.parent.global2local(actor.prevTouchPoint)
+		var newPos = ev.localPosition
+		actor.x = actor.x - prevPos.x + newPos.x
+		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
 	},
 }

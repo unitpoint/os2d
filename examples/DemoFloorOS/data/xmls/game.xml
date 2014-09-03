@@ -11,12 +11,18 @@
 		<image file="hud-items-panel.jpg" />
 		<image file="hud-panel-slot.png" />
 		<image file="hud-panel-slot-selected.png" />
+		<image file="obj-01.png" />
 		<image file="obj-02-slot.png" />
 		<image file="obj-02.png" />
 		<image file="obj-03-slot.png" />
 		<image file="obj-03.png" />
 		<image file="light-red.png" />
 		<image file="light-green.png" />
+		<image file="hud-button-home-pressed.png" />
+		<image file="hud-button-home.png" />
+		<image file="hud-button-restart-pressed.png" />
+		<image file="hud-button-restart.png" />
+		<image file="broken-panel.png" />
 	</atlas>
 
 	<set path = "fonts" />

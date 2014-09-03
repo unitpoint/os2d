@@ -4,6 +4,19 @@ GameScene = extends Scene {
 		@loadConfig()
 		@nextLevel(@config.levelNum)
 		
+		if(DEBUG || true){
+			var btnNext = Sprite().attrs {
+				resAnim = res.getResAnim("hud-button-restart"),
+				parent = this,
+				pivot = vec2(1, 0),
+				pos = vec2(@width, 0),
+				priority = 1,
+			}
+			btnNext.addEventListener(TouchEvent.CLICK, function(){
+				@nextLevel(@level.levelNum + 1)
+			}.bind(this))
+		}
+		
 		// debug, check mem leaks
 		false && @addTween(UpdateTween(1000/100, function(){
 			@nextLevel(@level.levelNum + 1)
@@ -20,7 +33,7 @@ GameScene = extends Scene {
 	},
 	
 	level = null,
-	nextLevel = function(levelNum){
+	nextLevel = function(levelNum, exception){
 		print "nextLevel: ${levelNum}"
 		if(@config.levelNum !== levelNum){
 			@config.levelNum = levelNum
@@ -31,7 +44,8 @@ GameScene = extends Scene {
 			var LevelClass = _G["Level_${levelNum}"]
 		}catch(e){
 			// workaround now
-			return @nextLevel(1)
+			exception && throw exception
+			return @nextLevel(1, e)
 		}
 		@level = LevelClass(this).attrs {
 			parent = this
