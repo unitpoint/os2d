@@ -524,7 +524,7 @@ struct CtypeValue<Color>
 		os->pushNumber(color.g / 255.0);
 		os->pushNumber(color.b / 255.0);
 		os->pushNumber(color.a / 255.0);
-		os->call(2, 1);
+		os->call(4, 1);
 		os->handleException();
 	}
 };
