@@ -55,66 +55,59 @@ namespace oxygine
 		addEventListener(TweenEvent::DONE, cb);
 	}
 
-	float Tween::calcEase(EASE ease, float v)
+	static float outBounce(float t)
 	{
-		float vi;
-		float r = 0;
+		if(t < 0.363636363636f){
+			return 7.5625f * t * t;
+		}
+		if(t < 0.727272727273f) {
+			t = t - 0.545454545455f;
+			return 7.5625f * t * t + 0.75f;
+		}
+		if(t < 0.909090909091f) {
+			t = t - 0.818181818182f;
+			return 7.5625f * t * t + 0.9375f;
+		}
+		t = t - 0.954545454545f;
+		return 7.5625f * t * t + 0.984375f;
+	}
+
+
+	float Tween::calcEase(EASE ease, float t)
+	{
 		const float s = 1.70158f;
 
 		switch(ease)
 		{
 		case ease_linear:
-			r = v;
-			break;
-		case ease_inExpo:
-			r = powf(2.0f, 10.0f * (v - 1.0f));
-			break;
-		case ease_outExpo:
-			r = 1.0f - powf(2.0f, -10.0f * v);
-			break;
-		case ease_inSin:
-			r = 1.0f - scalar::cos(v * (MATH_PI/2.0f));
-			break;
-		case ease_outSin:
-			r = scalar::sin(v * (MATH_PI/2.0f));
-			break;
-		case ease_inCubic:
-			r = v * v * v;
-			break;
-		case ease_outCubic:			
-			vi = v - 1.0f;
-			r = vi * vi * vi + 1.0f;
-			break;
-		case ease_inOutBack:		
-			{
-				const float s15 = s * 1.525f;
+			return t;
 
-				v *= 2;
-				if (v < 1)
-				{
-					r = v * v * ((s15 + 1) * v - s15);
-				}
-				else
-				{				
-					v-=2;
-					r = v * v * ((s15 + 1) * v + s15) + 2;
-				}
-				r /= 2;
-			}
-			break;
-		case ease_inBack:
-			r = v * v * ((s + 1) * v - s);
-			break;
-		case ease_outBack:
-			v -= 1;
-			r = v * v *((s + 1)*v + s) + 1;
-			break;
+#define DEF_EASY_FROM_IN(EasyPost, formula) \
+		case ease_in ## EasyPost: \
+			return (formula); \
+		case ease_out ## EasyPost: \
+			return 1 - calcEase(ease_in ## EasyPost, 1 - t); \
+		case ease_inOut ## EasyPost: \
+			return t <= 0.5f ? calcEase(ease_in ## EasyPost, t * 2) / 2 : 1 - calcEase(ease_in ## EasyPost, 2 - t * 2) / 2; \
+		case ease_outIn ## EasyPost: \
+			return 1 - calcEase(ease_inOut ## EasyPost, 1 - t)
+
+		DEF_EASY_FROM_IN(Quad, t * t);
+		DEF_EASY_FROM_IN(Cubic, t * t * t);
+		DEF_EASY_FROM_IN(Quart, powf(t, 4));
+		DEF_EASY_FROM_IN(Quint, powf(t, 5));
+		DEF_EASY_FROM_IN(Sine, 1.0f - scalar::cos(t * (MATH_PI/2.0f)));
+		DEF_EASY_FROM_IN(Expo, powf(2, 10 * (t - 1)));
+		DEF_EASY_FROM_IN(Circ, scalar::sqrt(1 - (1 - t * t)));
+		DEF_EASY_FROM_IN(Back, t * t * ((s + 1) * t - s));
+		DEF_EASY_FROM_IN(Bounce, 1 - outBounce(1 - t));
+
 		default:
 			OX_ASSERT(!"unsupported ease");
 			break;
 		}
 
-		return r;
+		return t;
 	}
 
 	
@@ -243,6 +236,9 @@ namespace oxygine
 		_status = status_remove;
 	}
 
+	TweenQueue::TweenQueue()
+	{
+	}
 	
 	spTween TweenQueue::add(spTween t)
 	{
@@ -250,7 +246,8 @@ namespace oxygine
 		if (!t)
 			return 0;
 
-		_tweens.append(t);		
+		_tweens.append(t);
+		registerOSTween(this, t.get());
 		return t;
 	}
 

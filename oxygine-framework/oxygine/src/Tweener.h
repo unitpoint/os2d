@@ -126,16 +126,51 @@ namespace oxygine
 		{
 			ease_unknown,
 			ease_linear,
-			ease_inExpo,
-			ease_outExpo,
-			ease_inSin,
-			ease_outSin,
+
+			ease_inQuad,
+			ease_outQuad,
+			ease_inOutQuad,
+			ease_outInQuad,
+
 			ease_inCubic,
 			ease_outCubic,
+			ease_inOutCubic,
+			ease_outInCubic,
+
+			ease_inQuart,
+			ease_outQuart,
+			ease_inOutQuart,
+			ease_outInQuart,
+
+			ease_inQuint,
+			ease_outQuint,
+			ease_inOutQuint,
+			ease_outInQuint,
+
+			ease_inSine,
+			ease_outSine,
+			ease_inOutSine,
+			ease_outInSine,
+
+			ease_inExpo,
+			ease_outExpo,
+			ease_inOutExpo,
+			ease_outInExpo,
 			
-			ease_inOutBack,
+			ease_inCirc,
+			ease_outCirc,
+			ease_inOutCirc,
+			ease_outInCirc,
+			
 			ease_inBack,
 			ease_outBack,
+			ease_inOutBack,
+			ease_outInBack,
+
+			ease_inBounce,
+			ease_outBounce,
+			ease_inOutBounce,
+			ease_outInBounce,
 
 			ease_count
 		};
@@ -256,6 +291,10 @@ namespace oxygine
 	class TweenQueue: public Tween
 	{
 	public:
+		OS_DECLARE_CLASSINFO_NAME(TweenQueue, "SequenceTween");
+
+		TweenQueue();
+		
 		spTween add(spTween t);
 
 		template<class GS>
