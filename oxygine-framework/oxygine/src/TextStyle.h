@@ -2,6 +2,7 @@
 #include "oxygine_include.h"
 #include "math/Color.h"
 #include <string>
+#include "res/ResFont.h"
 
 namespace oxygine
 {
@@ -28,7 +29,8 @@ namespace oxygine
 		};
 
 
-		TextStyle():font(0), 
+		TextStyle(): // font(0), 
+			resFont(),
 			hAlign(HALIGN_DEFAULT),
 			vAlign(VALIGN_DEFAULT), 
 			linesOffset(0), 
@@ -37,7 +39,8 @@ namespace oxygine
 			fontSize2Scale(0),
 			breakLongWords(false){}
 
-		Font *font;
+		// Font *font;
+		spResFont resFont;
 
 		HorizontalAlign hAlign;
 		VerticalAlign vAlign;

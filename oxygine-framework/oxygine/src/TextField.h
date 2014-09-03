@@ -17,7 +17,9 @@ namespace oxygine
 	class TextField : public VStyleActor
 	{
 	public:
+		OS_DECLARE_CLASSINFO(TextField);
 		DECLARE_COPYCLONE_NEW(TextField);
+
 		TextField();
 		~TextField();
 		
@@ -49,7 +51,8 @@ namespace oxygine
 		/**Overwrites TextStyle scale2Size.*/
 		void setFontSize2Scale(int scale2size);
 		/**Overwrites TextStyle font.*/
-		void setFont(Font *rs);
+		void setResFont(spResFont font);
+		spResFont getResFont();
 
 		void setStyle(const TextStyle &st);
 		/**Changes text utf8*/

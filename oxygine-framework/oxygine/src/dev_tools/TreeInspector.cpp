@@ -136,7 +136,7 @@ namespace oxygine
 		
 
 		TextStyle style;
-		style.font = _resSystem->getResFont("system")->getFont();
+		style.resFont = _resSystem->getResFont("system"); // ->getFont();
 		style.vAlign = TextStyle::VALIGN_TOP;
 
 		

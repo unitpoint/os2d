@@ -100,7 +100,7 @@ namespace oxygine
 		
 
 		TextStyle st;
-		st.font = resSystem->getResFont("system")->getFont();
+		st.resFont = resSystem->getResFont("system"); // ->getFont();
 		st.vAlign = TextStyle::VALIGN_TOP;
 		//st.color = Color(rand()%255, rand()%255, rand()%255, 255);
 		st.color = Color(Color::Black, 255);

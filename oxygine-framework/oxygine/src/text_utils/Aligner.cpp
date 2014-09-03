@@ -95,7 +95,7 @@ namespace oxygine
 
 		int Aligner::getLineSkip() const
 		{
-			return getStyle().font->getBaselineDistance() + getStyle().linesOffset;
+			return getStyle().resFont->getFont()->getBaselineDistance() + getStyle().linesOffset;
 		}
 
 		void Aligner::_alignLine(line &ln)
@@ -151,9 +151,10 @@ namespace oxygine
 
 		float Aligner::getScaleFactor() const
 		{
-			float scaleFactor = getStyle().font->getScaleFactor();
+			Font * font = getStyle().resFont->getFont();
+			float scaleFactor = font->getScaleFactor();
 			if (getStyle().fontSize2Scale)
-				scaleFactor *= getStyle().font->getSize() / float(getStyle().fontSize2Scale);
+				scaleFactor *= font->getSize() / float(getStyle().fontSize2Scale);
 
 			return scaleFactor;
 		}

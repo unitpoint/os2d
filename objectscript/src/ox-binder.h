@@ -333,6 +333,41 @@ static bool addRegFunc(RegisterFunction func)
 
 // =====================================================================
 
+template <class T>
+void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * list, const ObjectScript::OS::NumberDef * numbers = NULL, bool instantiable = true)
+{
+	const OS_ClassInfo& classinfo = T::getClassInfoStatic();
+	os->pushGlobals();
+	os->pushString(classinfo.classname);
+	os->pushUserdata(classinfo.class_id, 0, NULL, NULL);
+	os->setFuncs(list);
+	os->setNumbers(numbers);
+	os->pushBool(instantiable);
+	os->setProperty(-2, OS_TEXT("__instantiable"), false);
+	os->setProperty();
+}
+
+template <class T, class Prototype>
+void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * list, const ObjectScript::OS::NumberDef * numbers = NULL, bool instantiable = true)
+{
+	const OS_ClassInfo& classinfo = T::getClassInfoStatic();
+	os->pushGlobals();
+	os->pushString(classinfo.classname);
+	os->pushUserdata(classinfo.class_id, 0, NULL, NULL);
+	os->setFuncs(list);
+	os->setNumbers(numbers);
+	os->pushBool(instantiable);
+	os->setProperty(-2, OS_TEXT("__instantiable"), false);
+
+	const OS_ClassInfo& classinfo_proto = Prototype::getClassInfoStatic();
+	os->pushStackValue();
+	os->getGlobal(classinfo_proto.classname);
+	os->setPrototype(classinfo.class_id);
+	os->setProperty();
+}
+
+// =====================================================================
+
 OS_DECL_CTYPE_NAME(Vector2, "vec2");
 
 template <>
@@ -531,41 +566,6 @@ struct CtypeValue<Color>
 
 // =====================================================================
 
-template <class T>
-void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * list, const ObjectScript::OS::NumberDef * numbers = NULL, bool instantiable = true)
-{
-	const OS_ClassInfo& classinfo = T::getClassInfoStatic();
-	os->pushGlobals();
-	os->pushString(classinfo.classname);
-	os->pushUserdata(classinfo.class_id, 0, NULL, NULL);
-	os->setFuncs(list);
-	os->setNumbers(numbers);
-	os->pushBool(instantiable);
-	os->setProperty(-2, OS_TEXT("__instantiable"), false);
-	os->setProperty();
-}
-
-template <class T, class Prototype>
-void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * list, const ObjectScript::OS::NumberDef * numbers = NULL, bool instantiable = true)
-{
-	const OS_ClassInfo& classinfo = T::getClassInfoStatic();
-	os->pushGlobals();
-	os->pushString(classinfo.classname);
-	os->pushUserdata(classinfo.class_id, 0, NULL, NULL);
-	os->setFuncs(list);
-	os->setNumbers(numbers);
-	os->pushBool(instantiable);
-	os->setProperty(-2, OS_TEXT("__instantiable"), false);
-
-	const OS_ClassInfo& classinfo_proto = Prototype::getClassInfoStatic();
-	os->pushStackValue();
-	os->getGlobal(classinfo_proto.classname);
-	os->setPrototype(classinfo.class_id);
-	os->setProperty();
-}
-
-// =====================================================================
-
 OS_DECL_OX_CLASS(Object);
 static void registerObject(OS * os)
 {
@@ -616,6 +616,32 @@ static void registerObject(OS * os)
 }
 static bool __registerObject = addRegFunc(registerObject);
 
+// =====================================================================
+/*
+OS_DECL_OX_CLASS(Font);
+static void registerFont(OS * os)
+{
+	struct Lib {
+	};
+
+	OS::FuncDef funcs[] = {
+		DEF_PROP("scaleFactor", Font, ScaleFactor),
+		def("init", &Font::init),
+		// void addGlyph(const glyph &g);
+		def("sortGlyphs", &Font::sortGlyphs),
+		// const glyph*	getGlyph(int code) const;
+		DEF_GET("baselineDistance", Font, BaselineDistance),
+		DEF_GET("size", Font, Size),
+		DEF_GET("lineHeight", Font, LineHeight),
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<Font, Object>(os, funcs);
+}
+static bool __registerFont = addRegFunc(registerFont);
+*/
 // =====================================================================
 
 OS_DECL_OX_CLASS(Clock);
@@ -857,6 +883,21 @@ static bool __registerEventDispatcher = addRegFunc(registerEventDispatcher);
 
 // =====================================================================
 
+OS_DECL_OX_CLASS(Resource);
+static void registerResource(OS * os)
+{
+	OS::FuncDef funcs[] = {
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<Resource, Object>(os, funcs, nums);
+}
+static bool __registerResource = addRegFunc(registerResource);
+
+// =====================================================================
+
 OS_DECL_OX_CLASS(ResAnim);
 static void registerResAnim(OS * os)
 {
@@ -869,6 +910,120 @@ static void registerResAnim(OS * os)
 	registerOXClass<ResAnim, Resource>(os, funcs, nums);
 }
 static bool __registerResAnim = addRegFunc(registerResAnim);
+
+// =====================================================================
+
+OS_DECL_OX_CLASS(ResFont);
+static void registerResFont(OS * os)
+{
+	OS::FuncDef funcs[] = {
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<ResFont, Resource>(os, funcs, nums);
+}
+static bool __registerResFont = addRegFunc(registerResFont);
+
+// =====================================================================
+
+OS_DECL_CTYPE_ENUM(TextStyle::HorizontalAlign);
+OS_DECL_CTYPE_ENUM(TextStyle::VerticalAlign);
+
+OS_DECL_CTYPE(TextStyle);
+
+template <>
+struct CtypeValue<TextStyle>
+{
+	typedef TextStyle type;
+
+	static bool isValid(const type&){ return true; }
+
+	static type def(ObjectScript::OS * os){ return type(); }
+	static type getArg(ObjectScript::OS * os, int offs)
+	{
+		if(os->isObject(offs)){
+			type t;
+			
+			os->getProperty(offs, "resFont");
+			t.resFont = CtypeValue<ResFont*>::getArg(os, -1);
+			os->pop();
+
+			t.hAlign = (TextStyle::HorizontalAlign)(os->getProperty(offs, "hAlign"), os->popInt(t.hAlign));
+			t.vAlign = (TextStyle::VerticalAlign)(os->getProperty(offs, "vAlign"), os->popInt(t.vAlign));
+			t.linesOffset = (os->getProperty(offs, "linesOffset"), os->popInt(t.linesOffset));
+			t.kerning = (os->getProperty(offs, "kerning"), os->popInt(t.kerning));
+			t.multiline = (os->getProperty(offs, "multiline"), os->popBool(t.multiline));
+			t.breakLongWords = (os->getProperty(offs, "breakLongWords"), os->popBool(t.breakLongWords));
+
+			os->getProperty(offs, "color");
+			t.color = CtypeValue<Color>::getArg(os, -1);
+			os->pop();
+
+			t.fontSize2Scale = (os->getProperty(offs, "fontSize2Scale"), os->popInt(t.fontSize2Scale));
+			return t;
+		}
+		os->setException("object required");
+		return type();
+	}
+
+	static void push(ObjectScript::OS * os, const type& t)
+	{
+		os->newObject();
+	
+		pushCtypeValue(os, t.resFont);
+		os->setProperty(-2, "resFont", false);
+	
+		pushCtypeValue(os, t.hAlign);
+		os->setProperty(-2, "hAlign", false);
+	
+		pushCtypeValue(os, t.vAlign);
+		os->setProperty(-2, "vAlign", false);
+	
+		pushCtypeValue(os, t.linesOffset);
+		os->setProperty(-2, "linesOffset", false);
+	
+		pushCtypeValue(os, t.kerning);
+		os->setProperty(-2, "kerning", false);
+	
+		pushCtypeValue(os, t.multiline);
+		os->setProperty(-2, "multiline", false);
+	
+		pushCtypeValue(os, t.breakLongWords);
+		os->setProperty(-2, "breakLongWords", false);
+	
+		pushCtypeValue(os, t.color);
+		os->setProperty(-2, "color", false);
+	
+		pushCtypeValue(os, t.fontSize2Scale);
+		os->setProperty(-2, "fontSize2Scale", false);
+	}
+};
+
+// =====================================================================
+
+// OS_DECL_OX_CLASS(TextStyle);
+static void registerTextStyle(OS * os)
+{
+	OS::NumberDef nums[] = {
+		{"HALIGN_DEFAULT", TextStyle::HALIGN_DEFAULT},
+		{"HALIGN_LEFT", TextStyle::HALIGN_LEFT},
+		{"HALIGN_MIDDLE", TextStyle::HALIGN_MIDDLE},
+		{"HALIGN_CENTER", TextStyle::HALIGN_CENTER},
+		{"HALIGN_RIGHT", TextStyle::HALIGN_RIGHT},
+		{"VALIGN_DEFAULT", TextStyle::VALIGN_DEFAULT},
+		{"VALIGN_BASELINE", TextStyle::VALIGN_BASELINE},
+		{"VALIGN_TOP", TextStyle::VALIGN_TOP},
+		{"VALIGN_MIDDLE", TextStyle::VALIGN_MIDDLE},
+		{"VALIGN_BOTTOM", TextStyle::VALIGN_BOTTOM},
+		{}
+	};
+	os->getGlobalObject("TextStyle");
+	os->setNumbers(nums);
+	os->pop();
+}
+static bool __registerTextStyle = addRegFunc(registerTextStyle);
 
 // =====================================================================
 
@@ -1442,6 +1597,39 @@ static bool __registerVStyleActor = addRegFunc(registerVStyleActor);
 
 // =====================================================================
 
+OS_DECL_OX_CLASS(TextField);
+static void registerTextField(OS * os)
+{
+	struct Lib {
+		static TextField * __newinstance()
+		{
+			return new TextField();
+		}
+	};
+
+	OS::FuncDef funcs[] = {
+		def("__newinstance", &Lib::__newinstance),
+		DEF_PROP("style", TextField, Style),
+		// const Rect&					getTextRect();
+		DEF_GET("text", TextField, Text),
+		def("__set@text", (void(TextField::*)(const string &))&TextField::setText),
+		def("__set@htmlText", (void(TextField::*)(const string &))&TextField::setHtmlText),
+		DEF_PROP("fontSize2Scale", TextField, FontSize2Scale),
+		DEF_PROP("vAlign", TextField, VAlign),
+		DEF_PROP("hAlign", TextField, HAlign),
+		DEF_PROP("multiline", TextField, Multiline),
+		DEF_PROP("breakLongWords", TextField, BreakLongWords),
+		DEF_PROP("hAlign", TextField, HAlign),
+		DEF_PROP("hAlign", TextField, HAlign),
+		DEF_PROP("resFont", TextField, ResFont),
+		{}
+	};
+	registerOXClass<TextField, VStyleActor>(os, funcs);
+}
+static bool __registerTextField = addRegFunc(registerTextField);
+
+// =====================================================================
+
 OS_DECL_OX_CLASS(Sprite);
 static void registerSprite(OS * os)
 {
@@ -1495,21 +1683,6 @@ static void registerStage(OS * os)
 	registerOXClass<Stage, Actor>(os, funcs, nums);
 }
 static bool __registerStage = addRegFunc(registerStage);
-
-// =====================================================================
-
-OS_DECL_OX_CLASS(Resource);
-static void registerResource(OS * os)
-{
-	OS::FuncDef funcs[] = {
-		{}
-	};
-	OS::NumberDef nums[] = {
-		{}
-	};
-	registerOXClass<Resource, Object>(os, funcs, nums);
-}
-static bool __registerResource = addRegFunc(registerResource);
 
 // =====================================================================
 

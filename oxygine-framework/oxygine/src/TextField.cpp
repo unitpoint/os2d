@@ -23,7 +23,7 @@ namespace oxygine
 		_flags |= flag_rebuild;
 		if (DebugActor::resSystem)
 		{
-			_style.font = DebugActor::resSystem->getResFont("system")->getFont();
+			_style.resFont = DebugActor::resSystem->getResFont("system"); // ->getFont();
 		}
 	}
 
@@ -87,9 +87,14 @@ namespace oxygine
 		needRebuild();
 	}
 
-	void TextField::setFont(Font *font)
+	spResFont TextField::getResFont()
 	{
-		_style.font = font;
+		return _style.resFont;
+	}
+
+	void TextField::setResFont(spResFont resFont)
+	{
+		_style.resFont = resFont;
 	}
 
 	void TextField::setHAlign(TextStyle::HorizontalAlign align)
@@ -181,7 +186,7 @@ namespace oxygine
 
 	text::Node *TextField::getStageNode()
 	{
-		if ((_flags & flag_rebuild) && _style.font)
+		if ((_flags & flag_rebuild) && _style.resFont)
 		{
 			delete _root;
 
@@ -266,9 +271,9 @@ namespace oxygine
 			stream << " linesOffset=" << s.linesOffset;
 		if (!onlydiff || def.fontSize2Scale != s.fontSize2Scale)
 			stream << " scale2size=" << s.fontSize2Scale;
-		if (s.font)
+		if (s.resFont)
 		{
-			stream << " font='" << s.font->getName() << "'";
+			stream << " font='" << s.resFont->getFont()->getName() << "'";
 		}
 
 		return stream.str();
