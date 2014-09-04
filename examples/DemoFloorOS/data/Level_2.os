@@ -45,12 +45,11 @@ Level_2 = extends Level {
 			}.bind(this),
 		}
 		
-		@boltInitPos = vec2(@width/2 - 210, @elevatorInside.y + @elevatorInside.height + 30)
 		@bolt = Sprite().attrs {
 			name = "obj-02",
 			resAnim = res.getResAnim("obj-02"),
 			pivot = vec2(0.5, 0.5),
-			pos = @boltInitPos,
+			pos = vec2(@width/2 - 210, @elevatorInside.y + @elevatorInside.height + 30),
 			parent = this,
 			priority = 11,
 			// extendedClickArea = 30,
@@ -71,12 +70,11 @@ Level_2 = extends Level {
 		}
 		@initSlotObject{@bolt}
 		
-		@screwdriverInitPos = vec2(@width/2 + 210, @elevatorInside.y + @elevatorInside.height + 80)
 		@screwdriver = Sprite().attrs {
 			name = "obj-03",
 			resAnim = res.getResAnim("obj-03"),
 			pivot = vec2(0.5, 0.5),
-			pos = @screwdriverInitPos,
+			pos = vec2(@width/2 + 210, @elevatorInside.y + @elevatorInside.height + 80),
 			parent = this,
 			priority = 11,
 			// extendedClickArea = 30,
@@ -149,27 +147,5 @@ Level_2 = extends Level {
 		seq.doneCallback = function(){ @startPanelSwing() }.bind(this)
 		seq.name = "panelSwing"
 		@brokenPanel.addTween(seq)
-	},
-	
-	openDoor = function(i){
-		if(!@openDoors[i]){
-			@openDoors[i] = true
-			var door = @doors[i]
-			// print "openDoor(${i}): ${door}, ${@doors}"
-			door.addTween("pos", door.openPos, 1000, 1, false, 0, Tween.EASE_OUTCUBIC).attrs {
-				doneCallback = function(){
-					if(@openDoors[0] && @openDoors[1]){
-						@allowNextLevel()
-					}
-				}.bind(this),
-			}
-		}
-	},
-	
-	click = function(ev){
-		if("btnIndex" in ev.target){
-			ev.target.resAnim = res.getResAnim("light-green")
-			@openDoor(ev.target.btnIndex)
-		}
 	},
 }
