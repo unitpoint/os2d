@@ -1,10 +1,7 @@
 Scene = extends Actor {
 	__construct = function(){
 		@size = stage.size
-		// print "${@classname}.size: ${@size}"
-		
-		@opacity = 1
-		@transition = null
+		@sceneTransition = null
 	},
 	
 	changeScene = function(next){
@@ -12,26 +9,26 @@ Scene = extends Actor {
 		next.show()
 	},
 	
-	show = function(){
-		@transition = "show"
-		@parent = stage
+	show = function(parent){
+		@sceneTransition = "show"
+		@parent = parent || @parent || stage
 		@removeTweensByName("sceneTransition")
-		@opacity != 1 && @addTween("opacity", 1, 1000).attrs {
+		@opacity != 1 && @addTween("opacity", 1, 500).attrs {
 			name = "sceneTransition",
 			doneCallback = function(){
-				@transition = null
+				@sceneTransition = null
 			}.bind(this),
 		}
 	},
 	
 	hide = function(){
-		@transition = "hide"
+		@sceneTransition = "hide"
 		@removeTweensByName("sceneTransition")
-		@addTween("opacity", 0, 1000).attrs {
+		@addTween("opacity", 0, 500).attrs {
 			name = "sceneTransition",
 			detachActor = true,
 			doneCallback = function(){
-				@transition = null
+				@sceneTransition = null
 			}.bind(this),
 		}
 	},
