@@ -39,17 +39,18 @@ GameScene = extends Scene {
 			@config.levelNum = levelNum
 			@saveConfig()
 		}
-		@level.parent = null
 		try{
 			var LevelClass = _G["Level_${levelNum}"]
 		}catch(e){
 			// workaround now
+			e is CompilerException && throw e;
 			exception && throw exception
 			return @nextLevel(1, e)
 		}
-		@level = LevelClass(this).attrs {
-			parent = this
-		}
+		// @level.parent = null
+		@level.hide()
+		@level = LevelClass(this).attrs { opacity = 0 }
+		@level.show(this)
 	},
 	
 	update = function(ev){

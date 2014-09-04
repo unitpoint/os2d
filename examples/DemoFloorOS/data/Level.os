@@ -1,4 +1,4 @@
-Level = extends Actor {
+Level = extends Scene {
 	wallsName = "level-01-walls",
 	elevatorName = "elevator-inside-01",
 	elevatorInsideButtonName = "elevator-inside-up-button",
@@ -17,7 +17,7 @@ Level = extends Actor {
 			priority = 100,
 		}
 		
-		@slots, @selectedSlotNum = [], -1
+		@slots, @selectedSlot, @selectedObject = []
 		var padding = hudPanel.height * 0.1
 		var slotX = padding
 		for(var i = 0; i < 4; i++){
@@ -28,10 +28,11 @@ Level = extends Actor {
 				pos = vec2(slotX, hudPanel.y - hudPanel.height/2),
 				priority = 102,
 				touchChildrenEnabled = false,
-				slotNum = i,
-				object = null,
+				// slotNum = i,
+				slotPicture = null,
+				sceneObject = null,
 			}
-			var selectedSprite = Sprite().attrs {
+			var selectedBG = Sprite().attrs {
 				resAnim = res.getResAnim("hud-panel-slot-selected"),
 				parent = slot,
 				anchor = vec2(0.5, 0.5),
@@ -40,14 +41,14 @@ Level = extends Actor {
 				visible = false,
 				// touchEnabled = false,
 			}
-			slot.selectedSprite = selectedSprite
+			slot.selectedBG = selectedBG
 			slotX = slotX + slot.width + padding
 			@slots[] = slot
 		}
 		@addEventListener(TouchEvent.CLICK, {|ev|
 			// print "slot click: ${ev.target}"
-			if("slotNum" in ev.target && ev.target.slotNum != @selectedSlotNum){
-				@selectSlotNum(ev.target.slotNum)
+			if("selectedBG" in ev.target && ev.target !== @selectedSlot){
+				@selectSlot(ev.target)
 			}
 		}.bind(this))
 		
@@ -75,6 +76,8 @@ Level = extends Actor {
 			opacity = 0,
 			priority = 100,
 		}
+		
+		@openDoors = [false, false]
 		@initDoors()
 	},
 	
@@ -101,7 +104,7 @@ Level = extends Actor {
 			pos = vec2(0, 0),
 		}
 		@doorLeft.closedPos = @doorLeft.pos
-		@doorLeft.openPos = @doorLeft.pos - vec2(@doorLeft.width, 0)
+		@doorLeft.openPos = @doorLeft.pos - vec2(@doorLeft.width*0.95, 0)
 		
 		@doorRight = Sprite().attrs {
 			resAnim = res.getResAnim(@doorRightName),
@@ -110,7 +113,7 @@ Level = extends Actor {
 			pos = vec2(@elevatorInside.width, 0),
 		}
 		@doorRight.closedPos = @doorRight.pos
-		@doorRight.openPos = @doorRight.pos + vec2(@doorRight.width, 0)
+		@doorRight.openPos = @doorRight.pos + vec2(@doorRight.width*0.95, 0)
 		/*
 			@doorRight = Sprite().attrs {
 				resAnim = res.getResAnim("door-01-right"),
@@ -133,47 +136,75 @@ Level = extends Actor {
 		*/
 	},
 
-	selectSlotNum = function(i){
-		@slots[@selectedSlotNum].selectedSprite.visible = false
-		@selectedSlotNum = i
-		@slots[@selectedSlotNum].selectedSprite.visible = true
-	},
-	
-	getSlotObjectSelected = function(name){
-		name is Sprite && name = name.name
-		return @selectedSlotNum && @slots[@selectedSlotNum].object.name == name
-	},
-	
-	addSlotObject = function(name){
-		name is Sprite && name = name.name
-		var emptySlot, emptySlotNum = null
-		for(var i, slot in @slots){
-			if(!emptySlot && !slot.object){
-				emptySlot, emptySlotNum = slot, i
+	openDoor = function(i){
+		if(!@openDoors[i]){
+			@openDoors[i] = true
+			var door = @doors[i]
+			// print "openDoor(${i}): ${door}, ${@doors}"
+			door.addTween("pos", door.openPos, 1000, 1, false, 0, Tween.EASE_OUTCUBIC).attrs {
+				doneCallback = function(){
+					if(@openDoors[0] && @openDoors[1]){
+						@allowNextLevel()
+					}
+				}.bind(this),
 			}
-			slot.object.name == name && return;
+		}
+	},
+	
+	selectSlot = function(slot){
+		@selectedSlot.selectedBG.visible = false
+		@selectedSlot = slot
+		@selectedSlot.selectedBG.visible = true
+		@selectedSlot.sceneObject.onSlotSelected()
+	},
+	
+	isSlotObjectSelected = function(obj){
+		return @selectedSlot.sceneObject === obj
+	},
+	
+	returnSlotObject = function(obj){
+		@removeSlotObject(obj)
+		if(!obj.parent){
+			obj.removeTweensByName("returnSlotObject")
+			obj.attrs {
+				opacity = 0, 
+				parent = obj.originParent,
+				pos = obj.originPos,
+			}
+			obj.addTween("opacity", 1, 200).name = "returnSlotObject"
+		}
+	},
+	
+	addSlotObject = function(obj){
+		var emptySlot = null
+		for(var i, slot in @slots){
+			slot.sceneObject === obj && return;
+			!emptySlot && !slot.sceneObject && emptySlot = slot
 		}
 		if(emptySlot){
-			emptySlot.object = Sprite().attrs {
-				name = name,
-				resAnim = res.getResAnim(name.."-slot"),
+			obj.originPos = obj.pos
+			obj.originParent = obj.parent
+			obj.parent = null
+			emptySlot.sceneObject = obj
+			emptySlot.slotPicture = Sprite().attrs {
+				resAnim = res.getResAnim(obj.name.."-slot"),
 				parent = emptySlot,
 				pivot = vec2(0.5, 0.5),
 				pos = emptySlot.size / 2,
 				priority = 2,
 			}
-			@selectSlotNum(emptySlotNum)
+			@selectSlot(null)
 			return true
 		}
 	},
 	
-	setSlotObject = function(i, name){
+	setSlotObject = function(i, obj){
 		var slot = @slots[i]
-		slot.object.name == name && return;
-		slot.object.parent = null
-		slot.object = Sprite().attrs {
-			name = name,
-			resAnim = res.getResAnim(name.."-slot"),
+		slot.sceneObject === obj && return;
+		slot.sceneObject = obj
+		slot.slotPicture.parent = null
+		slot.slotPicture = Sprite().attrs {
+			resAnim = res.getResAnim(obj.name.."-slot"),
 			parent = slot,
 			pivot = vec2(0.5, 0.5),
 			pos = slot.size / 2,
@@ -183,16 +214,24 @@ Level = extends Actor {
 		}
 	},
 	
-	removeSlotObject = function(name){
-		name is Sprite && name = name.name
+	removeSlotObject = function(obj){
 		for(var i, slot in @slots){
-			if(slot.object.name == name){
-				if(@selectedSlotNum == i){
-					slot.selectedSprite.visible = false
-					@selectedSlotNum = null
+			if(slot.sceneObject === obj){
+				if(@selectedSlot === slot){
+					@selectSlot(null)
 				}
-				slot.object.parent = null
-				slot.object = null
+				slot.slotPicture.parent = null
+				slot.slotPicture = null
+				slot.sceneObject = null
+				return true
+			}
+		}
+	},
+	
+	findSlotObject = function(obj){
+		for(var i, slot in @slots){
+			if(slot.sceneObject === obj){
+				return true
 			}
 		}
 	},
@@ -271,5 +310,78 @@ Level = extends Actor {
 		var newPos = ev.localPosition
 		actor.x = actor.x - prevPos.x + newPos.x
 		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
+	},
+	
+	initSlotObject = function(obj, params){
+		if(obj.prototype === Object){
+			params && throw "2rd argument should be null here"
+			obj, params = obj.shift(), obj
+		}
+		obj.parent.addEventListener(TouchEvent.TOUCH_DOWN, function(ev){
+			if(ev.target === obj && params.onBegin() !== false){
+				@selectedObject = obj
+				params.onRotate()
+			}
+		}.bind(this))
+		
+		obj.parent.addEventListener(TouchEvent.TOUCH_UP, function(ev){
+			if(@selectedObject === obj){
+				@selectedObject = null
+				params.onEnd(@addSlotObject(obj))
+			}
+		}.bind(this))
+	},
+	
+	initHorizMovableObject = function(obj, params){
+		if(obj.prototype === Object){
+			params && throw "2rd argument should be null here"
+			obj, params = obj.shift(), obj
+		}
+		obj.parent.addEventListener(TouchEvent.TOUCH_DOWN, function(ev){
+			if(ev.target === obj && params.onBegin() !== false){
+				@selectedObject = obj
+				@prepareMoveByTouchEvent(obj, ev)
+			}
+		}.bind(this))
+		
+		obj.parent.addEventListener(TouchEvent.MOVE, function(ev){
+			if(@selectedObject === obj){
+				@horizMoveByTouchEvent(obj, ev)
+				params.onMove()
+			}
+		}.bind(this))
+		
+		obj.parent.addEventListener(TouchEvent.TOUCH_UP, function(ev){
+			if(@selectedObject === obj){
+				@selectedObject = null
+				params.onEnd()
+			}
+		}.bind(this))
+	},
+	
+	initRotableObject = function(obj, params){
+		if(obj.prototype === Object){
+			params && throw "2rd argument should be null here"
+			obj, params = obj.shift(), obj
+		}
+		obj.parent.addEventListener(TouchEvent.TOUCH_DOWN, function(ev){
+			if(ev.target === obj && params.onBegin() !== false){
+				@selectedObject = obj
+				@prepareRotateByTouchEvent(obj, ev)
+			}
+		}.bind(this))
+		
+		obj.parent.addEventListener(TouchEvent.MOVE, function(ev){
+			if(@selectedObject === obj){
+				@rotateByTouchEvent(obj, ev, params.minAngle, params.maxAngle)
+			}
+		}.bind(this))
+		
+		obj.parent.addEventListener(TouchEvent.TOUCH_UP, function(ev){
+			if(@selectedObject === obj){
+				@selectedObject = null
+				params.onEnd()
+			}
+		}.bind(this))
 	},
 }
