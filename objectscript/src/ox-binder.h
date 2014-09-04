@@ -682,8 +682,8 @@ static void registerEvent(OS * os)
 
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
-		DEF_GET(type, Event, Type),
-		DEF_GET(phase, Event, Phase),
+		DEF_PROP(type, Event, Type),
+		DEF_PROP(phase, Event, Phase),
 		DEF_PROP(target, Event, Target),
 		DEF_PROP(currentTarget, Event, CurrentTarget),
 		def("stopPropagation", &Event::stopPropagation),
@@ -703,11 +703,11 @@ static void registerTouchEvent(OS * os)
 	};
 
 	OS::FuncDef funcs[] = {
-		DEF_GET(localPosition, TouchEvent, LocalPosition),
-		DEF_GET(position, TouchEvent, Position),
-		DEF_GET(pressure, TouchEvent, Pressure),
-		DEF_GET(mouseButton, TouchEvent, MouseButton),
-		DEF_GET(index, TouchEvent, Index),
+		DEF_PROP(localPosition, TouchEvent, LocalPosition),
+		DEF_PROP(position, TouchEvent, Position),
+		DEF_PROP(pressure, TouchEvent, Pressure),
+		DEF_PROP(mouseButton, TouchEvent, MouseButton),
+		DEF_PROP(index, TouchEvent, Index),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -1355,9 +1355,14 @@ public:
 
 	BaseDoneTween(){}
 
+	void setDuration(timeMS duration)
+	{
+		init(duration);
+	}
+
 protected:
 
-	void init(Actor &){}
+	// void init(Actor &){}
 	void update(Actor &, float p, const UpdateState &us){}
 };
 
@@ -1373,6 +1378,7 @@ static void registerBaseDoneTween(OS * os)
 	};
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
+		DEF_SET(duration, BaseDoneTween, Duration), 
 		{}
 	};
 	OS::NumberDef nums[] = {
