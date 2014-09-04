@@ -84,10 +84,19 @@ namespace oxygine
 		pointer_index index;
 
 		Vector2 getLocalPosition() const { return localPosition; }
+		void setLocalPosition(const Vector2& v){ localPosition = v; }
+
 		Vector2 getPosition() const { return position; }
+		void setPosition(const Vector2& v){ position = v; }
+
 		float getPressure() const { return pressure; }
+		void setPressure(float v){ pressure = v; }
+
 		MouseButton getMouseButton() const { return mouseButton; }
+		void setMouseButton(MouseButton v){ mouseButton = v; }
+
 		pointer_index getIndex() const { return index; }
+		void setIndex(pointer_index v){ index = v; }
 	};
 
 }
