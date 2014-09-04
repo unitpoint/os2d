@@ -50,8 +50,11 @@ namespace oxygine
 		}
 
 		eventType getType() const { return type; }
+		void setType(eventType value){ type = value; }
+
 		Phase getPhase() const { return phase; }
-		
+		void setPhase(Phase value){ phase = value; }
+
 		spEventDispatcher getTarget() const { return target; }
 		void setTarget(spEventDispatcher value){ target = value; }
 
