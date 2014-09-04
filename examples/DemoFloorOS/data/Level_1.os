@@ -31,27 +31,10 @@ Level_1 = extends Level {
 			btnIndex = 1,
 		}
 		
-		@openDoors = [false, false]
 		@addEventListener(TouchEvent.CLICK, @click.bind(this))
 		
 		// @setSlotObject(0, "obj-02")
 		// @setSlotObject(1, "obj-03")		
-	},
-	
-	
-	openDoor = function(i){
-		if(!@openDoors[i]){
-			@openDoors[i] = true
-			var door = @doors[i]
-			// print "openDoor(${i}): ${door}, ${@doors}"
-			door.addTween("pos", door.openPos, 1000, 1, false, 0, Tween.EASE_OUTCUBIC).attrs {
-				doneCallback = function(){
-					if(@openDoors[0] && @openDoors[1]){
-						@allowNextLevel()
-					}
-				}.bind(this),
-			}
-		}
 	},
 	
 	click = function(ev){
