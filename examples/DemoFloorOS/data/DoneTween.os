@@ -1,8 +1,9 @@
 DoneTween = extends BaseDoneTween {
-	__construct = function(func){
+	__construct = function(duration, func){
 		super()
-		if(func){
-			@doneCallback = functionOf(func) || throw "function required"
+		if(duration){
+			@duration = duration
+			@doneCallback = functionOf(func) || throw "2nd argument must be function"
 		}
 	},
 }
