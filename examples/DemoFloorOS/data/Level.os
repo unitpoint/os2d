@@ -320,7 +320,6 @@ Level = extends Scene {
 		obj.parent.addEventListener(TouchEvent.TOUCH_DOWN, function(ev){
 			if(ev.target === obj && params.onBegin() !== false){
 				@selectedObject = obj
-				params.onRotate()
 			}
 		}.bind(this))
 		
@@ -374,6 +373,7 @@ Level = extends Scene {
 		obj.parent.addEventListener(TouchEvent.MOVE, function(ev){
 			if(@selectedObject === obj){
 				@rotateByTouchEvent(obj, ev, params.minAngle, params.maxAngle)
+				params.onRotate()
 			}
 		}.bind(this))
 		
