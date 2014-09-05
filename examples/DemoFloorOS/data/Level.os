@@ -358,7 +358,7 @@ Level = extends Scene {
 		}.bind(this))
 	},
 	
-	initRotableObject = function(obj, params){
+	initRotatableObject = function(obj, params){
 		if(obj.prototype === Object){
 			params && throw "2rd argument should be null here"
 			obj, params = obj.shift(), obj

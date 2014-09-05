@@ -13,7 +13,7 @@ Level_2 = extends Level {
 			parent = this,
 			priority = 10,
 		}
-		@initRotableObject {
+		@initRotatableObject {
 			@brokenPanel,
 			// minAngle = -10,
 			// maxAngle = 65,
