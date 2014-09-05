@@ -1085,7 +1085,6 @@ void registerTween(OS * os)
 		DEF_PROP(ease, Tween, Ease),
 		DEF_PROP(delay, Tween, Delay),
 		DEF_PROP(client, Tween, Client),
-		DEF_PROP(alignAngle, Tween, AlignAngle),
 		DEF_GET(percent, Tween, Percent),
 		DEF_PROP(dataObject, Tween, DataObject),
 		DEF_GET(nextSibling, Tween, NextSibling),
