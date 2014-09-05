@@ -719,6 +719,8 @@ static void registerTouchEvent(OS * os)
 		{"TOUCH_UP", TouchEvent::TOUCH_UP},
 		{"WHEEL_UP", TouchEvent::WHEEL_UP},
 		{"WHEEL_DOWN", TouchEvent::WHEEL_DOWN},
+		{"START", TouchEvent::TOUCH_DOWN},
+		{"END", TouchEvent::TOUCH_UP},
 		{}
 	};
 	registerOXClass<TouchEvent, Event>(os, funcs, nums);
@@ -1049,7 +1051,6 @@ static bool __registerTextStyle = addRegFunc(registerTextStyle);
 	CASE_OX_TWEEN("scale", Vector2, Actor::TweenScale, func); \
 	CASE_OX_TWEEN("scaleX", float, Actor::TweenScaleX, func); \
 	CASE_OX_TWEEN("scaleY", float, Actor::TweenScaleY, func); \
-	CASE_OX_TWEEN("width", float, Actor::TweenWidth, func); \
 	CASE_OX_TWEEN("color", Color, VStyleActor::TweenColor, func); \
 	CASE_OX_TWEEN("resAnim", ResAnim*, TweenAnim, func);
 
@@ -1084,6 +1085,7 @@ void registerTween(OS * os)
 		DEF_PROP(ease, Tween, Ease),
 		DEF_PROP(delay, Tween, Delay),
 		DEF_PROP(client, Tween, Client),
+		DEF_PROP(alignAngle, Tween, AlignAngle),
 		DEF_GET(percent, Tween, Percent),
 		DEF_PROP(dataObject, Tween, DataObject),
 		DEF_GET(nextSibling, Tween, NextSibling),

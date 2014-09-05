@@ -78,6 +78,9 @@ Level_2 = extends Level {
 			parent = this,
 			priority = 11,
 			// extendedClickArea = 30,
+		}
+		@initSlotObject{
+			@screwdriver,
 			onSlotSelected = function(){
 				if(@state == "WAIT_SCREWDRIVER_USED"){
 					@removeSlotObject(@screwdriver)
@@ -94,7 +97,6 @@ Level_2 = extends Level {
 				}
 			}.bind(this),
 		}
-		@initSlotObject{@screwdriver}
 		
 		@vase = Sprite().attrs {
 			// name = "obj-02",

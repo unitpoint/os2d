@@ -22,6 +22,26 @@ examples/DemoFloorOS/proj.win32/ipch
 examples/DemoFloorOS/proj.win32/Debug
 examples/DemoFloorOS/proj.win32/Release
 
+examples/ElasticTransitionOS/data/ext
+examples/ElasticTransitionOS/data-ram
+examples/ElasticTransitionOS/proj.android/obj
+examples/ElasticTransitionOS/proj.android/bin
+examples/ElasticTransitionOS/proj.android/gen
+examples/ElasticTransitionOS/proj.android/libs
+examples/ElasticTransitionOS/proj.win32/ipch
+examples/ElasticTransitionOS/proj.win32/Debug
+examples/ElasticTransitionOS/proj.win32/Release
+
+examples/SeqTweenOS/data/ext
+examples/SeqTweenOS/data-ram
+examples/SeqTweenOS/proj.android/obj
+examples/SeqTweenOS/proj.android/bin
+examples/SeqTweenOS/proj.android/gen
+examples/SeqTweenOS/proj.android/libs
+examples/SeqTweenOS/proj.win32/ipch
+examples/SeqTweenOS/proj.win32/Debug
+examples/SeqTweenOS/proj.win32/Release
+
 oxygine-framework/oxygine/SDL/win32/ipch
 oxygine-framework/oxygine/SDL/win32/Debug
 oxygine-framework/oxygine/SDL/win32/Release

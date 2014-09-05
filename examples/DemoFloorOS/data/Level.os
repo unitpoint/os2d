@@ -329,6 +329,12 @@ Level = extends Scene {
 				params.onEnd(@addSlotObject(obj))
 			}
 		}.bind(this))
+		
+		if(!("onSlotSelected" in obj)){
+			obj.onSlotSelected = function(){
+				params.onSlotSelected()
+			}
+		}
 	},
 	
 	initHorizMovableObject = function(obj, params){
