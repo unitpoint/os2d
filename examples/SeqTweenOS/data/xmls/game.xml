@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<resources>
+	<set path = "images" />
+	<atlas>
+		<image file="bg.jpg" />
+		<image file="base.png" />
+		<image file="fan.png" />
+	</atlas>
+
+	<set path = "fonts" />
+	<font file="normal.fnt"/>
+	<font id="big" file="huge.fnt"/>
+</resources>
