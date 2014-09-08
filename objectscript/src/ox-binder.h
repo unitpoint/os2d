@@ -6,6 +6,7 @@
 #include <objectscript.h>
 #include <os-binder.h>
 #include <ext-datetime/os-datetime.h>
+#include <EaseFunction.h>
 #include <string>
 
 namespace oxygine { class EventCallback; class Event; }
@@ -34,10 +35,50 @@ using namespace oxygine;
 
 class OS2D: public ObjectScript::OS
 {
+	typedef ObjectScript::OS super;
+
 public:
 
 	OS2D()
 	{
+	}
+
+	virtual void initSettings()
+	{
+		// setSetting(ObjectScript::OS_ESettings::OS_SETTING_CREATE_COMPILED_FILE, false);
+		// setSetting(ObjectScript::OS_SETTING_CREATE_TEXT_OPCODES, false);
+	}
+
+	String getWritableFilename(const String& filename)
+	{
+#if 1
+		return getFilename(filename);
+#else
+		Core::Buffer buf(this);
+		buf += filename;
+		char * str = (char*)buf.buffer.buf;
+		int count = buf.buffer.count;
+		if(str[0] == '.' && OS_IS_SLASH(str[1])){
+			str += 2;
+			count -= 2;
+		}
+		for(int i = 0; i < count; i++){
+			if(OS_IS_SLASH(str[i])){
+				str[i] = '_';
+			}
+		}
+		return String(this, str, count);
+#endif
+	}
+
+	virtual String getCompiledFilename(const String& resolved_filename)
+	{
+		return getWritableFilename(super::getCompiledFilename(resolved_filename));
+	}
+
+	virtual String getTextOpcodesFilename(const String& resolved_filename)
+	{
+		return getWritableFilename(super::getTextOpcodesFilename(resolved_filename));
 	}
 
 	void handleErrorPolicyVa(const char *format, va_list va)
@@ -108,6 +149,14 @@ public:
 		OS_ASSERT(f);
 		writeFile((const char*)buf, size, f);
 		closeFile(f);
+
+#if 1
+		char * str = (char*)malloc(size+1 OS_DBG_FILEPOS);
+		memcpy(str, buf, size);
+		str[size] = 0;
+		oxygine::log::message(str);
+		free(str);
+#endif
 	}
 };
 
@@ -1101,29 +1150,114 @@ void registerTween(OS * os)
 		// static float calcEase(EASE ease, float v);
 		{}
 	};
-#define DEF_EASY(Easy, EASY) \
-	{"EASE_IN" OS_MAKE_STRING(EASY), Tween::ease_in ## Easy}, \
-	{"EASE_OUT" OS_MAKE_STRING(EASY), Tween::ease_out ## Easy}, \
-	{"EASE_INOUT" OS_MAKE_STRING(EASY), Tween::ease_inOut ## Easy}, \
-	{"EASE_OUTIN" OS_MAKE_STRING(EASY), Tween::ease_outIn ## Easy}
+#define DEF_EASE_DEPRECATED(Ease, EASE) \
+	{"EASE_IN" OS_MAKE_STRING(EASE), Tween::ease_in ## Ease}, \
+	{"EASE_OUT" OS_MAKE_STRING(EASE), Tween::ease_out ## Ease}, \
+	{"EASE_INOUT" OS_MAKE_STRING(EASE), Tween::ease_inOut ## Ease}, \
+	{"EASE_OUTIN" OS_MAKE_STRING(EASE), Tween::ease_outIn ## Ease}
+
+#define DEF_EASE(Ease, EASE) \
+	{OS_MAKE_STRING(EASE) "_IN", Tween::ease_in ## Ease}, \
+	{OS_MAKE_STRING(EASE) "_OUT", Tween::ease_out ## Ease}, \
+	{OS_MAKE_STRING(EASE) "_IN_OUT", Tween::ease_inOut ## Ease}, \
+	{OS_MAKE_STRING(EASE) "_OUT_IN", Tween::ease_outIn ## Ease}
 
 	OS::NumberDef nums[] = {
 		{"EASE_LINEAR", Tween::ease_linear},
-		DEF_EASY(Quad, QUAD),
-		DEF_EASY(Cubic, CUBIC),
-		DEF_EASY(Quart, QUART),
-		DEF_EASY(Quint, QUINT),
-		DEF_EASY(Sine, SINE),
-		DEF_EASY(Expo, EXPO),
-		DEF_EASY(Circ, CIRC),
-		DEF_EASY(Back, BACK),
-		DEF_EASY(Bounce, BOUNCE),
+		DEF_EASE(Quad, QUAD),
+		DEF_EASE(Cubic, CUBIC),
+		DEF_EASE(Quart, QUART),
+		DEF_EASE(Quint, QUINT),
+		DEF_EASE(Sine, SINE),
+		DEF_EASE(Expo, EXPO),
+		DEF_EASE(Circ, CIRC),
+		DEF_EASE(Back, BACK),
+		DEF_EASE(Bounce, BOUNCE),
+
+		DEF_EASE_DEPRECATED(Quad, QUAD),
+		DEF_EASE_DEPRECATED(Cubic, CUBIC),
+		DEF_EASE_DEPRECATED(Quart, QUART),
+		DEF_EASE_DEPRECATED(Quint, QUINT),
+		DEF_EASE_DEPRECATED(Sine, SINE),
+		DEF_EASE_DEPRECATED(Expo, EXPO),
+		DEF_EASE_DEPRECATED(Circ, CIRC),
+		DEF_EASE_DEPRECATED(Back, BACK),
+		DEF_EASE_DEPRECATED(Bounce, BOUNCE),
 		{}
 	};
 	registerOXClass<Tween, EventDispatcher>(os, funcs, nums);
-#undef DEF_EASY
+#undef DEF_EASE
+#undef DEF_EASE_DEPRECATED
 }
 static bool __registerTween = addRegFunc(registerTween);
+
+// =====================================================================
+
+using namespace EaseFunction; // it's really needed to work DEF_EASE macro
+
+OS_DECL_CTYPE_ENUM(EaseFunction::EaseType);
+
+void registerEase(OS * os)
+{
+	struct Lib
+	{
+		static int run(OS * os, int params, int, int, void*)
+		{
+			if(params < 2){
+				os->setException("two arguments required");
+				return 0;
+			}
+			float t = os->toFloat(-params+0);
+			EaseFunction::EaseType type = (EaseFunction::EaseType)os->toInt(-params+1);
+			if(params == 2){
+				os->pushNumber(EaseFunction::run(t, type));
+				return 1;
+			}
+			float easingParam[5];
+			if(params - 2 > 5){
+				params = 7;
+			}
+			for(int i = 3; i < params; i++){
+				easingParam[i-3] = os->toFloat(-params+i);
+			}
+			os->pushNumber(EaseFunction::run(t, type, easingParam));
+			return 1;
+		}
+	};
+	OS::FuncDef funcs[] = {
+		{"run", &Lib::run},
+		def("getReverseType", &EaseFunction::getReverseType),
+		{}
+	};
+
+#define DEF_EASE(Ease, EASE) \
+	{OS_MAKE_STRING(EASE) "_IN", Ease ## In}, \
+	{OS_MAKE_STRING(EASE) "_OUT", Ease ## Out}, \
+	{OS_MAKE_STRING(EASE) "_IN_OUT", Ease ## InOut}, \
+	{OS_MAKE_STRING(EASE) "_OUT_IN", Ease ## OutIn}
+
+	OS::NumberDef nums[] = {
+		{"LINEAR", Tween::ease_linear},
+		DEF_EASE(Sine, SINE),
+		DEF_EASE(Quad, QUAD),
+		DEF_EASE(Cubic, CUBIC),
+		DEF_EASE(Quart, QUART),
+		DEF_EASE(Quint, QUINT),
+		DEF_EASE(Expo, EXPO),
+		DEF_EASE(Circ, CIRC),
+		DEF_EASE(Elastic, ELASTIC),
+		DEF_EASE(Back, BACK),
+		DEF_EASE(Bounce, BOUNCE),
+		{}
+	};
+	os->getGlobalObject("Ease");
+	os->setFuncs(funcs);
+	os->setNumbers(nums);
+	os->pop();
+#undef DEF_EASE
+#undef CONCAT_IDENT
+}
+static bool __registerEase = addRegFunc(registerEase);
 
 // =====================================================================
 
@@ -1222,6 +1356,16 @@ public:
 
 	spTween getTween() const { return tween; }
 	void setTween(const spTween& t){ tween = t; }
+
+	timeMS getDt() const
+	{
+		return us.dt;
+	}
+	
+	void setDt(timeMS dt)
+	{
+		us.dt = dt;
+	}
 };
 
 OS_DECL_OX_CLASS(UpdateEvent);
@@ -1238,6 +1382,7 @@ static void registerUpdateEvent(OS * os)
 		def("__newinstance", &Lib::__newinstance),
 		DEF_PROP(us, UpdateEvent, UpdateState),
 		DEF_PROP(tween, UpdateEvent, Tween),
+		DEF_PROP(dt, UpdateEvent, Dt),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -1284,7 +1429,7 @@ protected:
 	timeMS curInterval;
 	timeMS fixInterval;
 
-	virtual void _update(Actor &actor, const UpdateState &us)
+	virtual void _update(Actor& actor, const UpdateState& us)
 	{
 		timeMS dt = us.dt;
 		if(interval > 0){
@@ -1760,6 +1905,8 @@ struct Oxygine
 #endif
 		os->pushBool(debug);
 		os->setGlobal("DEBUG");
+
+		os->eval("require.paths[] = 'os2d'");
 
 		os->require("std.os");
 	}
