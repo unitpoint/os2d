@@ -1,8 +1,6 @@
 print "--"
 print "[start] ${DateTime.now()}"
 
-require "std.os"
-
 GAME_SIZE = vec2(720, 405) // 960, 540)
 
 var displaySize = stage.size
@@ -35,22 +33,57 @@ var fan = Sprite().attrs {
 	pos = vec2(base.width/2, base.height*0.05),
 }
 
-fan.addTween("angle", 360*2, 3500, -1, false, 0, Tween.EASE_OUTBACK)
+var useNewTech = true
+if(useNewTech){
 
-var startSeqTween = function(){
-	var seq = SequenceTween()
-	seq.add("pos", stage.size, 2000, 1, false, 0, Tween.EASE_INOUTBACK)
-	seq.add("pos", vec2(stage.width, 0), 2000, 1, false, 0, Tween.EASE_INOUTEXPO)
-	seq.add("pos", vec2(0, 0), 2000, 1, false, 0, Tween.EASE_OUTBOUNCE)
-	seq.add("pos", vec2(0, stage.height), 2000, 1, false, 0, Tween.EASE_LINEAR)
-	base.addTween(seq)
-	
-	var seq = SequenceTween()
-	seq.add("angle", -45, 2000, 1, false, 0, Tween.EASE_INOUTBACK)
-	seq.add("angle", -135, 2000, 1, false, 0, Tween.EASE_INOUTEXPO)
-	seq.add("angle", -225, 2000, 1, false, 0, Tween.EASE_OUTBOUNCE).doneCallback = function(){ base.angle = 135 }
-	seq.add("angle", 45, 2000, 1, false, 0, Tween.EASE_LINEAR)
-	seq.doneCallback = startSeqTween
-	base.addTween(seq)
+	fan.addAction(RepeatForeverAction(TweenAction{
+		duration = 3.5, 
+		angle = {to = 360*2, ease = Ease.BACK_OUT}
+	}))
+
+	base.addAction(RepeatForeverAction(SequenceAction(
+		TweenAction {
+			duration = 2,
+			pos = {to = stage.size, ease = Ease.BACK_IN_OUT},
+			angle = {to = -45, ease = Ease.BACK_IN_OUT},
+		},
+		TweenAction {
+			duration = 2,
+			pos = {to = vec2(stage.width, 0), ease = Ease.EXPO_IN_OUT},
+			angle = {to = -135, ease = Ease.EXPO_IN_OUT},
+		},
+		TweenAction {
+			duration = 2,
+			pos = {to = vec2(0, 0), ease = Ease.BOUNCE_OUT},
+			angle = {to = -225, ease = Ease.BOUNCE_OUT},
+		},
+		TweenAction {
+			duration = 2,
+			pos = {to = vec2(0, stage.height)},
+			angle = {to = 45, fixRotation = true},
+		},
+	)))
+
+}else{
+
+	fan.addTween("angle", 360*2, 3500, -1, false, 0, Tween.EASE_OUTBACK)
+
+	var startSeqTween = function(){
+		var seq = SequenceTween()
+		seq.add("pos", stage.size, 2000, 1, false, 0, Tween.EASE_INOUTBACK)
+		seq.add("pos", vec2(stage.width, 0), 2000, 1, false, 0, Tween.EASE_INOUTEXPO)
+		seq.add("pos", vec2(0, 0), 2000, 1, false, 0, Tween.EASE_OUTBOUNCE)
+		seq.add("pos", vec2(0, stage.height), 2000, 1, false, 0, Tween.EASE_LINEAR)
+		base.addTween(seq)
+		
+		var seq = SequenceTween()
+		seq.add("angle", -45, 2000, 1, false, 0, Tween.EASE_INOUTBACK)
+		seq.add("angle", -135, 2000, 1, false, 0, Tween.EASE_INOUTEXPO)
+		seq.add("angle", -225, 2000, 1, false, 0, Tween.EASE_OUTBOUNCE).doneCallback = function(){ base.angle = 135 }
+		seq.add("angle", 45, 2000, 1, false, 0, Tween.EASE_LINEAR)
+		seq.doneCallback = startSeqTween
+		base.addTween(seq)
+	}
+	startSeqTween()
+
 }
-startSeqTween()
