@@ -305,13 +305,13 @@ template <class T> struct CtypeOXStruct
 	static type getArg(ObjectScript::OS * os, int offs)
 	{
 		type * p = (type*)os->toUserdata(CtypeId<type>::getInstanceId(), offs, CtypeId<type>::getId());
-		return p ? *p : NULL;
+		return p ? *p : def(os);
 	}
 	static void push(ObjectScript::OS * os, const type& val)
 	{
 		type * data = (type*)os->pushUserdata(CtypeId<type>::getInstanceId(), sizeof(type), CtypeOXStructDestructor<type>::dtor);
 		OX_ASSERT(data);
-		data[0] = val;
+		new (data) type(val);
 		os->pushStackValue();
 		os->getGlobal(CtypeName<ttype>::getName());
 		if(!os->isUserdata(CtypeId<ttype>::getId(), -1)){
@@ -323,9 +323,37 @@ template <class T> struct CtypeOXStruct
 	}
 };
 
+template <class T> struct CtypeOXStructPointer
+{
+	typedef typename T type;
+
+	static bool isValid(const type * p){ return p != NULL; }
+	// static const type * def(ObjectScript::OS*){ static T temp; return &temp; }
+	static type * getArg(ObjectScript::OS * os, int offs)
+	{
+		type * p = (type*)os->toUserdata(CtypeId<type>::getInstanceId(), offs, CtypeId<type>::getId());
+		return p;
+	}
+	/* static void push(ObjectScript::OS * os, const type * val)
+	{
+		type * data = (type*)os->pushUserdata(CtypeId<type>::getInstanceId(), sizeof(*type), CtypeOXStructDestructor<type>::dtor);
+		OX_ASSERT(data);
+		new (data) type(*val);
+		os->pushStackValue();
+		os->getGlobal(CtypeName<ttype>::getName());
+		if(!os->isUserdata(CtypeId<ttype>::getId(), -1)){
+			OX_ASSERT(false);
+			os->pop(2);
+		}else{
+			os->setPrototype(CtypeId<ttype>::getInstanceId());
+		}
+	} */
+};
+
 #define OS_DECL_OX_STRUCT(type) \
 	OS_DECL_CTYPE(type); \
-	template <> struct CtypeValue<type>: public CtypeOXStruct<type>{};
+	template <> struct CtypeValue<type>: public CtypeOXStruct<type>{}; \
+	template <> struct CtypeValue<type*>: public CtypeOXStructPointer<type>{};
 
 #endif // 0
 // =====================================================================
@@ -461,6 +489,7 @@ struct CtypeValue<Vector2>
 	{
 #if 1
 		os->getGlobal("vec2");
+		OX_ASSERT(os->isObject());
 		os->pushGlobals();
 		os->pushNumber(p.x);
 		os->pushNumber(p.y);
@@ -517,8 +546,8 @@ struct CtypeValue<UpdateState>
 	{
 		if(os->isObject(offs)){
 			UpdateState us;
-			us.time = (os->getProperty(offs, "time"), os->popInt());
-			us.dt = (os->getProperty(offs, "dt"), os->popInt());
+			us.time = (timeMS)(os->getProperty(offs, "time"), os->popNumber() * 1000.0f);
+			us.dt = (timeMS)(os->getProperty(offs, "dt"), os->popNumber() * 1000.0f);
 			us.iteration = (os->getProperty(offs, "iteration"), os->popInt());
 			return us;
 		}
@@ -529,9 +558,10 @@ struct CtypeValue<UpdateState>
 	static void push(ObjectScript::OS * os, const type& p)
 	{
 		os->getGlobal("UpdateState");
+		OX_ASSERT(os->isObject());
 		os->pushGlobals();
-		os->pushNumber(p.time);
-		os->pushNumber(p.dt);
+		os->pushNumber(p.time / 1000.0f);
+		os->pushNumber(p.dt / 1000.0f);
 		os->pushNumber(p.iteration);
 		os->call(3, 1);
 		os->handleException();
@@ -1115,7 +1145,7 @@ void registerTween(OS * os)
 				return 0;
 			}
 			OS::String name = os->toString(-params+0);
-			timeMS duration = os->toInt(-params+2);
+			timeMS duration = (timeMS)(os->toFloat(-params+2) * 1000.0f);
 			int loops = params > 3 ? os->toInt(-params+3) : 1;
 			bool twoSides = params > 4 ? os->toBool(-params+4) : false;
 			timeMS delay = params > 5 ? os->toInt(-params+5) : 0;
@@ -1125,12 +1155,19 @@ void registerTween(OS * os)
 
 			return 0;
 		} */
+
+		static int getDuration(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Tween*);
+			os->pushNumber((float)self->getDuration() / 1000.0f);
+			return 1;
+		}
 	};
 	OS::FuncDef funcs[] = {
 		// def("__newinstance", &Lib::__newinstance),
 		// {"createTween", &Lib::myCreateTween},
 		DEF_PROP(loops, Tween, Loops),
-		DEF_GET(duration, Tween, Duration),
+		{"__get@duration", &Lib::getDuration},
 		DEF_PROP(ease, Tween, Ease),
 		DEF_PROP(delay, Tween, Delay),
 		DEF_PROP(client, Tween, Client),
@@ -1290,7 +1327,7 @@ void registerTweenQueue(OS * os)
 				return 0;
 			}
 			OS::String name = os->toString(-params+0);
-			timeMS duration = os->toInt(-params+2);
+			timeMS duration = (timeMS)(os->toFloat(-params+2) * 1000.0f);
 			int loops = params > 3 ? os->toInt(-params+3) : 1;
 			bool twoSides = params > 4 ? os->toBool(-params+4) : false;
 			timeMS delay = params > 5 ? os->toInt(-params+5) : 0;
@@ -1359,14 +1396,22 @@ public:
 	spTween getTween() const { return tween; }
 	void setTween(const spTween& t){ tween = t; }
 
-	timeMS getDt() const
+	float getDt() const
 	{
-		return us.dt;
+		return (float)us.dt / 1000.0f;
 	}
-	
-	void setDt(timeMS dt)
+	void setDt(float dt)
 	{
-		us.dt = dt;
+		us.dt = (timeMS)(dt * 1000.0f);
+	}
+
+	float getTime() const
+	{
+		return (float)us.time / 1000.0f;
+	}
+	void setTime(float time)
+	{
+		us.time = (timeMS)(time * 1000.0f);
 	}
 };
 
@@ -1385,6 +1430,7 @@ static void registerUpdateEvent(OS * os)
 		DEF_PROP(us, UpdateEvent, UpdateState),
 		DEF_PROP(tween, UpdateEvent, Tween),
 		DEF_PROP(dt, UpdateEvent, Dt),
+		DEF_PROP(time, UpdateEvent, Time),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -1421,8 +1467,16 @@ public:
 		registerOSEventCallback(this, (intptr_t)this, updateCallback);
 	}
 
-	timeMS getInterval() const { return interval; }
-	void setInterval(timeMS _interval){ interval = _interval; curInterval = fixInterval = 0; }
+	float getInterval() const
+	{
+		return interval / 1000.0f;
+	}
+
+	void setInterval(float _interval)
+	{ 
+		interval = (timeMS)(_interval * 1000.0f); 
+		curInterval = fixInterval = 0;
+	}
 
 protected:
 
@@ -1503,9 +1557,9 @@ public:
 
 	BaseDoneTween(){}
 
-	void setDuration(timeMS duration)
+	void setDuration(float duration)
 	{
-		init(duration);
+		init((timeMS)(duration * 1000.0f));
 	}
 
 protected:
@@ -1580,7 +1634,7 @@ static void registerActor(OS * os)
 				return 0;
 			}
 			OS::String name = os->toString(-params+0);
-			timeMS duration = os->toInt(-params+2);
+			timeMS duration = (timeMS)(os->toFloat(-params+2) * 1000.0f);
 			int loops = params > 3 ? os->toInt(-params+3) : 1;
 			bool twoSides = params > 4 ? os->toBool(-params+4) : false;
 			timeMS delay = params > 5 ? os->toInt(-params+5) : 0;
