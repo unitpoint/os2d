@@ -63,10 +63,10 @@ Rocket = extends Actor {
 		//run tween with explosion animation
 		var tween = anim.addTween("resAnim", res.getResAnim("explosion"), 1000)
 		//auto detach sprite when tween is done
-		tween.detachActor = true
+		tween.detachTarget = true
 
 		//hide rocket and then detach it
-		// @addTween("opacity", 0, 500).detachActor = true
+		// @addTween("opacity", 0, 500).detachTarget = true
 		@addAction(TweenAction{
 			duration = 0.5,
 			opacity = 0,

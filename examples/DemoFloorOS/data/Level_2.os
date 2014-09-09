@@ -31,13 +31,13 @@ Level_2 = extends Level {
 				var goodPos = math.abs(@brokenPanel.angle) < 5
 				if(goodPos){
 					@state = "WAIT_BOLT_USED"
-					@addTween(DoneTween(2500, function(){
+					@setTimeout(2.5, function(){
 						if(@state == "WAIT_BOLT_USED"){
 							@state = "GENERIC"
 							// @returnSlotObject(@bolt)
 							@startPanelSwing()
 						}
-					}.bind(this)))
+					}.bind(this))
 				}else{
 					// @state = "GENERIC"
 					@startPanelSwing()
@@ -58,13 +58,13 @@ Level_2 = extends Level {
 					@removeSlotObject(@bolt)
 					@setPanelPosHoriz()
 					@state = "WAIT_SCREWDRIVER_USED"
-					@addTween(DoneTween(2500, function(){
+					@setTimeout(2.5, function(){
 						if(@state == "WAIT_SCREWDRIVER_USED"){
 							@state = "GENERIC"
 							@returnSlotObject(@bolt)
 							@startPanelSwing()
 						}
-					}.bind(this)))
+					}.bind(this))
 				}
 			}.bind(this),
 		}
@@ -86,14 +86,14 @@ Level_2 = extends Level {
 					@removeSlotObject(@screwdriver)
 					@state = "WAIT_VASE_POS"
 					@checkVasePosToFinish()
-					@addTween(DoneTween(2500, function(){
+					@setTimeout(2.5, function(){
 						if(@state == "WAIT_VASE_POS"){
 							@state = "GENERIC"
 							@returnSlotObject(@bolt)
 							@returnSlotObject(@screwdriver)
 							@startPanelSwing()
 						}
-					}.bind(this)))
+					}.bind(this))
 				}
 			}.bind(this),
 		}

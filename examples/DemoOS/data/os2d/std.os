@@ -466,6 +466,25 @@ function Actor.removeActionsByName(name){
 	}
 }
 
+function Actor.setTimeout(delay, func){
+	return @addTween(DoneTween(delay * 1000, func))
+}
+
+function Actor.clearTimeout(t){
+	@removeTween(t)
+}
+
+function Actor.setInterval(dt, func){
+	if(functionOf(dt)){
+		dt, func = 0, dt
+	}
+	return @addTween(UpdateTween(dt * 1000, func))
+}
+
+function Actor.clearInterval(t){
+	@removeTween(t)
+}
+
 function OS2DObject.__get@_externalChildren(){
 	@setProperty("_externalChildren", {})
 	return @_externalChildren

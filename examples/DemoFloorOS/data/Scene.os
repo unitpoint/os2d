@@ -26,7 +26,7 @@ Scene = extends Actor {
 		@removeTweensByName("sceneTransition")
 		@addTween("opacity", 0, 500).attrs {
 			name = "sceneTransition",
-			detachActor = true,
+			detachTarget = true,
 			doneCallback = function(){
 				@sceneTransition = null
 			}.bind(this),
