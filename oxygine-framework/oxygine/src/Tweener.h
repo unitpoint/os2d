@@ -210,6 +210,7 @@ namespace oxygine
 
 		/**delete actor from parent node when tween done*/
 		void setDetachActor(bool detach){_detach = detach;}
+		bool getDetachActor() const { return _detach; }
 
 		/**immediately completes tween, calls doneCallback and mark tween as completed and removes self from Actor. If tween has infinity loops (=-1) then do nothing*/
 		virtual void complete(timeMS deltaTime = std::numeric_limits<int>::max()/2);
