@@ -1237,7 +1237,8 @@ void registerEase(OS * os)
 	{OS_MAKE_STRING(EASE) "_OUT_IN", Ease ## OutIn}
 
 	OS::NumberDef nums[] = {
-		{"LINEAR", Tween::ease_linear},
+		{"LINEAR", EaseFunction::Linear},
+		{"PING_PONG", EaseFunction::PingPong},
 		DEF_EASE(Sine, SINE),
 		DEF_EASE(Quad, QUAD),
 		DEF_EASE(Cubic, CUBIC),

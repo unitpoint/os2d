@@ -9,6 +9,7 @@ namespace EaseFunction
     enum EaseType
     {
         Linear,
+		PingPong,
         
         SineIn,
         SineOut,

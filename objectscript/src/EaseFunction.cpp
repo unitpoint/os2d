@@ -325,12 +325,23 @@ float customEase(float time, float *easingParam)
     return time;
 }
 
+float pingPong(float time)
+{
+	if(time < 0.5f){
+		return time * 2.0f;
+	}
+	return 1.0f - (time - 0.5f) * 2.0f;
+}
+
 float run(float time, EaseType type, float *easingParam)
 {
 	float period;
     switch (type){
     case Linear:
         return linear(time);
+
+	case PingPong:
+        return pingPong(time);
             
     case SineIn:
         return sineEaseIn(time);
@@ -439,6 +450,8 @@ EaseType getReverseType(EaseType type)
     switch (type){
     case Linear:
         return Linear;
+	case PingPong:
+		return PingPong;
             
     case SineIn:
         return SineOut;
