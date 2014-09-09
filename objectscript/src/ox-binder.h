@@ -1143,7 +1143,8 @@ void registerTween(OS * os)
 		// {"addDoneCallback", &Lib::addDoneCallback},
 		def("addDoneCallback", &Tween::addDoneCallback),
 		DEF_PROP(doneCallback, Tween, DoneCallback),
-		DEF_SET(detachActor, Tween, DetachActor),
+		DEF_PROP(detachActor, Tween, DetachActor),
+		DEF_PROP(detachTarget, Tween, DetachActor),
 		// virtual void complete(timeMS deltaTime = std::numeric_limits<int>::max()/2);
 		// void start(Actor &actor);
 		// void update(Actor &actor, const UpdateState &us);	
