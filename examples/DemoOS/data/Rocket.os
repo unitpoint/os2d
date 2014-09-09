@@ -11,15 +11,15 @@ Rocket = extends Actor {
 			scale = 0,
 			// opacity = 0,
 		}
-		// sp.addTween("scale", 1.0, 500)
-		sp.addAction(TweenAction(0.5, "scale", 1))
+		sp.addTweenAction(0.5, "scale", 1)
 		
 		@dir = dir.clone().normalize()
 		@isAlive = true
 	},
 	
 	update = function(ev){
-		@pos += @dir * (ev.us.dt / 1000 * 500)
+		// print "Rocket.update, us: ${ev.us}, dir: ${@dir}"
+		@pos += @dir * (ev.dt * 500)
 		
 		/* if(math.random() < 0.05){
 			@explode()
@@ -61,16 +61,15 @@ Rocket = extends Actor {
 		}
 		
 		//run tween with explosion animation
-		var tween = anim.addTween("resAnim", res.getResAnim("explosion"), 1000)
+		var tween = anim.addTween("resAnim", res.getResAnim("explosion"), 1)
 		//auto detach sprite when tween is done
 		tween.detachTarget = true
 
 		//hide rocket and then detach it
-		// @addTween("opacity", 0, 500).detachTarget = true
-		@addAction(TweenAction{
+		@addTweenAction {
 			duration = 0.5,
 			opacity = 0,
 			detachTarget = true,
-		})
+		}
 	},
 }

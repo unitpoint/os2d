@@ -27,7 +27,7 @@ GameScene = extends Scene {
 		@fire.pos = @view.size - @move.size
 		@fire.priority = 1
 		
-		@view.setInterval(@update.bind(this))
+		@view.addUpdate(@update.bind(this))
 		// @view.setInterval(1/10, @updateUnits.bind(this)))
 		
 		@units = {}

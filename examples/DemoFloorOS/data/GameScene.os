@@ -18,9 +18,9 @@ GameScene = extends Scene {
 		}
 		
 		// debug, check mem leaks
-		false && @addTween(UpdateTween(1000/100, function(){
+		false && @addUpdate(1/5, function(){
 			@nextLevel(@level.levelNum + 1)
-		}.bind(this)))
+		}.bind(this))
 	},
 	
 	configFilename = "config.json",

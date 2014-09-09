@@ -24,10 +24,6 @@ IntervalAction = extends FiniteTimeAction {
 	/** how many seconds had elapsed since the actions started to run. */
 	__get@elapsed = function(){ return @_elapsed },
 
-	// extension in GridAction
-	// __set@amplitudeRate = function(amp){ methodIsNotImplemented() },
-	// __get@amplitudeRate = methodIsNotImplemented,
-	
 	__set@duration = function(duration){
 		@_duration = duration == 0 ? math.NUM_EPSILON : duration
 	},

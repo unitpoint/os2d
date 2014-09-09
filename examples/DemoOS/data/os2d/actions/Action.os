@@ -1,7 +1,3 @@
-methodIsNotImplemented = function(){
-	throw "${@__name} is not implemented"
-}
-
 /** 
 @brief Base class for Action objects.
  */
@@ -30,13 +26,13 @@ Action = extends Object {
     __set@name = function(name){ @_name = name },
     
 	/** return true if the action has finished */
-	__get@isDone = methodIsNotImplemented,
+	__get@isDone = function(){ throw "${@classname}.${_F.__name} is not implemented" },
 	
 	/** returns a clone of action */
-	clone = methodIsNotImplemented,
+	clone = function(){ throw "${@classname}.${_F.__name} is not implemented" },
 	
 	/** returns a new action that performs the exactly the reverse action */
-	reverse = methodIsNotImplemented,
+	reverse = function(){ throw "${@classname}.${_F.__name} is not implemented" },
 	
 	/** called before the action start. It will also set the target. */
 	start = function(){
@@ -51,7 +47,7 @@ Action = extends Object {
 	},
 	
 	/** called every frame with it's delta time. DON'T override unless you know what you are doing. */
-	step = function(dt){ methodIsNotImplemented() },
+	step = function(dt){ throw "${@classname}.${_F.__name} is not implemented" },
 	
     /** 
     called once per frame. time a value between 0 and 1
@@ -61,5 +57,5 @@ Action = extends Object {
     - 0.5 means that the action is in the middle
     - 1 means that the action is over
     */
-    update = function(t){ methodIsNotImplemented() },
+    update = function(t){ throw "${@classname}.${_F.__name} is not implemented" },
 }

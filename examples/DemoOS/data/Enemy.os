@@ -29,7 +29,7 @@ Enemy = extends Actor {
 	explode = function(){
 		if(--@hp == 0){
 			@isAlive = false
-			@addTween("opacity", 0, 300).detachTarget = true
+			@addTweenAction(0.3, "opacity", 0).detachTarget = true
 		}
 	},
 }

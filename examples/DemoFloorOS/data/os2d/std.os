@@ -409,8 +409,8 @@ function OS2DObject._unregisterAllExternalTweens(){
 function Actor.__get@_internalActions(){
 	@setProperty("_internalActions", {})
 	var self = this
-	@_actionUpdateFunc = @addTween(UpdateTween(function(ev){
-		var dt = ev.dt * 0.001
+	@_actionUpdate = @addUpdate(function(ev){
+		var dt = ev.dt // * 0.001
 		for(var action in self._internalActions){
 			action.step(dt)
 			// print "after step: ${action.elapsed}, ${action.duration}, ${action.isDone}"
@@ -420,8 +420,8 @@ function Actor.__get@_internalActions(){
 				self.removeAction(action)
 			}
 		}
-	}))
-	@_actionUpdateFunc.name = "actionUpdateFunc"
+	})
+	@_actionUpdate.name = "actionUpdateFunc"
 	return @_internalActions
 }
 
@@ -436,8 +436,30 @@ function Actor.addAction(action){
 	return action
 }
 
+function Actor.replaceAction(name, action){
+	if(name is Action){
+		name, action = name.name, name
+	}else{
+		action.name = name
+	}
+	@removeActionsByName(name)
+	return @addAction(action)
+}
+
 function Actor.addTweenAction(duration, prop, from, to){
 	return @addAction(TweenAction(duration, prop, from, to))
+}
+
+function Actor.replaceTweenAction(name, duration, prop, from, to){
+	if(name.prototype === Object){
+		var params = name
+		@removeActionsByName(params.name)
+		return @addTweenAction(params)
+	}
+	@removeActionsByName(name)
+	var action = @addTweenAction(duration, prop, from, to)
+	action.name = name
+	return action
 }
 
 function Actor.removeAction(action){
@@ -449,8 +471,8 @@ function Actor.removeAction(action){
 		delete @_internalActions[action]
 		if(#@_internalActions == 0){
 			// print "no actions in ${@name || @classname}: #${@__id}"
-			@removeTween(@_actionUpdateFunc)
-			delete @_actionUpdateFunc
+			@removeUpdate(@_actionUpdate)
+			delete @_actionUpdate
 			delete @_internalActions
 		}
 		return
@@ -466,22 +488,22 @@ function Actor.removeActionsByName(name){
 	}
 }
 
-function Actor.setTimeout(delay, func){
-	return @addTween(DoneTween(delay * 1000, func))
+function Actor.addTimeout(delay, func){
+	return @addTween(DoneTween(delay, func))
 }
 
-function Actor.clearTimeout(t){
+function Actor.removeTimeout(t){
 	@removeTween(t)
 }
 
-function Actor.setInterval(dt, func){
+function Actor.addUpdate(dt, func){
 	if(functionOf(dt)){
 		dt, func = 0, dt
 	}
-	return @addTween(UpdateTween(dt * 1000, func))
+	return @addTween(UpdateTween(dt, func))
 }
 
-function Actor.clearInterval(t){
+function Actor.removeUpdate(t){
 	@removeTween(t)
 }
 

@@ -409,8 +409,8 @@ function OS2DObject._unregisterAllExternalTweens(){
 function Actor.__get@_internalActions(){
 	@setProperty("_internalActions", {})
 	var self = this
-	@_actionUpdateFunc = @addTween(UpdateTween(function(ev){
-		var dt = ev.dt * 0.001
+	@_actionUpdate = @addUpdate(function(ev){
+		var dt = ev.dt // * 0.001
 		for(var action in self._internalActions){
 			action.step(dt)
 			// print "after step: ${action.elapsed}, ${action.duration}, ${action.isDone}"
@@ -420,8 +420,8 @@ function Actor.__get@_internalActions(){
 				self.removeAction(action)
 			}
 		}
-	}))
-	@_actionUpdateFunc.name = "actionUpdateFunc"
+	})
+	@_actionUpdate.name = "actionUpdateFunc"
 	return @_internalActions
 }
 
@@ -449,8 +449,8 @@ function Actor.removeAction(action){
 		delete @_internalActions[action]
 		if(#@_internalActions == 0){
 			// print "no actions in ${@name || @classname}: #${@__id}"
-			@removeTween(@_actionUpdateFunc)
-			delete @_actionUpdateFunc
+			@removeUpdate(@_actionUpdate)
+			delete @_actionUpdate
 			delete @_internalActions
 		}
 		return
@@ -464,6 +464,25 @@ function Actor.removeActionsByName(name){
 			@removeAction(action)
 		}
 	}
+}
+
+function Actor.addTimeout(delay, func){
+	return @addTween(DoneTween(delay, func))
+}
+
+function Actor.removeTimeout(t){
+	@removeTween(t)
+}
+
+function Actor.addUpdate(dt, func){
+	if(functionOf(dt)){
+		dt, func = 0, dt
+	}
+	return @addTween(UpdateTween(dt, func))
+}
+
+function Actor.removeUpdate(t){
+	@removeTween(t)
 }
 
 function OS2DObject.__get@_externalChildren(){

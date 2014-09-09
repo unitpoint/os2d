@@ -66,21 +66,21 @@ if(useNewTech){
 
 }else{
 
-	fan.addTween("angle", 360*2, 3500, -1, false, 0, Tween.EASE_OUTBACK)
+	fan.addTween("angle", 360*2, 3.5, -1, false, 0, Tween.EASE_OUTBACK)
 
 	var startSeqTween = function(){
 		var seq = SequenceTween()
-		seq.add("pos", stage.size, 2000, 1, false, 0, Tween.EASE_INOUTBACK)
-		seq.add("pos", vec2(stage.width, 0), 2000, 1, false, 0, Tween.EASE_INOUTEXPO)
-		seq.add("pos", vec2(0, 0), 2000, 1, false, 0, Tween.EASE_OUTBOUNCE)
-		seq.add("pos", vec2(0, stage.height), 2000, 1, false, 0, Tween.EASE_LINEAR)
+		seq.add("pos", stage.size, 2, 1, false, 0, Tween.EASE_INOUTBACK)
+		seq.add("pos", vec2(stage.width, 0), 2, 1, false, 0, Tween.EASE_INOUTEXPO)
+		seq.add("pos", vec2(0, 0), 2, 1, false, 0, Tween.EASE_OUTBOUNCE)
+		seq.add("pos", vec2(0, stage.height), 2, 1, false, 0, Tween.EASE_LINEAR)
 		base.addTween(seq)
 		
 		var seq = SequenceTween()
-		seq.add("angle", -45, 2000, 1, false, 0, Tween.EASE_INOUTBACK)
-		seq.add("angle", -135, 2000, 1, false, 0, Tween.EASE_INOUTEXPO)
-		seq.add("angle", -225, 2000, 1, false, 0, Tween.EASE_OUTBOUNCE).doneCallback = function(){ base.angle = 135 }
-		seq.add("angle", 45, 2000, 1, false, 0, Tween.EASE_LINEAR)
+		seq.add("angle", -45, 2, 1, false, 0, Tween.EASE_INOUTBACK)
+		seq.add("angle", -135, 2, 1, false, 0, Tween.EASE_INOUTEXPO)
+		seq.add("angle", -225, 2, 1, false, 0, Tween.EASE_OUTBOUNCE).doneCallback = function(){ base.angle = 135 }
+		seq.add("angle", 45, 2, 1, false, 0, Tween.EASE_LINEAR)
 		seq.doneCallback = startSeqTween
 		base.addTween(seq)
 	}

@@ -9,32 +9,29 @@ MyButton = extends Sprite {
 	onTouchDown = function(ev){
 		// print "onTouchDown"
 		// @color = Color(1, 0, 0)
-		@removeActionsByName("buttonTweenAction")
-		@addAction(TweenAction{
+		@replaceTweenAction {
 			name = "buttonTweenAction",
 			duration = 0.15,
 			color = Color(1, 0, 0),
-		})
+		}
 	},
 	
 	onTouchUp = function(ev){
-		@removeActionsByName("buttonTweenAction")
-		@addAction(TweenAction{
+		@replaceTweenAction {
 			name = "buttonTweenAction",
 			duration = 0.15,
 			color = Color(1, 1, 1),
-		})
+		}
 	},
 	
 	onClick = function(ev){
 		@scale = 1
 		@color = Color(1, 1, 1)
-		@removeActionsByName("buttonTweenAction")
-		@addAction(TweenAction{
+		@replaceTweenAction {
 			name = "buttonTweenAction",
 			duration = 0.3,
 			scale = 1.1,
 			ease = Ease.PING_PONG,
-		})
+		}
 	},
 }

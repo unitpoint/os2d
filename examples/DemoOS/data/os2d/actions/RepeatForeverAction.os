@@ -2,7 +2,7 @@
 To repeat the an action for a limited number of times use the Repeat action.
 @warning This action can't be Sequenceable because it is not an IntervalAction
 */
-RepeatForeverAction = extends IntervalAction {
+RepeatForeverAction = extends Action {
 
 	__construct = function(action){
 		if(action is FiniteTimeAction){
@@ -58,6 +58,10 @@ RepeatForeverAction = extends IntervalAction {
 			@_innerAction.step(diff)
 		}
 	},
+	
+	/* update = function(t){
+		
+	}, */
 	
     __get@isDone = function(){ return false },
 }

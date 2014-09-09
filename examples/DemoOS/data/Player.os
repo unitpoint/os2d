@@ -12,7 +12,6 @@ Player = extends Actor {
 		}
 		@lastRocketSpawn = 0
 		// animate engine's fire
-		// @engine.addTween("color", Color(1, 0, 0), 500, -1, true)
 		@engine.addAction(RepeatForeverAction(TweenAction{
 			duration = 0.5,
 			color = Color(1, 0, 0),
@@ -26,7 +25,7 @@ Player = extends Actor {
 			// print "move: ${ev.game.move}"
 			var dir = ev.game.move.dir
 			
-			@pos += dir * (ev.us.dt / 1000 * 5)
+			@pos += dir * (ev.dt * 5)
 			
 			@rotation = math.atan2(dir.y, dir.x)
 			@engine.visible = true
@@ -34,9 +33,9 @@ Player = extends Actor {
 		
 		if(ev.game.fire.active){
 			//fire rockets each 300 ms
-			if(@lastRocketSpawn + 300 < ev.us.time){
+			if(@lastRocketSpawn + 0.2 < ev.time){
 				// print "spawn rocket"
-				@lastRocketSpawn = ev.us.time
+				@lastRocketSpawn = ev.time
 				ev.game.addRocket(Rocket(@pos, ev.game.fire.dir))
 			}		
 		}		

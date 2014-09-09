@@ -89,5 +89,9 @@
     -->
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
+	
+	<!-- copy todir="${asset.absolute.dir}/os2d">
+		<fileset dir="../../../os2d"/>
+	</copy> -->
 
 </project>

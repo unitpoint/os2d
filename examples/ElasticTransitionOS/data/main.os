@@ -53,11 +53,11 @@ stage.addEventListener(TouchEvent.END, function(ev){
 		spring.touchStarted = false
 		
 		var angle = math.round(spring.angle / 90) * 90 // snap to angle
-		spring.addAction(TweenAction{
+		spring.addTweenAction {
 			name = "elasticTransition",
 			duration = 0.5,
 			scaleX = {to = 1, ease = Ease.BACK_OUT},
 			angle = {to = angle, ease = Ease.BACK_OUT},
-		})
+		}
 	}
 })

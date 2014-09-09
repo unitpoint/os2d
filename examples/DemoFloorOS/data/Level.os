@@ -161,13 +161,12 @@ Level = extends Scene {
 	returnSlotObject = function(obj){
 		@removeSlotObject(obj)
 		if(!obj.parent){
-			obj.removeActionsByName("returnSlotObject")
 			obj.attrs {
 				opacity = 0, 
 				parent = obj.originParent,
 				pos = obj.originPos,
 			}
-			obj.addTweenAction(0.2, "opacity", 1).name = "returnSlotObject"
+			obj.replaceTweenAction("returnSlotObject", 0.2, "opacity", 1)
 		}
 	},
 	
