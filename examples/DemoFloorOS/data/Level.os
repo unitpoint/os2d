@@ -85,7 +85,7 @@ Level = extends Scene {
 	allowNextLevel = function(){
 		if(!@nextLevelOpened){
 			@nextLevelOpened = true
-			@elevatorInsideButton.addTween("opacity", 1, 300)
+			@elevatorInsideButton.addTweenAction(0.3, "opacity", 1)
 			@elevatorInsideButton.addEventListener(TouchEvent.CLICK, {||
 				// print "next level clicked, ${this}"
 				@game.nextLevel(@levelNum + 1)
@@ -127,13 +127,6 @@ Level = extends Scene {
 		*/
 		
 		@doors = [@doorLeft, @doorRight]
-		
-		/*
-		@setAllDoorsPos(0)
-		for(var i, door in @doors){
-			door.addTween("pos", door.closedPos, 2000, 1, false, 0, Tween.EASE_OUTCUBIC).name = "animDoor"
-		}
-		*/
 	},
 
 	openDoor = function(i){
@@ -141,7 +134,10 @@ Level = extends Scene {
 			@openDoors[i] = true
 			var door = @doors[i]
 			// print "openDoor(${i}): ${door}, ${@doors}"
-			door.addTween("pos", door.openPos, 1000, 1, false, 0, Tween.EASE_OUTCUBIC).attrs {
+			door.addTweenAction {
+				duration = 1,
+				pos = door.openPos, 
+				ease = Ease.CUBIC_OUT,
 				doneCallback = function(){
 					if(@openDoors[0] && @openDoors[1]){
 						@allowNextLevel()
@@ -165,13 +161,13 @@ Level = extends Scene {
 	returnSlotObject = function(obj){
 		@removeSlotObject(obj)
 		if(!obj.parent){
-			obj.removeTweensByName("returnSlotObject")
+			obj.removeActionsByName("returnSlotObject")
 			obj.attrs {
 				opacity = 0, 
 				parent = obj.originParent,
 				pos = obj.originPos,
 			}
-			obj.addTween("opacity", 1, 200).name = "returnSlotObject"
+			obj.addTweenAction(0.2, "opacity", 1).name = "returnSlotObject"
 		}
 	},
 	

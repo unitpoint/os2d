@@ -11,8 +11,8 @@ Rocket = extends Actor {
 			scale = 0,
 			// opacity = 0,
 		}
-		sp.addTween("scale", 1.0, 500)
-		// sp.addTween("opacity", 1.0, 100)
+		// sp.addTween("scale", 1.0, 500)
+		sp.addAction(TweenAction(0.5, "scale", 1))
 		
 		@dir = dir.clone().normalize()
 		@isAlive = true
@@ -66,6 +66,11 @@ Rocket = extends Actor {
 		tween.detachActor = true
 
 		//hide rocket and then detach it
-		@addTween("opacity", 0, 500).detachActor = true
+		// @addTween("opacity", 0, 500).detachActor = true
+		@addAction(TweenAction{
+			duration = 0.5,
+			opacity = 0,
+			detachTarget = true,
+		})
 	},
 }

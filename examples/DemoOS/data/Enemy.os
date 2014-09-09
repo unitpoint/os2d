@@ -13,9 +13,12 @@ Enemy = extends Actor {
 		sprite.angle = math.random(0, 360)
 		sprite.scale = math.random(0.4, 1.0)
 
-		//it is rotating by tween with random speed
+		//it is rotating by tween action with random speed
 		var dest = (math.random() > 0.5 ? 360 : -360) + sprite.angle
-		sprite.addTween("angle", dest, math.random(20000) + 10000, -1)
+		sprite.addAction(RepeatForeverAction(TweenAction{
+			duration = math.random(20) + 10,
+			angle = {from = sprite.angle, to = dest},
+		}))
 		
 		@isAlive = true
 	},

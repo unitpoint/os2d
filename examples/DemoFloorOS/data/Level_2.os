@@ -130,12 +130,17 @@ Level_2 = extends Level {
 	},
 	
 	stopPanelSwing = function(){
-		@brokenPanel.removeTweensByName("panelSwing")
+		@brokenPanel.removeActionsByName("panelSwing")
 	},
 	
 	setPanelPosHoriz = function(){
 		@stopPanelSwing()
-		@brokenPanel.addTween("angle", 0, 100, 1, false, 0, Tween.EASE_INOUTQUAD).name = "panelSwing"
+		@brokenPanel.addTweenAction {
+			name = "panelSwing",
+			duration = 0.1, 
+			angle = 0, 
+			ease = Ease.QUAD_IN_OUT
+		}
 	},
 	
 	startPanelSwing = function(delay){
@@ -143,11 +148,28 @@ Level_2 = extends Level {
 		if(@brokenPanel.angle > angles[0]){
 			angles[0], angles[1] = angles[1], angles[0]
 		}
+		/*
 		var seq = SequenceTween()
 		seq.add("angle", angles[0], 1000, 1, false, delay || 0, Tween.EASE_INOUTQUAD)
 		seq.add("angle", angles[1], 1000, 1, false, 0, Tween.EASE_INOUTQUAD)
 		seq.doneCallback = function(){ @startPanelSwing() }.bind(this)
 		seq.name = "panelSwing"
 		@brokenPanel.addTween(seq)
+		*/
+		@brokenPanel.addAction(RepeatForeverAction(SequenceAction(
+			/* TweenAction {
+				duration = delay || 0,
+			}, */
+			TweenAction {
+				duration = 1,
+				angle = angles[0],
+				ease = Ease.QUAD_IN_OUT,
+			},
+			TweenAction {
+				duration = 1,
+				angle = angles[1],
+				ease = Ease.QUAD_IN_OUT,
+			},
+		))).name = "panelSwing"
 	},
 }

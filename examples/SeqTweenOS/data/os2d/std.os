@@ -406,7 +406,7 @@ function OS2DObject._unregisterAllExternalTweens(){
 	// print "${@classname}#${@__id}._unregisterAllExternalTweens"
 }
 
-function OS2DObject.__get@_internalActions(){
+function Actor.__get@_internalActions(){
 	@setProperty("_internalActions", {})
 	var self = this
 	@_actionUpdateFunc = @addTween(UpdateTween(function(ev){
@@ -415,6 +415,8 @@ function OS2DObject.__get@_internalActions(){
 			action.step(dt)
 			// print "after step: ${action.elapsed}, ${action.duration}, ${action.isDone}"
 			if(action.isDone){
+				action.detachTarget && action.target.detach()
+				action.doneCallback()
 				self.removeAction(action)
 			}
 		}
@@ -423,7 +425,7 @@ function OS2DObject.__get@_internalActions(){
 	return @_internalActions
 }
 
-function OS2DObject.addAction(action){
+function Actor.addAction(action){
 	// print "addAction: ${action.__id}"
 	if(action in @_internalActions){
 		throw "action is already exist"
@@ -431,9 +433,14 @@ function OS2DObject.addAction(action){
 	@_internalActions[action] = true
 	action.target = this
 	action.start()
+	return action
 }
 
-function OS2DObject.removeAction(action){
+function Actor.addTweenAction(duration, prop, from, to){
+	return @addAction(TweenAction(duration, prop, from, to))
+}
+
+function Actor.removeAction(action){
 	// print "removeAction: ${action.__id}"
 	if(action in @_internalActions){
 		action.target === this || throw "action.target !== this"
@@ -441,7 +448,7 @@ function OS2DObject.removeAction(action){
 		action.target = null
 		delete @_internalActions[action]
 		if(#@_internalActions == 0){
-			print "no actions in ${@name || @classname}: #${@__id}"
+			// print "no actions in ${@name || @classname}: #${@__id}"
 			@removeTween(@_actionUpdateFunc)
 			delete @_actionUpdateFunc
 			delete @_internalActions
@@ -451,7 +458,7 @@ function OS2DObject.removeAction(action){
 	throw "action is not exist"
 }
 
-function OS2DObject.removeActionsByName(name){
+function Actor.removeActionsByName(name){
 	for(var action in @_internalActions){
 		if(action.name == name){
 			@removeAction(action)

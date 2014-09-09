@@ -1,8 +1,6 @@
 print "--"
 print "[start] ${DateTime.now()}"
 
-require "std.os"
-
 GAME_SIZE = vec2(460 ,312) // 960, 540)
 
 var displaySize = stage.size
@@ -30,7 +28,7 @@ var spring = Sprite().attrs {
 
 stage.addEventListener(TouchEvent.START, function(ev){
 	if(ev.target === spring){
-		spring.removeTweensByName("elasticTransition")
+		spring.removeActionsByName("elasticTransition")
 		var dx = ev.localPosition.x - spring.x
 		var dy = ev.localPosition.y - spring.y
 		spring.len0 = math.sqrt(dx*dx + dy*dy)
@@ -54,9 +52,12 @@ stage.addEventListener(TouchEvent.END, function(ev){
 	if(ev.target === spring){ // && spring.touchStarted){
 		spring.touchStarted = false
 		
-		spring.addTween("scaleX", 1, 500, 1, false, 0, Tween.EASE_OUTBACK).name = "elasticTransition"
-		
 		var angle = math.round(spring.angle / 90) * 90 // snap to angle
-		spring.addTween("angle", angle, 500, 1, false, 0, Tween.EASE_OUTBACK).name = "elasticTransition"
+		spring.addAction(TweenAction{
+			name = "elasticTransition",
+			duration = 0.5,
+			scaleX = {to = 1, ease = Ease.BACK_OUT},
+			angle = {to = angle, ease = Ease.BACK_OUT},
+		})
 	}
 })

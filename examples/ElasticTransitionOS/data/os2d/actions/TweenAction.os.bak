@@ -4,29 +4,25 @@ TweenAction = extends IntervalAction {
 		super()
 		if(duration.prototype === Object){
 			prop = duration
-			@duration = prop.duration || throw "duration required"; delete prop.duration
-			@name = prop.name; delete prop.name
-			@detachTarget = prop.detachTarget; delete prop.detachTarget
-			@doneCallback = prop.doneCallback; delete prop.doneCallback
+			@duration = prop.duration || throw "duration required"
+			delete prop.duration
 		}else{
 			@duration = duration
 		}
 		if(prop.prototype === Object){
 			@_props = {}
-			var defEase = prop.ease; delete prop.ease
 			for(var prop, values in prop){
 				if(values.prototype === Object){
 					@_props[prop] = {
 						from = values.from,
 						to = values.to,
 						fixRotation = values.fixRotation,
-						ease = values.ease || defEase,
+						ease = values.ease,
 					}
 				}else{
 					@_props[prop] = {
 						from = null,
 						to = values,
-						ease = defEase,
 					}
 				}
 			}
@@ -73,8 +69,8 @@ TweenAction = extends IntervalAction {
     start = function(){
 		super()
 		for(var prop, values in @_props){
-			values.delta = (values.to || /*values.to =*/ @_target[prop]) 
-				- (values.from || /*values.from =*/ @_target[prop])
+			values.delta = (values.to || values.to = @_target[prop]) 
+				- (values.from || values.from = @_target[prop])
 			if(prop == "angle" && values.fixRotation){
 				var diff = values.delta
 				if(math.abs(diff) > 180){

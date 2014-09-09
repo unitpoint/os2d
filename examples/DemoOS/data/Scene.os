@@ -21,26 +21,30 @@ Scene = extends EventDispatcher {
 	show = function(){
 		@transition = "show"
 		@view.parent = stage
-		@view.removeTweensByName("transition")
-		@view.addTween("opacity", 1, 1000).attrs {
+		@view.removeActionsByName("transition")
+		@view.addAction(TweenAction{
 			name = "transition",
+			duration = 1,
+			opacity = 1,
 			doneCallback = function(){
 				@transition = null
 				// @dispatchEvent{"hidden", value = "text", xyz = 123}
 			}.bind(this),
-		}
+		})
 	},
 	
 	hide = function(){
 		@transition = "hide"
-		@view.removeTweensByName("transition")
-		@view.addTween("opacity", 0, 1000).attrs {
+		@view.removeActionsByName("transition")
+		@view.addAction(TweenAction{
 			name = "transition",
-			detachActor = true,
+			duration = 1,
+			opacity = 0,
+			detachTarget = true,
 			doneCallback = function(){
 				@transition = null
 				@dispatchEvent{"hidden", value = "text", xyz = 123}
 			}.bind(this),
-		}
+		})
 	},
 }

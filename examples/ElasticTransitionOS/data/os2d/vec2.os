@@ -41,10 +41,13 @@ vec2 = extends Object {
 		return math.sqrt(@x*@x + @y*@y)
 	},
 	
-	/* __cmp = function(b){
-		b is vec2 && return @x <=> b.x || 
-	}, */
-	
+	__cmp = function(b){
+		b is vec2 || b = vec2(b) // throw "vec2 required"
+		var i = @x <=> b.x 
+		if(i != 0) return i
+		return @y <=> b.y 
+	},
+
 	__add = function(b){
 		b is vec2 && return vec2(@x + b.x, @y + b.y)
 		b = numberOf(b) || throw "number or vec2 required"
@@ -55,6 +58,11 @@ vec2 = extends Object {
 		b is vec2 && return vec2(@x - b.x, @y - b.y)
 		b = numberOf(b) || throw "number or vec2 required"
 		return vec2(@x - b, @y - b)
+	},
+	
+	__rsub = function(a){
+		a = numberOf(a) || throw "number required"
+		return vec2(a - @x, a - @y)
 	},
 	
 	__mul = function(b){

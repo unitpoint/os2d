@@ -28,9 +28,14 @@ Joystick = extends Sprite {
 		if(ev.type == TouchEvent.TOUCH_DOWN){
 			@finger.visible = true
 			
-			@removeTweensByName("fingerColorTween")
-			@addTween("color", Color(0.7, 0, 0), 200).name = "fingerColorTween"
+			@removeActionsByName("fingerColorTween")
+			// @addTween("color", Color(0.7, 0, 0), 200).name = "fingerColorTween"
 			// @color = Color(0.7, 0, 0)
+			@addAction(TweenAction{
+				name = "fingerColorTween",
+				duration = 0.2,
+				color = {to = Color(0.7, 0, 0)},
+			})
 			
 			@active = true
 		}
@@ -39,9 +44,14 @@ Joystick = extends Sprite {
 		if(ev.type == TouchEvent.TOUCH_UP){
 			@finger.visible = false
 			
-			@removeTweensByName("fingerColorTween")
-			@addTween("color", Color(1, 1, 1), 200).name = "fingerColorTween"
+			@removeActionsByName("fingerColorTween")
+			// @addTween("color", Color(1, 1, 1), 200).name = "fingerColorTween"
 			// @color = Color(1, 1, 1)
+			@addAction(TweenAction{
+				name = "fingerColorTween",
+				duration = 0.2,
+				color = {to = Color(1, 1, 1)},
+			})
 			
 			@active = false
 		}

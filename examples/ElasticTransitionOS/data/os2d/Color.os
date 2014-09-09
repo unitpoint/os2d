@@ -1,6 +1,6 @@
 local function clamp(a){
-	if(a < 0) return 0
-	if(a > 1) return 1
+	// if(a < 0) return 0
+	// if(a > 1) return 1
 	return a
 }
 
@@ -30,12 +30,14 @@ Color = extends Object {
 	},
 	
 	__sub = function(b){
+		// print "Color ${this} sub ${b}"
 		b is Color && return Color(@r - b.r, @g - b.g, @b - b.b, @a - b.a)
 		b = numberOf(b) || throw "number or Color required"
 		return Color(@r - b, @g - b, @b - b, @a - b)
 	},
 	
 	__mul = function(b){
+		// print "Color ${this} mul ${b}"
 		b is Color && return Color(@r * b.r, @g * b.g, @b * b.b, @a * b.a)
 		b = numberOf(b) || throw "number or Color required"
 		return Color(@r * b, @g * b, @b * b, @a * b)

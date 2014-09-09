@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="../src/entry_point.cpp" />
     <ClCompile Include="../src/example.cpp" />
+    <ClCompile Include="..\..\..\objectscript\src\EaseFunction.cpp" />
     <ClCompile Include="..\..\..\objectscript\src\ext-datetime\os-datetime.cpp" />
     <ClCompile Include="..\..\..\objectscript\src\objectscript.cpp" />
     <ClCompile Include="..\..\..\objectscript\src\os-heap.cpp" />

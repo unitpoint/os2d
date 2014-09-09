@@ -38,7 +38,7 @@ if(useNewTech){
 
 	fan.addAction(RepeatForeverAction(TweenAction{
 		duration = 3.5, 
-		angle = {to = 360*2, ease = Ease.BACK_OUT}
+		angle = {from = 0, to = 360*2, ease = Ease.BACK_OUT}
 	}))
 
 	base.addAction(RepeatForeverAction(SequenceAction(

@@ -11,8 +11,13 @@ Player = extends Actor {
 			visible = false,
 		}
 		@lastRocketSpawn = 0
-		//animate engine's fire
-		@engine.addTween("color", Color(1, 0, 0), 500, -1, true)
+		// animate engine's fire
+		// @engine.addTween("color", Color(1, 0, 0), 500, -1, true)
+		@engine.addAction(RepeatForeverAction(TweenAction{
+			duration = 0.5,
+			color = Color(1, 0, 0),
+			ease = Ease.PING_PONG,
+		}))
 	},
 	
 	update = function(ev){

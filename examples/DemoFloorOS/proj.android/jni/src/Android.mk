@@ -11,6 +11,7 @@ LOCAL_SRC_FILES += ../../../src/example.cpp ../../../src/entry_point.cpp
 LOCAL_SRC_FILES += ../../../../../objectscript/src/objectscript.cpp
 LOCAL_SRC_FILES += ../../../../../objectscript/src/os-heap.cpp
 LOCAL_SRC_FILES += ../../../../../objectscript/src/ext-datetime/os-datetime.cpp
+LOCAL_SRC_FILES += ../../../../../objectscript/src/EaseFunction.cpp
 
 LOCAL_STATIC_LIBRARIES := oxygine-framework_static
 LOCAL_SHARED_LIBRARIES := SDL2

@@ -1,3 +1,5 @@
+require.paths[] = __DIR__.."/actions"
+
 var filesChecked = {}
 function __get(name){
 	if(!(name in filesChecked)){
@@ -402,6 +404,66 @@ function OS2DObject._unregisterAllExternalTweens(){
 	// @_externalTweens = {}
 	@setProperty("_externalTweens", {})
 	// print "${@classname}#${@__id}._unregisterAllExternalTweens"
+}
+
+function Actor.__get@_internalActions(){
+	@setProperty("_internalActions", {})
+	var self = this
+	@_actionUpdateFunc = @addTween(UpdateTween(function(ev){
+		var dt = ev.dt * 0.001
+		for(var action in self._internalActions){
+			action.step(dt)
+			// print "after step: ${action.elapsed}, ${action.duration}, ${action.isDone}"
+			if(action.isDone){
+				action.detachTarget && action.target.detach()
+				action.doneCallback()
+				self.removeAction(action)
+			}
+		}
+	}))
+	@_actionUpdateFunc.name = "actionUpdateFunc"
+	return @_internalActions
+}
+
+function Actor.addAction(action){
+	// print "addAction: ${action.__id}"
+	if(action in @_internalActions){
+		throw "action is already exist"
+	}
+	@_internalActions[action] = true
+	action.target = this
+	action.start()
+	return action
+}
+
+function Actor.addTweenAction(duration, prop, from, to){
+	return @addAction(TweenAction(duration, prop, from, to))
+}
+
+function Actor.removeAction(action){
+	// print "removeAction: ${action.__id}"
+	if(action in @_internalActions){
+		action.target === this || throw "action.target !== this"
+		action.stop()
+		action.target = null
+		delete @_internalActions[action]
+		if(#@_internalActions == 0){
+			// print "no actions in ${@name || @classname}: #${@__id}"
+			@removeTween(@_actionUpdateFunc)
+			delete @_actionUpdateFunc
+			delete @_internalActions
+		}
+		return
+	}
+	throw "action is not exist"
+}
+
+function Actor.removeActionsByName(name){
+	for(var action in @_internalActions){
+		if(action.name == name){
+			@removeAction(action)
+		}
+	}
 }
 
 function OS2DObject.__get@_externalChildren(){

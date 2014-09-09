@@ -1,8 +1,6 @@
 print "--"
 print "[start] ${DateTime.now()}"
 
-require "std.os"
-
 GAME_SIZE = vec2(540, 960)
 
 var displaySize = stage.size

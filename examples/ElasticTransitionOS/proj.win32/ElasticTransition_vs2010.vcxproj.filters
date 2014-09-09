@@ -30,6 +30,9 @@
     <ClCompile Include="..\..\..\objectscript\src\ext-datetime\os-datetime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\objectscript\src\EaseFunction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../src/example.h">
