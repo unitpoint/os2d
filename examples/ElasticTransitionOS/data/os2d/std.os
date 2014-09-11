@@ -436,8 +436,30 @@ function Actor.addAction(action){
 	return action
 }
 
+function Actor.replaceAction(name, action){
+	if(name is Action){
+		name, action = name.name, name
+	}else{
+		action.name = name
+	}
+	@removeActionsByName(name)
+	return @addAction(action)
+}
+
 function Actor.addTweenAction(duration, prop, from, to){
 	return @addAction(TweenAction(duration, prop, from, to))
+}
+
+function Actor.replaceTweenAction(name, duration, prop, from, to){
+	if(name.prototype === Object){
+		var params = name
+		@removeActionsByName(params.name)
+		return @addTweenAction(params)
+	}
+	@removeActionsByName(name)
+	var action = @addTweenAction(duration, prop, from, to)
+	action.name = name
+	return action
 }
 
 function Actor.removeAction(action){

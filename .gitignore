@@ -1,6 +1,18 @@
 *.sdf
 *.suo
 *.opensdf
+oxygine-sound
+
+examples/CastleMonster
+examples/CastleMonster/data/ext
+examples/CastleMonster/data-ram
+examples/CastleMonster/proj.android/obj
+examples/CastleMonster/proj.android/bin
+examples/CastleMonster/proj.android/gen
+examples/CastleMonster/proj.android/libs
+examples/CastleMonster/proj.win32/ipch
+examples/CastleMonster/proj.win32/Debug
+examples/CastleMonster/proj.win32/Release
 
 examples/DemoOS/data/ext
 examples/DemoOS/data-ram
