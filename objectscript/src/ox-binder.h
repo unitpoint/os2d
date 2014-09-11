@@ -404,6 +404,9 @@ bool addRegFunc(RegisterFunction func);
 	DEF_GET(prop, type, func_post), \
 	DEF_SET(prop, type, func_post)
 
+#define DEF_CONST(name) \
+	{ #name, name }
+
 #ifdef OS_DEBUG
 #define OS_DBG_FILEPOS_DECL_DEF , const OS_CHAR * dbg_filename = "unknown", int dbg_line = 0
 #else

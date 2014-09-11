@@ -582,7 +582,7 @@ static void registerEase(OS * os)
 	os->setNumbers(nums);
 	os->pop();
 #undef DEF_EASE
-#undef CONCAT_IDENT
+#undef CONPHYS_CAT_IDENT
 }
 static bool __registerEase = addRegFunc(registerEase);
 
@@ -1007,12 +1007,12 @@ static void registerSprite(OS * os)
 			}
 			int num;
 			if(params >= 2){
-				int col = os->toInt(-params+0);
-				int row = os->toInt(-params+1);
+				int col = os->toInt(-params+0); if(col < 0) col = 0; else if(col >= res->getColumns()) col = res->getColumns()-1;
+				int row = os->toInt(-params+1); if(row < 0) row = 0; else if(col >= res->getRows()) col = res->getRows()-1;
 				self->setAnimFrame(res, col, row);
 				num = row * res->getColumns() + col;
 			}else{
-				num = os->toInt(-params+0);
+				num = os->toInt(-params+0); if(num < 0) num = 0; else if(num >= res->getTotalFrames()) num = res->getTotalFrames()-1;
 				int col = num % res->getColumns();
 				int row = num / res->getColumns();
 				self->setAnimFrame(res, col, row);
