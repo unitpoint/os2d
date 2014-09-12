@@ -1,0 +1,3 @@
+[submodule "examples/CastleMonster"]
+	path = examples/CastleMonster
+	url = git@github.com:unitpoint/CastleMonster.git
