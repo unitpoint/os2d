@@ -87,6 +87,7 @@
     <ClCompile Include="..\..\..\objectscript\src\ext-datetime\os-datetime.cpp" />
     <ClCompile Include="..\..\..\objectscript\src\objectscript.cpp" />
     <ClCompile Include="..\..\..\objectscript\src\os-heap.cpp" />
+    <ClCompile Include="..\..\..\objectscript\src\ox-binder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../src/example.h" />

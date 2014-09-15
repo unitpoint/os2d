@@ -341,22 +341,6 @@ function String.switchToIconv(){
 	String.sub = String.subIconv
 }
 
-var originExtends = __extends
-function __extends(proto, newClass){
-	newClass = originExtends(proto, newClass)
-	if(typeOf(proto) === "userdata" && !newClass.getProperty("__newinstance")){
-		function newClass.__newinstance(){
-			var obj = proto.__newinstance()
-			obj.prototype = this
-			__initnewinstance(obj)
-			obj.__construct.apply(obj, arguments)
-			return obj
-		}
-	}
-	// print "extends: ${newClass} from ${newClass.prototype}"
-	return newClass
-}
-
 function Object.attrs(attrs){
 	for(var name, value in attrs){
 		this[name] = value
@@ -381,7 +365,7 @@ function OS2DObject._unregisterExternalCallback(id, func){
 
 function OS2DObject._unregisterAllExternalCallbacks(){
 	// @_externalCallbacks = {}
-	@setProperty("_externalCallbacks", {})
+	delete @_externalCallbacks
 	// print "${@classname}#${@__id}._unregisterAllExternalCallbacks"
 }
 
@@ -402,9 +386,14 @@ function OS2DObject._unregisterExternalTween(tween){
 
 function OS2DObject._unregisterAllExternalTweens(){
 	// @_externalTweens = {}
-	@setProperty("_externalTweens", {})
+	delete @_externalTweens
 	// print "${@classname}#${@__id}._unregisterAllExternalTweens"
 }
+
+/* function Actor.__construct(){
+	super()
+	@touchEnabled = false
+} */
 
 function Actor.__get@_internalActions(){
 	@setProperty("_internalActions", {})
@@ -512,20 +501,52 @@ function OS2DObject.__get@_externalChildren(){
 	return @_externalChildren
 }
 
+function OS2DObject.__get@_externalChildrenByIndex(){
+	@setProperty("_externalChildrenByIndex", [])
+	return @_externalChildrenByIndex
+}
+
 function OS2DObject._registerExternalChild(child){
-	@_externalChildren[child] = true
+	@_externalChildren[child] = #@_externalChildrenByIndex
+	@_externalChildrenByIndex[] = child
 	// print "${@classname}#${@__id}._registerExternalChild(${child.classname}#${child.__id}): ${@_externalChildren}"
 }
 
 function OS2DObject._unregisterExternalChild(child){
+	delete @_externalChildrenByIndex[@_externalChildren[child]]
 	delete @_externalChildren[child]
 	// print "${@classname}#${@__id}._unregisterExternalChild(${child.classname}#${child.__id}): ${@_externalChildren}"
 }
 
 function OS2DObject._unregisterAllExternalChildren(){
 	// @_externalChildren = {}
-	@setProperty("_externalChildren", {})
+	delete @_externalChildren
+	delete @_externalChildrenByIndex
 	// print "${@classname}#${@__id}._unregisterAllExternalChildren"
+}
+
+function OS2DObject.__len(){
+	// return @childrenCount()
+	return #@_externalChildrenByIndex
+}
+
+function OS2DObject.__get(i){
+	// return i is Number ? @childAt(i) : super(i)
+	if(typeOf(i) === "number"){
+		return @_externalChildrenByIndex[i]
+	}
+	return super(i)
+}
+
+function OS2DObject.__iter(){
+	/* var next, i = @firstChild, 0
+	return function(){
+		var cur = next
+		next = next.nextSibling
+		// print "iter step: ${!!cur}, ${i}, ${cur}"
+		cur && return true, i++, cur
+	} */
+	return @_externalChildrenByIndex.__iter()
 }
 
 /*	
