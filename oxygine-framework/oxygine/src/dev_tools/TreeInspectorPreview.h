@@ -148,6 +148,9 @@ namespace oxygine
 				if (!b.program)
 					break;
 								
+				if(!b.vdecl)
+					break;
+
 				size_t num = b.vertices.size() / b.vdecl->size;
 
 				vector<char> modified = b.vertices;
