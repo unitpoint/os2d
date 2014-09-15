@@ -145,11 +145,12 @@ public:
 
 	virtual void echo(const void * buf, int size)
 	{
+#ifdef _WIN32
 		FileHandle * f = openFile(OUTPUT_FILENAME, "a");
 		OS_ASSERT(f);
 		writeFile((const char*)buf, size, f);
 		closeFile(f);
-
+#endif
 #if 1
 		char * str = (char*)malloc(size+1 OS_DBG_FILEPOS);
 		memcpy(str, buf, size);
@@ -870,6 +871,7 @@ public:
 
 	void setInterval(float _interval)
 	{ 
+		if(_interval < 0) _interval = 0;
 		interval = (timeMS)(_interval * 1000.0f); 
 		if(curInterval > interval){
 			curInterval = interval;
@@ -962,6 +964,22 @@ OS_DECL_OX_CLASS(Resources);
 // =====================================================================
 
 extern OS2D * os;
+
+struct SaveStackSize
+{
+	int stackSize;
+
+	SaveStackSize()
+	{
+		stackSize = os->getStackSize();
+	}
+	~SaveStackSize()
+	{
+		// ObjectScript::OS * os = ObjectScript::os;
+		OX_ASSERT(os->getStackSize() >= stackSize);
+		os->pop(os->getStackSize() - stackSize);
+	}
+};
 
 struct Oxygine
 {

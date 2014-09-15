@@ -13,6 +13,10 @@ bool addRegFunc(RegisterFunction func)
 	if(!registerFunctions){
 		registerFunctions = new std::vector<RegisterFunction>();
 	}
+	if(std::find(registerFunctions->begin(), registerFunctions->end(), func) != registerFunctions->end()){
+		OX_ASSERT(false && "function is already registered");
+		return false;
+	}
 	registerFunctions->push_back(func);
 	return true;
 }
@@ -343,7 +347,19 @@ static bool __registerEventDispatcher = addRegFunc(registerEventDispatcher);
 
 static void registerResource(OS * os)
 {
+	struct Lib
+	{
+		static int load(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Resource*);
+			self->load();
+			return 0;
+		}
+	};
+
 	OS::FuncDef funcs[] = {
+		{"load", &Lib::load},
+		def("unload", &Resource::unload),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -796,10 +812,42 @@ static void registerActor(OS * os)
 			*/
 			return 0;
 		}
+
+		static int childrenCount(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Actor*);
+			int count = 0;
+			spActor child = self->getFirstChild();
+			for(; child; child = child->getNextSibling()){
+				count++;
+			}
+			os->pushNumber(count);
+			return 1;
+		}
+
+		static int childAt(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Actor*);
+			int i = os->toInt(-params+0);
+			if(i < 0){
+				return 0;
+			}
+			spActor child = self->getFirstChild();
+			for(; child; child = child->getNextSibling(), i--){
+				if(i == 0){
+					pushCtypeValue(os, child);
+					return 1;
+				}
+			}
+			return 0;
+		}
 	};
 
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
+
+		{"childrenCount", &Lib::childrenCount},
+		{"childAt", &Lib::childAt},
 
 		DEF_GET(firstChild, Actor, FirstChild),
 		DEF_GET(lastChild, Actor, LastChild),
@@ -1096,7 +1144,9 @@ static void registerResources(OS * os)
 				return 0;
 			}
 			OS::String name = os->toString(-params+0);
-			self->loadXML(name.toChar());
+			bool loadAll = params >= 2 ? os->toBool(params+1) : true;
+			bool autoManage = params >= 3 ? os->toBool(params+2) : !loadAll;
+			self->loadXML(name.toChar(), NULL, loadAll, autoManage);
 			return 0;
 		}
 
