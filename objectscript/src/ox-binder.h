@@ -1012,6 +1012,17 @@ struct Oxygine
 		os->pushBool(debug);
 		os->setGlobal("DEBUG");
 
+		os->pushBool(!debug);
+		os->setGlobal("RELEASE");
+
+#if defined WIN32
+		const char * platform = "windows";
+#elif defined __ANDROID__
+		const char * platform = "android";
+#endif
+		os->pushString(platform);
+		os->setGlobal("PLATFORM");
+
 		os->eval("require.paths[] = 'os2d'");
 
 		os->require("std.os");
