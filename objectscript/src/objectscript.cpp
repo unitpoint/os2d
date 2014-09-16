@@ -20413,16 +20413,22 @@ corrupted:
 								struct Lib {
 									static int setProperty(OS * os, int params, int, int, void*)
 									{
-										OS_ASSERT(params == 2);
-										bool setter_enabled = false;
-										os->setProperty(setter_enabled);
+										if(params != 2){
+											os->setException("two arguments required");
+										}else{
+											bool setter_enabled = false;
+											os->setProperty(setter_enabled);
+										}
 										return 0;
 									}										
 									static int deleteProperty(OS * os, int params, int, int, void*)
 									{
-										OS_ASSERT(params == 2);
-										bool del_enabled = false;
-										os->deleteProperty(del_enabled);
+										if(params != 2){
+											os->setException("two arguments required");
+										}else{
+											bool del_enabled = false;
+											os->deleteProperty(del_enabled);
+										}
 										return 0;
 									}										
 								};
