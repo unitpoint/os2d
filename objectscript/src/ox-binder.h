@@ -11,6 +11,9 @@
 
 namespace oxygine { class EventCallback; class Event; }
 
+void registerOSCallback(oxygine::EventDispatcher*, int id, int funcId);
+void unregisterOSCallback(oxygine::EventDispatcher*, int id, int funcId);
+
 void registerOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
 void unregisterOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
 void unregisterOSAllEventCallbacks(oxygine::EventDispatcher*);

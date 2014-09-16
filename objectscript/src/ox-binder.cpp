@@ -813,7 +813,7 @@ static void registerActor(OS * os)
 			return 0;
 		}
 
-		static int childrenCount(OS * os, int params, int, int, void*)
+		static int numChildren(OS * os, int params, int, int, void*)
 		{
 			OS_GET_SELF(Actor*);
 			int count = 0;
@@ -846,7 +846,7 @@ static void registerActor(OS * os)
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
 
-		{"childrenCount", &Lib::childrenCount},
+		{"__get@numChildren", &Lib::numChildren},
 		{"childAt", &Lib::childAt},
 
 		DEF_GET(firstChild, Actor, FirstChild),
@@ -1183,15 +1183,15 @@ OS2D * os;
 
 } // namespace ObjectScript
 
-void registerOSEventCallback(EventDispatcher * ed, int id, const EventCallback& cb)
+void registerOSCallback(oxygine::EventDispatcher * ed, int id, int funcId)
 {
 	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::OS * os = ObjectScript::os;
-	if(!ed->osValueId && cb.os_func_id){
+	if(!ed->osValueId && funcId){
 		ObjectScript::pushCtypeValue(os, ed);
 		os->pop();
 	}
-	if(ed->osValueId && cb.os_func_id){
+	if(ed->osValueId && funcId){
 #ifdef OS_DEBUG
 		ObjectScript::pushCtypeValue(os, ed);
 		OX_ASSERT(os->getValueId() == ed->osValueId);
@@ -1202,18 +1202,18 @@ void registerOSEventCallback(EventDispatcher * ed, int id, const EventCallback& 
 		OX_ASSERT(os->isFunction());
 		os->pushValueById(ed->osValueId); // this
 		os->pushNumber(id);
-		os->pushValueById(cb.os_func_id);
+		os->pushValueById(funcId);
 		OX_ASSERT(os->isFunction());
 		os->call(2);
 		os->handleException();
 	}
 }
 
-void unregisterOSEventCallback(EventDispatcher * ed, int id, const EventCallback& cb)
+void unregisterOSCallback(oxygine::EventDispatcher * ed, int id, int funcId)
 {
 	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::OS * os = ObjectScript::os;
-	if(ed->osValueId && cb.os_func_id){
+	if(ed->osValueId && funcId){
 #ifdef OS_DEBUG
 		ObjectScript::pushCtypeValue(os, ed);
 		OX_ASSERT(os->getValueId() == ed->osValueId);
@@ -1224,11 +1224,21 @@ void unregisterOSEventCallback(EventDispatcher * ed, int id, const EventCallback
 		OX_ASSERT(os->isFunction());
 		os->pushValueById(ed->osValueId); // this
 		os->pushNumber(id);
-		os->pushValueById(cb.os_func_id);
+		os->pushValueById(funcId);
 		OX_ASSERT(os->isFunction());
 		os->call(2);
 		os->handleException();
 	}
+}
+
+void registerOSEventCallback(EventDispatcher * ed, int id, const EventCallback& cb)
+{
+	registerOSCallback(ed, id, cb.os_func_id);
+}
+
+void unregisterOSEventCallback(EventDispatcher * ed, int id, const EventCallback& cb)
+{
+	unregisterOSCallback(ed, id, cb.os_func_id);
 }
 
 void unregisterOSAllEventCallbacks(EventDispatcher * ed)
@@ -1439,17 +1449,29 @@ void destroyOSValueById(int id)
 
 #include <sstream>
 
+static int OS_maxAllocatedBytes = 0;
+static int OS_maxUsedBytes = 0;
+static int OS_maxNumValues = 0;
+
 std::string getOSDebugStr()
 {
 	std::stringstream s;
-	if(ObjectScript::os){
+	OS2D * os = ObjectScript::os;
+	if(os){
+		if(OS_maxAllocatedBytes < os->getAllocatedBytes()){
+			OS_maxAllocatedBytes = os->getAllocatedBytes();
+		}
+		if(OS_maxUsedBytes < os->getUsedBytes()){
+			OS_maxUsedBytes = os->getUsedBytes();
+		}
+		if(OS_maxNumValues < os->getNumValues()){
+			OS_maxNumValues = os->getNumValues();
+		}
 		s << endl;
-		s << "OS GC values: " << ObjectScript::os->getNumValues() << endl;
-		s << "OS MEM (Kb)";
-		s << " used:" << (ObjectScript::os->getUsedBytes() / 1024);
-		s << " cached:" << (ObjectScript::os->getCachedBytes() / 1024);
-		s << " allocated:" << (ObjectScript::os->getAllocatedBytes() / 1024);
-		// s << " max:" << (ObjectScript::os->getMaxAllocatedBytes() / 1024);
+		s << "OS GC max values: " << OS_maxNumValues << endl;
+		s << "OS MEM (Kb) max";
+		s << " allocated:" << (OS_maxAllocatedBytes / 1024);
+		s << " used:" << (OS_maxUsedBytes / 1024);
 		// s << endl;
 	}
 	return s.str();
