@@ -33,6 +33,48 @@ struct CleanupRegisterFunctions
 
 // =====================================================================
 
+static void registerGlobal(OS * os)
+{
+	struct Lib {
+		static int getSettingCreateCompiledFile(OS * os, int params, int, int, void*)
+		{
+			os->pushNumber(os->getSetting(OS_SETTING_CREATE_COMPILED_FILE));
+			return 0;
+		}
+		static int setSettingCreateCompiledFile(OS * os, int params, int, int, void*)
+		{
+			os->setSetting(OS_SETTING_CREATE_COMPILED_FILE, os->toBool(-params+0));
+			return 0;
+		}
+
+		static int getSettingCreateTextOpcodesFile(OS * os, int params, int, int, void*)
+		{
+			os->pushNumber(os->getSetting(OS_SETTING_CREATE_TEXT_OPCODES));
+			return 0;
+		}
+		static int setSettingCreateTextOpcodesFile(OS * os, int params, int, int, void*)
+		{
+			os->setSetting(OS_SETTING_CREATE_TEXT_OPCODES, os->toBool(-params+0));
+			return 0;
+		}
+	};
+
+	OS::FuncDef funcs[] = {
+		{"__get@settingCreateCompiledFile", &Lib::getSettingCreateCompiledFile},
+		{"__set@settingCreateCompiledFile", &Lib::setSettingCreateCompiledFile},
+
+		{"__get@settingCreateTextOpcodesFile", &Lib::getSettingCreateTextOpcodesFile},
+		{"__set@settingCreateTextOpcodesFile", &Lib::setSettingCreateTextOpcodesFile},
+		{}
+	};
+	os->pushGlobals();
+	os->setFuncs(funcs);
+	os->pop();
+}
+static bool __registerGlobal = addRegFunc(registerGlobal);
+
+// =====================================================================
+
 static void registerObject(OS * os)
 {
 	struct Lib {

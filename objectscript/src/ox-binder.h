@@ -42,14 +42,19 @@ class OS2D: public ObjectScript::OS
 
 public:
 
+	bool logToOutFile;
+
 	OS2D()
 	{
+		logToOutFile = true;
 	}
 
 	virtual void initSettings()
 	{
-		// setSetting(ObjectScript::OS_ESettings::OS_SETTING_CREATE_COMPILED_FILE, false);
-		// setSetting(ObjectScript::OS_SETTING_CREATE_TEXT_OPCODES, false);
+#ifndef OS_DEBUG
+		setSetting(ObjectScript::OS_SETTING_CREATE_COMPILED_FILE, false);
+		setSetting(ObjectScript::OS_SETTING_CREATE_TEXT_OPCODES, false);
+#endif
 	}
 
 	String getWritableFilename(const String& filename)
