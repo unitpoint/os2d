@@ -17,6 +17,7 @@
 #else
 #if WIN32
 #include <direct.h>
+#include <windows.h>
 #else
 #include "SDL_system.h"
 #endif
@@ -51,8 +52,29 @@ namespace oxygine
 #endif // __ANDROID__
 
 #ifdef WIN32
-			_mkdir("../data-ram/");
-			_nfsWrite.setPath("../data-ram/");			
+			struct Lib {
+				static void convertSlashes(char * buf)
+				{
+					for(; *buf; buf++){
+						if(*buf == '\\'){
+							*buf = '/';
+						}
+					}
+				}
+
+				static bool endsWith(const char * s, const char * end)
+				{
+					int len = strlen(s), endlen = strlen(end);
+					return len >= endlen && memcmp(s + len - endlen, end, endlen) == 0;
+				}			
+			};
+			char path[MAX_PATH];
+			GetCurrentDirectoryA(MAX_PATH, path);
+			Lib::convertSlashes(path);
+			const char * ram = Lib::endsWith(path, "/bin") || Lib::endsWith(path, "/data") || Lib::endsWith(path, "/assets")
+					? "../data-ram/" : "data-ram/";
+			_mkdir(ram);
+			_nfsWrite.setPath(ram);			
 #endif
 
 			_nfs.mount(&_nfsWrite);

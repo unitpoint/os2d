@@ -1,6 +1,6 @@
 # OS2D is ObjectScript engine for 2d mobile games
 
-**OS2D** is ObjectScript engine for 2d mobile games. **OS2D** is made on top of Oxygine framework.
+**OS2D** is ObjectScript engine for 2d mobile games. It's made on top of Oxygine framework.
 Best Regards to Denis Muratshin (author of the Oxygine framework).
 
 ## Build and run
@@ -59,9 +59,33 @@ The main ObjectScript file is <code>DemoOS\data\main.os</code> for DemoOS projec
 		pos = vec2(70, 55),
 		parent = stage,
 	}
+	
+## Examples
+
+### SeqTweenOS
+
+![Opensource SeqTweenOS example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/SeqTweenOS/SeqTween.jpg)
+
+### DemoFloorOS
+
+Click next youtube video to view the DemoFloorOS:
+
+[![Opensource DemoFloorOS example made with OS2D, level 2](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/DemoFloorOS/DemoFloor.jpg)](http://www.youtube.com/watch?v=rJRRq-x2uBI)
+
+### DemoOS
+
+Click next youtube video to view the DemoOS:
+
+[![Opensource DemoOS example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/DemoOS/Demo.jpg)](http://www.youtube.com/watch?v=w8IdHx2uq0c)
+
+### ElasticTransitionOS
+
+![Opensource ElasticTransitionOS example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/ElasticTransitionOS/ElasticTransition.jpg)
 
 ## Resources
 
+* [Windows compiled examples ready to run](https://github.com/unitpoint/os2d-bin-win)
+* [CastleMonster made with OS2D](https://github.com/unitpoint/CastleMonster) is one more opensource example
 * [objectscript.org](https://github.com/unitpoint/objectscript.org) is ObjectScript language site
 * [Programming in ObjectScript](https://github.com/unitpoint/objectscript/wiki/Programming-in-ObjectScript)
 * [ObjectScript Reference](https://github.com/unitpoint/objectscript/wiki/ObjectScript-Reference)

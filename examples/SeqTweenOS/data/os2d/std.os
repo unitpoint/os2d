@@ -12,6 +12,14 @@ function __get(name){
 	throw "unknown class or global property \"${name}\""
 }
 
+function printBackTrace(skipFuncs){
+	for(var i, t in arrayOf(skipFuncs) || debugBackTrace((skipFuncs || 0) + 1)){ // skip printBackTrace
+		printf("#${i} ${t.file}%s: %s, args: ${t.arguments}\n",
+			t.line > 0 ? "(${t.line},${t.pos})" : "",
+			t.object && t.object !== _G ? "{${typeOf(t.object)}#${t.object.__id}}.${t.func.__name}" : t.func.__name)
+	}
+}
+
 function assert(a, message){
 	return a || throw(message || "assert failed")
 }
@@ -24,17 +32,25 @@ function evalEnv(str, env){
 	return compileText(str).applyEnv(env || _G, null, ...)
 }
 
-function delegateWithArgs(self, func){
-	var args = ...
-	return function(){ return func.apply(self, args) }
-}
-
 function delegate(self, func){
-	return function(){ return func.apply(self, arguments) }
+	var args = ...
+	if(#args == 0){
+		return function(){ return func.apply(self, arguments) }
+	}
+	return function(){ 
+		if(#arguments == 0){
+			return func.apply(self, args)
+		}
+		return func.apply(self, [].merge(args, arguments))
+	}
 }
 
 function Function.bind(self){
-	return delegate(self, this);
+	var args = ...
+	if(#args == 0){
+		return delegate(self, this)
+	}
+	return delegate.apply(_E, [self, this].merge(args))
 }
 
 function toArray(a){
@@ -355,18 +371,15 @@ function OS2DObject.__get@_externalCallbacks(){
 
 function OS2DObject._registerExternalCallback(id, func){
 	@_externalCallbacks[id] = func
-	// print "${@classname}#${@__id}._registerExternalCallback: ${@_externalCallbacks}"
 }
 
 function OS2DObject._unregisterExternalCallback(id, func){
 	delete @_externalCallbacks[id]
-	// print "${@classname}#${@__id}._unregisterExternalCallback: ${@_externalCallbacks}"
 }
 
 function OS2DObject._unregisterAllExternalCallbacks(){
 	// @_externalCallbacks = {}
 	delete @_externalCallbacks
-	// print "${@classname}#${@__id}._unregisterAllExternalCallbacks"
 }
 
 function OS2DObject.__get@_externalTweens(){
@@ -376,18 +389,15 @@ function OS2DObject.__get@_externalTweens(){
 
 function OS2DObject._registerExternalTween(tween){
 	@_externalTweens[tween] = true
-	// print "${@classname}#${@__id}._registerExternalTween(${tween.classname}#${tween.__id}): ${@_externalTweens}"
 }
 
 function OS2DObject._unregisterExternalTween(tween){
 	delete @_externalTweens[tween]
-	// print "${@classname}#${@__id}._unregisterExternalTween(${tween.classname}#${tween.__id}): ${@_externalTweens}"
 }
 
 function OS2DObject._unregisterAllExternalTweens(){
 	// @_externalTweens = {}
 	delete @_externalTweens
-	// print "${@classname}#${@__id}._unregisterAllExternalTweens"
 }
 
 /* function Actor.__construct(){
@@ -501,52 +511,55 @@ function OS2DObject.__get@_externalChildren(){
 	return @_externalChildren
 }
 
-function OS2DObject.__get@_externalChildrenByIndex(){
-	@setProperty("_externalChildrenByIndex", [])
-	return @_externalChildrenByIndex
-}
-
 function OS2DObject._registerExternalChild(child){
-	@_externalChildren[child] = #@_externalChildrenByIndex
-	@_externalChildrenByIndex[] = child
-	// print "${@classname}#${@__id}._registerExternalChild(${child.classname}#${child.__id}): ${@_externalChildren}"
+	@_externalChildren[child] = true
 }
 
 function OS2DObject._unregisterExternalChild(child){
-	delete @_externalChildrenByIndex[@_externalChildren[child]]
 	delete @_externalChildren[child]
-	// print "${@classname}#${@__id}._unregisterExternalChild(${child.classname}#${child.__id}): ${@_externalChildren}"
 }
 
 function OS2DObject._unregisterAllExternalChildren(){
-	// @_externalChildren = {}
 	delete @_externalChildren
-	delete @_externalChildrenByIndex
-	// print "${@classname}#${@__id}._unregisterAllExternalChildren"
 }
 
 function OS2DObject.__len(){
-	// return @childrenCount()
-	return #@_externalChildrenByIndex
+	// return @numChildren()
+	return #@_externalChildren
 }
 
 function OS2DObject.__get(i){
-	// return i is Number ? @childAt(i) : super(i)
 	if(typeOf(i) === "number"){
-		return @_externalChildrenByIndex[i]
+		return @childAt(i) || throw "child at index ${i} not exist in ${@__name || @classname}"
 	}
-	return super(i)
+	throw "property \"${i}\" not found in ${@__name || @classname}"
+}
+
+function OS2DObject.__set(i, value){
+	if(typeOf(i) === "number"){
+		throw "attempt to set child at index ${i}, use addChild or attachTo or set parent instead of"
+	}
+	super(i, value)
 }
 
 function OS2DObject.__iter(){
-	/* var next, i = @firstChild, 0
+	var next, i = @firstChild, 0
 	return function(){
 		var cur = next
 		next = next.nextSibling
 		// print "iter step: ${!!cur}, ${i}, ${cur}"
 		cur && return true, i++, cur
-	} */
-	return @_externalChildrenByIndex.__iter()
+	}
+}
+
+function OS2DObject.reverseIter(){
+	var next, i = @lastChild, #@_externalChildren-1 // @numChildren-1
+	return function(){
+		var cur = next
+		next = next.prevSibling
+		// print "iter step: ${!!cur}, ${i}, ${cur}"
+		cur && return true, i++, cur
+	}
 }
 
 /*	
