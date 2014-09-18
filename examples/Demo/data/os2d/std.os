@@ -476,7 +476,7 @@ function Actor.removeAction(action){
 		}
 		return
 	}
-	throw "action is not exist"
+	// throw "action is not exist"
 }
 
 function Actor.removeActionsByName(name){
@@ -530,7 +530,7 @@ function OS2DObject.__len(){
 
 function OS2DObject.__get(i){
 	if(typeOf(i) === "number"){
-		return @childAt(i) || throw "child at index ${i} not exist in ${@__name || @classname}"
+		return @getChild(i) || throw "child at index ${i} not exist in ${@__name || @classname}"
 	}
 	throw "property \"${i}\" not found in ${@__name || @classname}"
 }
@@ -558,7 +558,7 @@ function OS2DObject.reverseIter(){
 		var cur = next
 		next = next.prevSibling
 		// print "iter step: ${!!cur}, ${i}, ${cur}"
-		cur && return true, i++, cur
+		cur && return true, i--, cur
 	}
 }
 
