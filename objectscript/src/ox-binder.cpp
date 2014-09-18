@@ -855,32 +855,47 @@ static void registerActor(OS * os)
 			return 0;
 		}
 
-		static int numChildren(OS * os, int params, int, int, void*)
+		static int numChildren(Actor * actor)
 		{
-			OS_GET_SELF(Actor*);
 			int count = 0;
-			spActor child = self->getFirstChild();
+			spActor child = actor->getFirstChild();
 			for(; child; child = child->getNextSibling()){
 				count++;
 			}
-			os->pushNumber(count);
+			return count;
+		}
+
+		static int numChildren(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Actor*);
+			os->pushNumber(numChildren(self));
 			return 1;
 		}
 
-		static int childAt(OS * os, int params, int, int, void*)
+		static int getChild(OS * os, int params, int, int, void*)
 		{
 			OS_GET_SELF(Actor*);
-			int i = os->toInt(-params+0);
-			if(i < 0){
+			OS_EValueType type = os->getType(-params+0);
+			if(type == OS_VALUE_TYPE_NUMBER){
+				int i = os->toInt(-params+0);
+				if(i < 0 || (i += numChildren(self)) < 0){
+					return 0;
+				}
+				spActor child = self->getFirstChild();
+				for(; child; child = child->getNextSibling(), i--){
+					if(i == 0){
+						pushCtypeValue(os, child);
+						return 1;
+					}
+				}
 				return 0;
 			}
-			spActor child = self->getFirstChild();
-			for(; child; child = child->getNextSibling(), i--){
-				if(i == 0){
-					pushCtypeValue(os, child);
-					return 1;
-				}
+			if(type == OS_VALUE_TYPE_STRING){
+				spActor child = self->getChild(os->toString(-params+0).toChar());
+				pushCtypeValue(os, child);
+				return 1;
 			}
+			os->setException("string or number required");
 			return 0;
 		}
 	};
@@ -889,14 +904,14 @@ static void registerActor(OS * os)
 		def("__newinstance", &Lib::__newinstance),
 
 		{"__get@numChildren", &Lib::numChildren},
-		{"childAt", &Lib::childAt},
+		// {"childAt", &Lib::childAt},
 
 		DEF_GET(firstChild, Actor, FirstChild),
 		DEF_GET(lastChild, Actor, LastChild),
 		DEF_GET(nextSibling, Actor, NextSibling),
 		DEF_GET(prevSibling, Actor, PrevSibling),
 		def("getDescendant", &Actor::getDescendant),
-		def("getChild", &Actor::getChild),
+		{"getChild", &Lib::getChild},
 		def("getTween", &Actor::getTween),
 		DEF_GET(firstTween, Actor, FirstTween),
 		DEF_GET(lastTween, Actor, LastTween),
