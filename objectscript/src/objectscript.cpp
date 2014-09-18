@@ -23188,7 +23188,7 @@ void OS::initArrayClass()
 				OS_ASSERT(dynamic_cast<Core::GCArrayValue*>(OS_VALUE_VARIANT(self_var).arr));
 				Core::GCArrayValue * arr = OS_VALUE_VARIANT(self_var).arr;
 				int count = arr->values.count;
-				int i = params >= 2 ? os->toInt(-params+1) : count-1;
+				int i = params >= 2 ? os->toInt(-params+1) : 0;
 				if(i < 0){
 					i = 0;
 				}
