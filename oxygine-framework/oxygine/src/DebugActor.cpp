@@ -105,7 +105,7 @@ namespace oxygine
 		//st.color = Color(rand()%255, rand()%255, rand()%255, 255);
 		st.color = Color(Color::Black, 255);
 		st.multiline = true;
-		setWidth(230);
+		setWidth(250);
 		setHeight(45);
 
 		_bg = new ColorRectSprite;
