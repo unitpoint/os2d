@@ -28,7 +28,7 @@ void example_postinit()
 
 void example_init()
 {
-	DebugActor::showFPS = false;
+	// DebugActor::showFPS = false;
 	ObjectScript::Oxygine::run();
 }
 
