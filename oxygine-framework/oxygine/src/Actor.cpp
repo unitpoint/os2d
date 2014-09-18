@@ -473,8 +473,11 @@ namespace oxygine
 	}
 
 
-	void Actor::setPriority(short zorder)
+	void Actor::setPriority(int zorder)
 	{
+		if(_zOrder == zorder){ // fixed by Evgeniy Golovin
+			return;
+		}
 		_zOrder = zorder;
 		if (_parent)
 		{
@@ -902,6 +905,20 @@ namespace oxygine
 			_cbDoUpdate(us);
 		doUpdate(us);
 
+#if 1	// prevent infinite cycle if priority changed, fixed by Evgeniy Golovin
+		std::vector<spActor> children;
+		spActor actor = _children._first;
+		while(actor){
+			children.push_back(actor);
+			actor = actor->_next;
+		}
+		std::vector<spActor>::iterator it = children.begin();
+		for(; it != children.end(); ++it){
+			actor = *it;
+			if(actor->getParent())
+				actor->update(us);
+		}
+#else
 		spActor actor = _children._first;
 		while (actor)
 		{
@@ -914,6 +931,7 @@ namespace oxygine
 			}
 			actor = next;
 		}
+#endif
 	}
 
 	void Actor::update(const UpdateState &parentUS)

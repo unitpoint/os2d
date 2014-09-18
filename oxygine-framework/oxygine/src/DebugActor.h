@@ -26,6 +26,8 @@ namespace oxygine
 		static void release();
 		static string getDefaultName(){return "debug_actor";}
 
+		static bool showFPS;
+
 		DebugActor();
 		~DebugActor();
 

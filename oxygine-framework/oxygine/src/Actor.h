@@ -156,7 +156,7 @@ namespace oxygine
 		/**Overwrites transformation matrix. position/scale/rotation would be ignored until you change them*/
 		void setTransform(const AffineTransform &tr);
 		/** set z order draw priority, from back (low value) to front (high value). Max value is 32000, Min value -32000*/
-		void setPriority(short zorder);
+		void setPriority(int zorder);
 		void setScale(float scale);
 		void setScale(const Vector2 &scale);
 		void setScale(float scaleX, float scaleY);
@@ -306,7 +306,7 @@ namespace oxygine
 		pointer_index _overed;
 
 	private:
-		short	_zOrder;
+		int	_zOrder;
 
 		Vector2 _pos;		
 		Vector2 _anchor;		

@@ -154,7 +154,7 @@ namespace oxygine
 		char buff[1024] = "";
 		va_list args;
 		va_start(args, format);
-		int len = strlen(buff);
+		int len = (int)strlen(buff);
 		int i = vsnprintf(buff + len, sizeof(buff) - len, format, args);
 		va_end(args);
 
@@ -217,6 +217,7 @@ namespace oxygine
 	}
 
 	extern IVideoDriver::Stats _videoStats;
+	bool DebugActor::showFPS = true;
 
 	void DebugActor::doUpdate(const UpdateState &us)
 	{
@@ -234,8 +235,9 @@ namespace oxygine
 		}
 
 		stringstream s;
-		s << "fps=" << fps << endl;
-
+		if(showFPS){
+			s << "fps=" << fps << endl;
+		}
 		
 
 #ifdef __S3E__
