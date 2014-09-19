@@ -7,15 +7,15 @@ Best Regards to Denis Muratshin (author of the Oxygine framework).
 
 ### Windows
 
-Open and run <code>examples\DemoOS\proj.win32\Demo_vs2010.sln</code>. Please see more examples.
+Open and run <code>examples\Demo\proj.win32\Demo_vs2010.sln</code>. Please see more examples.
 
 ### Android
 
-Run <code>examples\DemoOS\proj.android\build-run.bat</code>
+Run <code>examples\Demo\proj.android\build-run.bat</code>
 
 ## Getting Started
 
-The main ObjectScript file is <code>DemoOS\data\main.os</code> for DemoOS project. 
+The main ObjectScript file is <code>Demo\data\main.os</code> for Demo project. 
 
 ### Examples of ObjectScript code:
 
