@@ -62,25 +62,25 @@ The main ObjectScript file is <code>DemoOS\data\main.os</code> for DemoOS projec
 	
 ## Examples
 
-### SeqTweenOS
+### SeqTween
 
-![Opensource SeqTweenOS example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/SeqTweenOS/SeqTween.jpg)
+![Opensource SeqTween example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/SeqTween/SeqTween.jpg)
 
-### DemoFloorOS
+### DemoFloor
 
-Click next youtube video to view the DemoFloorOS:
+Click next youtube video to view the DemoFloor:
 
-[![Opensource DemoFloorOS example made with OS2D, level 2](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/DemoFloorOS/DemoFloor.jpg)](http://www.youtube.com/watch?v=rJRRq-x2uBI)
+[![Opensource DemoFloor example made with OS2D, level 2](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/DemoFloor/DemoFloor.jpg)](http://www.youtube.com/watch?v=rJRRq-x2uBI)
 
-### DemoOS
+### Demo
 
-Click next youtube video to view the DemoOS:
+Click next youtube video to view the Demo:
 
-[![Opensource DemoOS example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/DemoOS/Demo.jpg)](http://www.youtube.com/watch?v=w8IdHx2uq0c)
+[![Opensource Demo example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/Demo/Demo.jpg)](http://www.youtube.com/watch?v=w8IdHx2uq0c)
 
-### ElasticTransitionOS
+### ElasticTransition
 
-![Opensource ElasticTransitionOS example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/ElasticTransitionOS/ElasticTransition.jpg)
+![Opensource ElasticTransition example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/ElasticTransition/ElasticTransition.jpg)
 
 ## Resources
 
