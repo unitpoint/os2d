@@ -447,6 +447,9 @@ namespace oxygine
                 desc.w = 960;
                 desc.h = 640;
             }
+			if(desc.fullscreen){
+				flags |= SDL_WINDOW_FULLSCREEN;
+			}
 
             log::messageln("creating window %d %d", desc.w, desc.h);
 
