@@ -1254,14 +1254,13 @@ void registerOSCallback(oxygine::EventDispatcher * ed, int id, int funcId)
 		OX_ASSERT(os->getValueId() == ed->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(ed->osValueId);
-		os->getProperty("_registerExternalCallback");
-		OX_ASSERT(os->isFunction());
 		os->pushValueById(ed->osValueId); // this
+		os->getProperty(-1, "_registerExternalCallback"); // func
+		OX_ASSERT(os->isFunction());
 		os->pushNumber(id);
 		os->pushValueById(funcId);
 		OX_ASSERT(os->isFunction());
-		os->call(2);
+		os->callTF(2);
 		os->handleException();
 	}
 }
@@ -1276,14 +1275,13 @@ void unregisterOSCallback(oxygine::EventDispatcher * ed, int id, int funcId)
 		OX_ASSERT(os->getValueId() == ed->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(ed->osValueId);
-		os->getProperty("_unregisterExternalCallback");
-		OX_ASSERT(os->isFunction());
 		os->pushValueById(ed->osValueId); // this
+		os->getProperty(-1, "_unregisterExternalCallback"); // func
+		OX_ASSERT(os->isFunction());
 		os->pushNumber(id);
 		os->pushValueById(funcId);
 		OX_ASSERT(os->isFunction());
-		os->call(2);
+		os->callTF(2);
 		os->handleException();
 	}
 }
@@ -1308,11 +1306,10 @@ void unregisterOSAllEventCallbacks(EventDispatcher * ed)
 		OX_ASSERT(os->getValueId() == ed->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(ed->osValueId);
-		os->getProperty("_unregisterAllExternalCallbacks");
-		OX_ASSERT(os->isFunction());
 		os->pushValueById(ed->osValueId); // this
-		os->call(0);
+		os->getProperty(-1, "_unregisterAllExternalCallbacks"); // func
+		OX_ASSERT(os->isFunction());
+		os->callTF();
 		os->handleException();
 	}
 }
@@ -1321,14 +1318,13 @@ void registerOSTween(Object * a, Tween * t)
 {
 	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::OS * os = ObjectScript::os;
-	ObjectScript::pushCtypeValue(os, a);
+	ObjectScript::pushCtypeValue(os, a); // this
 	OX_ASSERT(os->getValueId() == a->osValueId);
-	os->getProperty("_registerExternalTween");
+	os->getProperty(-1, "_registerExternalTween"); // func
 	OX_ASSERT(os->isFunction());
-	ObjectScript::pushCtypeValue(os, a); // os->pushValueById(a->osValueId); // this
 	ObjectScript::pushCtypeValue(os, t);
 	OX_ASSERT(os->getValueId() == t->osValueId);
-	os->call(1);
+	os->callTF(1);
 	os->handleException();
 }
 
@@ -1346,12 +1342,11 @@ void unregisterOSTween(Object * a, Tween * t)
 		OX_ASSERT(os->getValueId() == t->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(a->osValueId);
-		os->getProperty("_unregisterExternalTween");
-		OX_ASSERT(os->isFunction());
 		os->pushValueById(a->osValueId); // this
+		os->getProperty(-1, "_unregisterExternalTween"); // func
+		OX_ASSERT(os->isFunction());
 		os->pushValueById(t->osValueId);
-		os->call(1);
+		os->callTF(1);
 		os->handleException();
 	}
 }
@@ -1366,11 +1361,10 @@ void unregisterOSAllTweens(Object * a)
 		OX_ASSERT(os->getValueId() == a->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(a->osValueId);
-		os->getProperty("_unregisterAllExternalTweens");
-		OX_ASSERT(os->isFunction());
 		os->pushValueById(a->osValueId); // this
-		os->call(0);
+		os->getProperty(-1, "_unregisterAllExternalTweens"); // func
+		OX_ASSERT(os->isFunction());
+		os->callTF();
 		os->handleException();
 	}
 }
@@ -1379,14 +1373,13 @@ void registerOSActorChild(Actor * a, Actor * child)
 {
 	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
 	ObjectScript::OS * os = ObjectScript::os;
-	ObjectScript::pushCtypeValue(os, a);
+	ObjectScript::pushCtypeValue(os, a); // this
 	OX_ASSERT(os->getValueId() == a->osValueId);
-	os->getProperty("_registerExternalChild");
+	os->getProperty(-1, "_registerExternalChild"); // func
 	OX_ASSERT(os->isFunction());
-	ObjectScript::pushCtypeValue(os, a); // os->pushValueById(a->osValueId); // this
 	ObjectScript::pushCtypeValue(os, child);
 	OX_ASSERT(os->getValueId() == child->osValueId);
-	os->call(1);
+	os->callTF(1);
 	os->handleException();
 }
 
@@ -1404,12 +1397,11 @@ void unregisterOSActorChild(Actor * a, Actor * child)
 		OX_ASSERT(os->getValueId() == child->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(a->osValueId);
-		os->getProperty("_unregisterExternalChild");
-		OX_ASSERT(os->isFunction());
 		os->pushValueById(a->osValueId); // this
+		os->getProperty(-1, "_unregisterExternalChild"); // func
+		OX_ASSERT(os->isFunction());
 		os->pushValueById(child->osValueId);
-		os->call(1);
+		os->callTF(1);
 		os->handleException();
 	}
 }
@@ -1424,11 +1416,10 @@ void unregisterOSAllActorChildren(Actor * a)
 		OX_ASSERT(os->getValueId() == a->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(a->osValueId);
-		os->getProperty("_unregisterAllExternalChildren");
-		OX_ASSERT(os->isFunction());
 		os->pushValueById(a->osValueId); // this
-		os->call(0);
+		os->getProperty(-1, "_unregisterAllExternalChildren"); // func
+		OX_ASSERT(os->isFunction());
+		os->callTF();
 		os->handleException();
 	}
 }

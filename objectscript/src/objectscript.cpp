@@ -17680,8 +17680,10 @@ void OS::Core::pop(int count)
 	if(count >= stack_values.count){
 		OS_ASSERT(count == stack_values.count);
 		stack_values.count = 0;
-	}else{
+	}else if(count > 0){
 		stack_values.count -= count;
+	}else{
+		OS_ASSERT(count == 0);
 	}
 }
 
@@ -17744,6 +17746,18 @@ void OS::Core::moveStackValue(int offs, int new_offs)
 		OS_MEMMOVE(stack_values.buf + new_offs+1, stack_values.buf + new_offs, sizeof(Value) * (offs - new_offs));
 	}
 	stack_values[new_offs] = value;
+}
+
+void OS::Core::exchangeStackValues(int offs)
+{
+	offs = offs < 0 ? stack_values.count + offs : offs;
+	if(offs < 0 || offs >= stack_values.count-1){
+		OS_ASSERT(false);
+		return;
+	}
+	Value temp = stack_values[offs];
+	stack_values[offs] = stack_values[offs+1];
+	stack_values[offs+1] = temp;
 }
 
 void OS::Core::insertValue(Value val, int offs)
@@ -17921,10 +17935,10 @@ void OS::pop(int count)
 	core->pop(count);
 }
 
-void OS::removeAll()
+/* void OS::removeAll()
 {
 	core->removeAllStackValues();
-}
+} */
 
 void OS::move(int start_offs, int count, int new_offs)
 {
@@ -17934,6 +17948,11 @@ void OS::move(int start_offs, int count, int new_offs)
 void OS::move(int offs, int new_offs)
 {
 	core->moveStackValue(offs, new_offs);
+}
+
+void OS::exchange(int offs)
+{
+	core->exchangeStackValues(offs);
 }
 
 bool OS::toBool(int offs)
@@ -23189,7 +23208,7 @@ void OS::initArrayClass()
 				Core::GCArrayValue * arr = OS_VALUE_VARIANT(self_var).arr;
 				int count = arr->values.count;
 				int i = params >= 2 ? os->toInt(-params+1) : 0;
-				if(i < 0){
+				if(i < 0 || (i += count) < 0){
 					i = 0;
 				}
 				for(; i < count; i++){
@@ -23212,7 +23231,9 @@ void OS::initArrayClass()
 				Core::GCArrayValue * arr = OS_VALUE_VARIANT(self_var).arr;
 				int count = arr->values.count;
 				int i = params >= 2 ? os->toInt(-params+1) : count-1;
-				if(i > count-1){
+				if(i < 0 || (i += count) < 0){
+					i = 0;
+				}else if(i > count-1){
 					i = count-1;
 				}
 				for(; i >= 0; i--){
@@ -26460,6 +26481,17 @@ void OS::Core::call(int params, int ret_values, OS_ECallType call_type)
 	stack_values.count = start_pos + ret_values;
 }
 
+void OS::Core::callTF(int params, int ret_values, OS_ECallType call_type)
+{
+	params += 2;
+	int start_pos = stack_values.count - params;
+	GCValue * self_for_proto = NULL;
+	bool allow_only_enter_func = false; 
+	exchangeStackValues(start_pos);
+	call(start_pos, params, ret_values, self_for_proto, allow_only_enter_func, call_type);
+	stack_values.count = start_pos + ret_values;
+}
+
 OS_ESourceCodeType OS::getSourceCodeType(const String& filename)
 {
 	String ext = getFilenameExt(filename);
@@ -26574,6 +26606,16 @@ bool OS::compile(OS_ESourceCodeType source_code_type, bool check_utf8_bom)
 void OS::call(int params, int ret_values, OS_ECallType call_type)
 {
 	core->call(params, ret_values, call_type);
+}
+
+void OS::callFT(int params, int ret_values, OS_ECallType call_type)
+{
+	core->call(params, ret_values, call_type);
+}
+
+void OS::callTF(int params, int ret_values, OS_ECallType call_type)
+{
+	core->callTF(params, ret_values, call_type);
 }
 
 void OS::eval(const OS_CHAR * str, int params, int ret_values, OS_ESourceCodeType source_code_type, bool check_utf8_bom, bool handle_exception)

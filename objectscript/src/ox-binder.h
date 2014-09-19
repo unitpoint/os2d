@@ -994,6 +994,7 @@ struct Oxygine
 	static void init()
 	{
 		os = OS::create(new OS2D());
+		os->setGCStartWhenUsedBytes(32*1024);
 
 		initDateTimeExtension(os);
 	}
@@ -1043,8 +1044,6 @@ struct Oxygine
 
 	static void run()
 	{
-		os->setGCStartWhenUsedBytes(32*1024);
-
 		// pushCtypeValue(os, getStage().get());
 		pushCtypeValue(os, getStage());
 		os->setGlobal("stage");
