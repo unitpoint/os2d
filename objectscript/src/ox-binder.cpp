@@ -878,7 +878,7 @@ static void registerActor(OS * os)
 			OS_EValueType type = os->getType(-params+0);
 			if(type == OS_VALUE_TYPE_NUMBER){
 				int i = os->toInt(-params+0);
-				if(i < 0 || (i += numChildren(self)) < 0){
+				if(i < 0 && (i += numChildren(self)) < 0){
 					return 0;
 				}
 				spActor child = self->getFirstChild();
