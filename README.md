@@ -45,7 +45,7 @@ The main ObjectScript file is <code>Demo\data\main.os</code> of Demo example.
 	// remove action
 	sprite.removeAction(myAction)
 	
-	// remove action by name
+	// remove actions by name
 	sprite.removeActionsByName("rotate-action")
 		
 	// handle events
@@ -107,7 +107,7 @@ The main ObjectScript file is <code>Demo\data\main.os</code> of Demo example.
 
 ### AngryMonsters
 
-[![Opensource AngryMonsters example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/AngryMonsters/AngryMonsters.jpg)](http://www.youtube.com/watch?v=vlrua_emfPM)
+[![Opensource AngryMonsters example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/AngryMonsters/AngryMonsters-youtube.jpg)](http://www.youtube.com/watch?v=vlrua_emfPM)
 
 ### Demo
 
@@ -119,7 +119,7 @@ The main ObjectScript file is <code>Demo\data\main.os</code> of Demo example.
 
 ### CastleMonster
 
-[![CastleMonster Demo example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/Demo/Demo-youtube.jpg)](http://www.youtube.com/watch?v=w8IdHx2uq0c)
+[![Opensource CastleMonster example made with OS2D](https://raw.githubusercontent.com/unitpoint/CastleMonster-bin-win/master/CastleMonster-youtube.jpg)](http://www.youtube.com/watch?v=a4afnUWjVR4)
 
 ## Resources
 
