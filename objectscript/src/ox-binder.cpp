@@ -1122,7 +1122,6 @@ static void registerSprite(OS * os)
 				int row = num / res->getColumns();
 				self->setAnimFrame(res, col, row);
 			}
-			// pushCtypeValue(os, self);
 			os->pushNumber(num);
 			os->setProperty(-params-1-1, "_resAnimFrameNum", false);
 			return 0;
