@@ -6,7 +6,7 @@ LOCAL_MODULE := main
 #SDK_ROOT points to folder with SDL and oxygine-framework
 LOCAL_SRC_FILES := ../../${ROOT}/../SDL/src/main/android/SDL_android_main.c
 
-LOCAL_SRC_FILES += ../../../src/example.cpp ../../../src/entry_point.cpp 
+#LOCAL_SRC_FILES += ../../../src/example.cpp ../../../src/entry_point.cpp 
 
 LOCAL_SRC_FILES += ../../../../../objectscript/src/objectscript.cpp
 LOCAL_SRC_FILES += ../../../../../objectscript/src/os-heap.cpp

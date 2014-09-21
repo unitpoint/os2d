@@ -38,11 +38,11 @@ namespace oxygine
 		}
 	}
 
-	void Tween::setDoneCallback(EventCallback cb)
+	void Tween::setDoneCallback(const EventCallback& cb)
 	{
-		unregisterOSEventCallback(this, (intptr_t)this, _cbDone);
+		ObjectScript::unregisterEventCallback(this, "_cbDone", _cbDone);
 		_cbDone = cb;
-		registerOSEventCallback(this, (intptr_t)this, _cbDone);
+		ObjectScript::registerEventCallback(this, "_cbDone", _cbDone);
 	}
 
 	EventCallback Tween::getDoneCallback() const
@@ -50,7 +50,7 @@ namespace oxygine
 		return _cbDone;
 	}
 
-	void Tween::addDoneCallback(EventCallback cb)
+	void Tween::addDoneCallback(const EventCallback& cb)
 	{
 		addEventListener(TweenEvent::DONE, cb);
 	}
@@ -98,7 +98,7 @@ namespace oxygine
 		DEF_EASY_FROM_IN(Quint, powf(t, 5));
 		DEF_EASY_FROM_IN(Sine, 1.0f - scalar::cos(t * (MATH_PI/2.0f)));
 		DEF_EASY_FROM_IN(Expo, powf(2, 10 * (t - 1)));
-		DEF_EASY_FROM_IN(Circ, scalar::sqrt(1 - (1 - t * t)));
+		DEF_EASY_FROM_IN(Circ, -1.0f * (scalar::sqrt(1 - t * t) - 1));
 		DEF_EASY_FROM_IN(Back, t * t * ((s + 1) * t - s));
 		DEF_EASY_FROM_IN(Bounce, 1 - outBounce(1 - t));
 
@@ -247,7 +247,7 @@ namespace oxygine
 			return 0;
 
 		_tweens.append(t);
-		registerOSTween(this, t.get());
+		ObjectScript::registerTween(this, t.get());
 		return t;
 	}
 

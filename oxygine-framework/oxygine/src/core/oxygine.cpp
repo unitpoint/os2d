@@ -952,7 +952,7 @@ namespace oxygine
 		case ep_show_error:
 			log::error_va(format, args);
 #ifdef OX_WITH_OBJECTSCRIPT
-			handleOSErrorPolicyVa(format, args);
+			ObjectScript::handleErrorPolicyVa(format, args);
 #endif
 			OX_ASSERT(!"handleErrorPolicy error.");
 			break;

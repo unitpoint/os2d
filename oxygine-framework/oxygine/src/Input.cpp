@@ -36,7 +36,7 @@ namespace oxygine
 
 		getStage()->handleEvent(&me);
         
-        if (type == TouchEvent::TOUCH_UP && ps->getIndex() >= 0 && ps->getIndex() < MAX_TOUCHES)
+        if (type == TouchEvent::TOUCH_UP)
         {
             _ids[ps->getIndex() - 1] = 0;
         }
@@ -110,7 +110,7 @@ namespace oxygine
 				return index;
 		}
 		OX_ASSERT("can't find touch id");
-		return MAX_TOUCHES + 1;
+		return 0;
 	}
 
 	PointerState *Input::getTouchByID(int id)

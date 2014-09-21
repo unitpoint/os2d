@@ -41,7 +41,7 @@ namespace oxygine
 		ls.id = _lastID;
 		_listeners->push_back(ls);
 
-		registerOSEventCallback(this, ls.id, ls.cb);
+		ObjectScript::registerEventCallback(this, ls.id, ls.cb);
 
 		return ls.id;
 	}
@@ -59,7 +59,7 @@ namespace oxygine
 			const listener &ls = *i;
 			if (ls.id == id)
 			{
-				unregisterOSEventCallback(this, ls.id, ls.cb);
+				ObjectScript::unregisterEventCallback(this, ls.id, ls.cb);
 				i = _listeners->erase(i);
 				break;
 			}
@@ -81,7 +81,7 @@ namespace oxygine
 			const listener& ls = *i;
 			if (ls.type == et && cb == ls.cb)
 			{
-				unregisterOSEventCallback(this, ls.id, ls.cb);
+				ObjectScript::unregisterEventCallback(this, ls.id, ls.cb);
 				i = _listeners->erase(i);
 			}
 			else
@@ -101,7 +101,7 @@ namespace oxygine
 			const listener& ls = *i;
 			if (ls.cb.p_this == CallbackThis)
 			{
-				unregisterOSEventCallback(this, ls.id, ls.cb);
+				ObjectScript::unregisterEventCallback(this, ls.id, ls.cb);
 				i = _listeners->erase(i);
 			}
 			else
@@ -111,7 +111,7 @@ namespace oxygine
 
 	void EventDispatcher::removeAllEventListeners()
 	{
-		unregisterOSAllEventCallbacks(this);
+		ObjectScript::unregisterAllEventCallbacks(this);
 		delete _listeners;
 		_listeners = 0;
 	}

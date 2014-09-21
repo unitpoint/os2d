@@ -105,7 +105,7 @@ namespace oxygine
 		{
 			if(os_func_id){
 				OX_ASSERT(!OriginEventCallback::operator bool());
-				callOSEventFunction(os_func_id, ev);
+				ObjectScript::callEventFunction(os_func_id, ev);
 			}else{
 				OriginEventCallback::operator()(ev);
 			}

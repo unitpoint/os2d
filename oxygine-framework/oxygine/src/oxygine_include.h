@@ -89,22 +89,6 @@ struct OS_ClassInfo
 	int class_id;
 	int instance_id;
 
-	/*
-	OS_ClassInfo()
-	{
-		classname = "";
-		class_id = 0;
-		instance_id = 0;
-	}
-	
-	OS_ClassInfo(const OS_ClassInfo& info)
-	{
-		classname = info.classname;
-		class_id = info.class_id;
-		instance_id = info.instance_id;
-	}
-	*/
-
 	OS_ClassInfo(
 		const char * classname,
 		int class_id,
@@ -148,22 +132,34 @@ struct OS_ClassInfo
 
 namespace oxygine { class Object; class EventCallback; class Event; class EventDispatcher; class Actor; class Tween; }
 
-void registerOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
-void unregisterOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
-void unregisterOSAllEventCallbacks(oxygine::EventDispatcher*);
+namespace ObjectScript {
 
-void registerOSTween(oxygine::Object*, oxygine::Tween*);
-void unregisterOSTween(oxygine::Object*, oxygine::Tween*);
-void unregisterOSAllTweens(oxygine::Object*);
+void registerCallback(oxygine::Object*, const char * name, int funcId);
+void unregisterCallback(oxygine::Object*, const char * name, int funcId);
 
-void registerOSActorChild(oxygine::Actor*, oxygine::Actor*);
-void unregisterOSActorChild(oxygine::Actor*, oxygine::Actor*);
-void unregisterOSAllActorChildren(oxygine::Actor*);
+void registerCallback(oxygine::Object*, int id, int funcId);
+void unregisterCallback(oxygine::Object*, int id, int funcId);
 
-void callOSEventFunction(int func_id, oxygine::Event * ev);
-void handleOSErrorPolicyVa(const char *format, va_list args);
-// void destroyOSValueById(int);
-std::string getOSDebugStr();
+void registerEventCallback(oxygine::Object*, const char * name, const oxygine::EventCallback&);
+void unregisterEventCallback(oxygine::Object*, const char * name, const oxygine::EventCallback&);
+
+void registerEventCallback(oxygine::Object*, int id, const oxygine::EventCallback&);
+void unregisterEventCallback(oxygine::Object*, int id, const oxygine::EventCallback&);
+void unregisterAllEventCallbacks(oxygine::Object*);
+
+void registerTween(oxygine::Object*, oxygine::Tween*);
+void unregisterTween(oxygine::Object*, oxygine::Tween*);
+void unregisterAllTweens(oxygine::Object*);
+
+void registerActorChild(oxygine::Actor*, oxygine::Actor*);
+void unregisterActorChild(oxygine::Actor*, oxygine::Actor*);
+void unregisterAllActorChildren(oxygine::Actor*);
+
+void callEventFunction(int func_id, oxygine::Event * ev);
+void handleErrorPolicyVa(const char *format, va_list args);
+std::string getDebugStr();
+
+} // namespace ObjectScript
 
 #else // OX_WITH_OBJECTSCRIPT
 

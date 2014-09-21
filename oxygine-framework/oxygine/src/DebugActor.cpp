@@ -264,7 +264,7 @@ namespace oxygine
 		s << "\nlisteners=" << getStage()->getListenersCount() << "";
 
 #ifdef OX_WITH_OBJECTSCRIPT
-		s << getOSDebugStr();
+		s << ObjectScript::getDebugStr();
 #endif
 
 		if (!_debugText.empty())
