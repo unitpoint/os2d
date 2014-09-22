@@ -10,8 +10,8 @@ examples/AngryMonsters/proj.android/bin
 examples/AngryMonsters/proj.android/gen
 examples/AngryMonsters/proj.android/libs
 examples/AngryMonsters/proj.win32/ipch
-examples/AngryMonsters/proj.win32/Debug
-examples/AngryMonsters/proj.win32/Release
+examples/AngryMonsters/proj.win32/Debug*
+examples/AngryMonsters/proj.win32/Release*
 
 examples/Demo/data/ext
 examples/Demo/proj.android/obj
@@ -19,8 +19,8 @@ examples/Demo/proj.android/bin
 examples/Demo/proj.android/gen
 examples/Demo/proj.android/libs
 examples/Demo/proj.win32/ipch
-examples/Demo/proj.win32/Debug
-examples/Demo/proj.win32/Release
+examples/Demo/proj.win32/Debug*
+examples/Demo/proj.win32/Release*
 
 examples/Demo/data/ext
 examples/Demo/proj.android/obj
@@ -28,8 +28,8 @@ examples/Demo/proj.android/bin
 examples/Demo/proj.android/gen
 examples/Demo/proj.android/libs
 examples/Demo/proj.win32/ipch
-examples/Demo/proj.win32/Debug
-examples/Demo/proj.win32/Release
+examples/Demo/proj.win32/Debug*
+examples/Demo/proj.win32/Release*
 
 examples/DemoFloor/data/ext
 examples/DemoFloor/proj.android/obj
@@ -37,8 +37,8 @@ examples/DemoFloor/proj.android/bin
 examples/DemoFloor/proj.android/gen
 examples/DemoFloor/proj.android/libs
 examples/DemoFloor/proj.win32/ipch
-examples/DemoFloor/proj.win32/Debug
-examples/DemoFloor/proj.win32/Release
+examples/DemoFloor/proj.win32/Debug*
+examples/DemoFloor/proj.win32/Release*
 
 examples/ElasticTransition/data/ext
 examples/ElasticTransition/proj.android/obj
@@ -46,8 +46,8 @@ examples/ElasticTransition/proj.android/bin
 examples/ElasticTransition/proj.android/gen
 examples/ElasticTransition/proj.android/libs
 examples/ElasticTransition/proj.win32/ipch
-examples/ElasticTransition/proj.win32/Debug
-examples/ElasticTransition/proj.win32/Release
+examples/ElasticTransition/proj.win32/Debug*
+examples/ElasticTransition/proj.win32/Release*
 
 examples/SeqTween/data/ext
 examples/SeqTween/proj.android/obj
@@ -55,8 +55,8 @@ examples/SeqTween/proj.android/bin
 examples/SeqTween/proj.android/gen
 examples/SeqTween/proj.android/libs
 examples/SeqTween/proj.win32/ipch
-examples/SeqTween/proj.win32/Debug
-examples/SeqTween/proj.win32/Release
+examples/SeqTween/proj.win32/Debug*
+examples/SeqTween/proj.win32/Release*
 
 oxygine-framework/oxygine/SDL/win32/ipch
 oxygine-framework/oxygine/SDL/win32/Debug*
@@ -66,7 +66,7 @@ oxygine-framework/oxygine/SDL/android/lib/bin
 oxygine-framework/oxygine/SDL/android/lib/gen
 
 oxygine-sound/proj.win32/ipch
-oxygine-sound/proj.win32/Debug*
-oxygine-sound/proj.win32/Release*
+oxygine-sound/proj.win32/Debug**
+oxygine-sound/proj.win32/Release**
 
 examples/DemoFloor/gamedev-doc
