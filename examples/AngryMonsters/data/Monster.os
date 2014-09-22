@@ -2,7 +2,7 @@ Monster = extends Sprite {
 	__construct = function(name){
 		super()
 		@name = name
-		@resAnim = res.getResAnim(name)
+		@resAnim = res.get(name)
 		@monsterAnimations = monsterAnimations[name] || throw "monster ${name} is not found"
 		@pivot = @monsterAnimations.generalParams.rect.center
 		@width = @width * @monsterAnimations.generalParams.rect.width
@@ -43,12 +43,8 @@ Monster = extends Sprite {
 
 	trackMove = function(){ // determine the direction of moving to switch animation
 		// print "set priority: ${@y + @height * (1 - @pivot.y)}"
-		@priority = @y + @height * (1 - @pivot.y)
 		if(/*!@animUpdateHandle ||*/ @fighting) return; // skip if no animation or monster is fighting
-		var dir = @pos - @prevPos
-		var len = #dir
-		len > 0 || return;
-		dir /= len
+		var dir = (@pos - @prevPos).normalize()
 		@prevPos = @pos
 		if(dir.y < -0.85 && "walkUp" in @monsterAnimations){ // monster goes up
 			@playAnim("walkUp")
@@ -60,6 +56,7 @@ Monster = extends Sprite {
 			@playAnim("walkRight");
 			@scaleX = dir.x < 0 ? -1 : 1
 		}
+		@priority = @y + @height/2
 	},
 	
 	moveTo = function(pos, doneCallback){ // move monster to pos

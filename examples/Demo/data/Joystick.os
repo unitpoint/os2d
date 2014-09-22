@@ -2,7 +2,7 @@ Joystick = extends Sprite {
 	__construct = function(){
 		super()
 		
-		@resAnim = res.getResAnim("joystick")
+		@resAnim = res.get("joystick")
 		@opacity = 0.5
 		
 		@addEventListener(TouchEvent.TOUCH_DOWN, @onEvent.bind(this))
@@ -10,7 +10,7 @@ Joystick = extends Sprite {
 		@addEventListener(TouchEvent.MOVE, @onEvent.bind(this))
 		
 		@finger = Sprite().attrs {
-			resAnim = res.getResAnim("finger"),
+			resAnim = res.get("finger"),
 			parent = this,
 			visible = false,
 			pivot = vec2(0.5f, 0.5f),

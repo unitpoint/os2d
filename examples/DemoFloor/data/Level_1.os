@@ -4,7 +4,7 @@ Level_1 = extends Level {
 		@levelNum = 1
 		
 		@btnLeft = Sprite().attrs {
-			resAnim = res.getResAnim("light-red"),
+			resAnim = res.get("light-red"),
 		}
 		
 		var y = @elevatorInside.y + @elevatorInside.height/2
@@ -21,7 +21,7 @@ Level_1 = extends Level {
 		}
 		
 		@btnRight = Sprite().attrs {
-			resAnim = res.getResAnim("light-red"),
+			resAnim = res.get("light-red"),
 			pos = vec2(@width/2 + offs, y),
 			pivot = vec2(0.5, 0.5),
 			parent = this,
@@ -39,7 +39,7 @@ Level_1 = extends Level {
 	
 	click = function(ev){
 		if("btnIndex" in ev.target){
-			ev.target.resAnim = res.getResAnim("light-green")
+			ev.target.resAnim = res.get("light-green")
 			@openDoor(ev.target.btnIndex)
 		}
 	},

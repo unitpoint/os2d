@@ -6,7 +6,7 @@ GameScene = extends Scene {
 		
 		if(DEBUG || true){
 			var btnNext = Sprite().attrs {
-				resAnim = res.getResAnim("hud-button-restart"),
+				resAnim = res.get("hud-button-restart"),
 				parent = this,
 				pivot = vec2(1, 0),
 				pos = vec2(@width, 0),

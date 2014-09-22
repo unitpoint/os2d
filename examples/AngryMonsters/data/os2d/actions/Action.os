@@ -17,7 +17,11 @@ Action = extends Object {
 			throw "error argument ${params}"
 		}
 	},
-
+	
+	__get = function(name){
+		throw "property \"${name}\" not found in ${@__name || @classname}"
+	},
+	
     __get@target = function(){ return @_target },
     /** The action will modify the target properties. */
     __set@target = function(target){ @_target = target },

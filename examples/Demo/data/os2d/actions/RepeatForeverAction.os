@@ -3,7 +3,10 @@ To repeat the an action for a limited number of times use the Repeat action.
 @warning This action can't be Sequenceable because it is not an IntervalAction
 */
 RepeatForeverAction = extends Action {
-
+	__object = {
+		_innerAction = null,
+	},
+	
 	__construct = function(action){
 		if(action is FiniteTimeAction){
 			super()

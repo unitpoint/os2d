@@ -3,6 +3,10 @@ print "[start] ${DateTime.now()}"
 
 GAME_SIZE = vec2(540, 960)
 
+if(PLATFORM == "windows"){
+	setWindowSize(GAME_SIZE / 1.5)
+	stage.size = getWindowSize()
+}
 var displaySize = stage.size
 var scale = displaySize / GAME_SIZE
 // scale = math.max(scale.x, scale.y)

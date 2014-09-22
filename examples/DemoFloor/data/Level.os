@@ -10,7 +10,7 @@ Level = extends Scene {
 		@size = stage.size
 		
 		var hudPanel = Sprite().attrs {
-			resAnim = res.getResAnim("hud-items-panel"),
+			resAnim = res.get("hud-items-panel"),
 			parent = this,
 			anchor = vec2(0.5, 1),
 			pos = vec2(@width/2, @height),
@@ -22,7 +22,7 @@ Level = extends Scene {
 		var slotX = padding
 		for(var i = 0; i < 4; i++){
 			var slot = Sprite().attrs {
-				resAnim = res.getResAnim("hud-panel-slot"),
+				resAnim = res.get("hud-panel-slot"),
 				parent = this,
 				anchor = vec2(0, 0.5),
 				pos = vec2(slotX, hudPanel.y - hudPanel.height/2),
@@ -33,7 +33,7 @@ Level = extends Scene {
 				sceneObject = null,
 			}
 			var selectedBG = Sprite().attrs {
-				resAnim = res.getResAnim("hud-panel-slot-selected"),
+				resAnim = res.get("hud-panel-slot-selected"),
 				parent = slot,
 				anchor = vec2(0.5, 0.5),
 				pos = slot.size / 2,
@@ -53,7 +53,7 @@ Level = extends Scene {
 		}.bind(this))
 		
 		var wallsName = Sprite().attrs {
-			resAnim = res.getResAnim(@wallsName),
+			resAnim = res.get(@wallsName),
 			parent = this,
 			pivot = vec2(0.5, 0),
 			x = @width/2,
@@ -62,14 +62,14 @@ Level = extends Scene {
 			touchEnabled = false,
 		}
 		@elevatorInside = Sprite().attrs {
-			resAnim = res.getResAnim(@elevatorName),
+			resAnim = res.get(@elevatorName),
 			parent = this,
 			pivot = vec2(0.5, 0),
 			pos = vec2(@width/2, 218),
 			priority = 1,
 		}
 		@elevatorInsideButton = Sprite().attrs {
-			resAnim = res.getResAnim(@elevatorInsideButtonName),
+			resAnim = res.get(@elevatorInsideButtonName),
 			parent = @elevatorInside,
 			pivot = vec2(0.5, 0.5),
 			pos = @elevatorInside.size / 2,
@@ -98,7 +98,7 @@ Level = extends Scene {
 	
 	initDoors = function(){
 		@doorLeft = Sprite().attrs {
-			resAnim = res.getResAnim(@doorLeftName),
+			resAnim = res.get(@doorLeftName),
 			parent = @elevatorInside,
 			pivot = vec2(0, 0),
 			pos = vec2(0, 0),
@@ -107,7 +107,7 @@ Level = extends Scene {
 		@doorLeft.openPos = @doorLeft.pos - vec2(@doorLeft.width*0.95, 0)
 		
 		@doorRight = Sprite().attrs {
-			resAnim = res.getResAnim(@doorRightName),
+			resAnim = res.get(@doorRightName),
 			parent = @elevatorInside,
 			pivot = vec2(1, 0),
 			pos = vec2(@elevatorInside.width, 0),
@@ -116,7 +116,7 @@ Level = extends Scene {
 		@doorRight.openPos = @doorRight.pos + vec2(@doorRight.width*0.95, 0)
 		/*
 			@doorRight = Sprite().attrs {
-				resAnim = res.getResAnim("door-01-right"),
+				resAnim = res.get("door-01-right"),
 				parent = @doorLeft,
 				pivot = vec2(0, 0),
 				pos = vec2(@doorLeft.width, 0),
@@ -182,7 +182,7 @@ Level = extends Scene {
 			obj.parent = null
 			emptySlot.sceneObject = obj
 			emptySlot.slotPicture = Sprite().attrs {
-				resAnim = res.getResAnim(obj.name.."-slot"),
+				resAnim = res.get(obj.name.."-slot"),
 				parent = emptySlot,
 				pivot = vec2(0.5, 0.5),
 				pos = emptySlot.size / 2,
@@ -199,7 +199,7 @@ Level = extends Scene {
 		slot.sceneObject = obj
 		slot.slotPicture.parent = null
 		slot.slotPicture = Sprite().attrs {
-			resAnim = res.getResAnim(obj.name.."-slot"),
+			resAnim = res.get(obj.name.."-slot"),
 			parent = slot,
 			pivot = vec2(0.5, 0.5),
 			pos = slot.size / 2,

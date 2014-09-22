@@ -1,12 +1,12 @@
 Player = extends Actor {
 	__construct = function(){
 		@ship = Sprite().attrs {
-			resAnim = res.getResAnim("ship"),
+			resAnim = res.get("ship"),
 			parent = this,
 			pivot = vec2(0.5f, 0.5f),
 		}
 		@engine = Sprite().attrs {
-			resAnim = res.getResAnim("shipengine"),
+			resAnim = res.get("shipengine"),
 			parent = @ship,
 			visible = false,
 		}

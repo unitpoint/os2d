@@ -11,13 +11,10 @@ You could start from example.cpp and example.h it has main functions being calle
 
 #include "example.h"
 
-
-
 using namespace oxygine;
 
 Renderer renderer;
 Rect viewport;
-
 
 class ExampleRootActor : public Stage
 {
@@ -106,8 +103,6 @@ void run()
 
 	//create and add new DebugActor to root actor as child
 	getStage()->addChild(new DebugActor());
-
-	Matrix view = makeViewMatrix(size.x, size.y);
 
 	viewport = Rect(0, 0, size.x, size.y);
 

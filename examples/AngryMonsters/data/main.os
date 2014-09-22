@@ -11,7 +11,7 @@ stage.size = displaySize / scale
 stage.scale = scale
 
 var bg = Sprite().attrs {
-	resAnim = res.getResAnim("bg"),
+	resAnim = res.get("bg"),
 	parent = stage,
 	pos = stage.size/2,
 	pivot = vec2(0.5, 0.5),
@@ -76,6 +76,7 @@ function createMonster(i){ // create new monster
 		pos = stage.size * vec2(math.random(0.2, 0.8), math.random(0.2, 0.8)),
 		color = randColor(), // set random color
 		opacity = 0, // set initial opacity to zero because of we want run fade in transition
+		touchEnabled = false,
 	}
 	monster.addTweenAction {
 		opacity = 1,

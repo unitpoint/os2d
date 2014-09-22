@@ -4,7 +4,7 @@ Enemy = extends Actor {
 		@hp = 3
 
 		var sprite = Sprite().attrs {
-			resAnim = res.getResAnim("asteroid"),
+			resAnim = res.get("asteroid"),
 			parent = this,
 			pivot = vec2(0.5f, 0.5f),
 		}

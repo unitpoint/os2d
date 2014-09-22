@@ -49,3 +49,10 @@ Color = extends Object {
 		return Color(@r / b, @g / b, @b / b, @a / b)
 	},
 }
+
+Color.RED = Color(1, 0, 0)
+Color.GREEN = Color(0, 1, 0)
+Color.BLUE = Color(0, 0, 1)
+Color.WHITE = Color(1, 1, 1)
+Color.BLACK = Color(0, 0, 0)
+

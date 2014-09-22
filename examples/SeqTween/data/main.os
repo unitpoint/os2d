@@ -11,7 +11,7 @@ stage.size = displaySize / scale
 stage.scale = scale
 
 var bg = Sprite().attrs {
-	resAnim = res.getResAnim("bg"),
+	resAnim = res.get("bg"),
 	parent = stage,
 	pos = stage.size/2,
 	pivot = vec2(0.5, 0.5),
@@ -19,7 +19,7 @@ var bg = Sprite().attrs {
 bg.scale = math.max(stage.width / bg.width, stage.height / bg.height)
 
 var base = Sprite().attrs {
-	resAnim = res.getResAnim("base"),
+	resAnim = res.get("base"),
 	parent = stage,
 	pivot = vec2(0.5, 0.95),
 	pos = vec2(0, stage.height),
@@ -27,7 +27,7 @@ var base = Sprite().attrs {
 }
 
 var fan = Sprite().attrs {
-	resAnim = res.getResAnim("fan"),
+	resAnim = res.get("fan"),
 	parent = base,
 	pivot = vec2(0.5, 0.5),
 	pos = vec2(base.width/2, base.height*0.05),

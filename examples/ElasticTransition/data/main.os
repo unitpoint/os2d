@@ -11,7 +11,7 @@ stage.size = displaySize / scale
 stage.scale = scale
 
 var bg = Sprite().attrs {
-	resAnim = res.getResAnim("bg"),
+	resAnim = res.get("bg"),
 	parent = stage,
 	pos = stage.size/2,
 	pivot = vec2(0.5, 0.5),
@@ -19,7 +19,7 @@ var bg = Sprite().attrs {
 // bg.scale = math.max(stage.width / bg.width, stage.height / bg.height)
 
 var spring = Sprite().attrs {
-	resAnim = res.getResAnim("spring"),
+	resAnim = res.get("spring"),
 	parent = stage,
 	pos = stage.size/2,
 	pivot = vec2(0.05, 0.5),

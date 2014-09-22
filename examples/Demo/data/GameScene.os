@@ -2,13 +2,13 @@ GameScene = extends Scene {
 	__construct = function(){
 		super()
 		var sky = Sprite().attrs {
-			resAnim = res.getResAnim("bg"),
+			resAnim = res.get("bg"),
 			parent = @view,
 		}
 		
 		var btn = MyButton().attrs {
 			name = "play",
-			resAnim = res.getResAnim("menu"),		
+			resAnim = res.get("menu"),		
 			pivot = vec2(1, 0),
 			parent = @view,	
 		}

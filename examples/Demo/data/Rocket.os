@@ -4,7 +4,7 @@ Rocket = extends Actor {
 		
 		@pos = pos
 		var sp = Sprite().attrs {
-			resAnim = res.getResAnim("rocket"),
+			resAnim = res.get("rocket"),
 			pivot = vec2(0.5f, 0.5f),
 			parent = this,
 			rotation = math.atan2(dir.y, dir.x),
@@ -61,7 +61,7 @@ Rocket = extends Actor {
 		}
 		
 		//run tween with explosion animation
-		var tween = anim.addTween("resAnim", res.getResAnim("explosion"), 1)
+		var tween = anim.addTween("resAnim", res.get("explosion"), 1)
 		//auto detach sprite when tween is done
 		tween.detachTarget = true
 

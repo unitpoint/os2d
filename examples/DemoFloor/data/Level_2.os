@@ -6,7 +6,7 @@ Level_2 = extends Level {
 		@openDoors = [false, false]
 		
 		@brokenPanel = Sprite().attrs {
-			resAnim = res.getResAnim("broken-panel"),
+			resAnim = res.get("broken-panel"),
 			pivot = vec2(0.01, 0.99),
 			pos = vec2(@width/2 - 200, 208),
 			angle = 0,
@@ -47,7 +47,7 @@ Level_2 = extends Level {
 		
 		@bolt = Sprite().attrs {
 			name = "obj-02",
-			resAnim = res.getResAnim("obj-02"),
+			resAnim = res.get("obj-02"),
 			pivot = vec2(0.5, 0.5),
 			pos = vec2(@width/2 - 210, @elevatorInside.y + @elevatorInside.height + 30),
 			parent = this,
@@ -72,7 +72,7 @@ Level_2 = extends Level {
 		
 		@screwdriver = Sprite().attrs {
 			name = "obj-03",
-			resAnim = res.getResAnim("obj-03"),
+			resAnim = res.get("obj-03"),
 			pivot = vec2(0.5, 0.5),
 			pos = vec2(@width/2 + 210, @elevatorInside.y + @elevatorInside.height + 80),
 			parent = this,
@@ -100,7 +100,7 @@ Level_2 = extends Level {
 		
 		@vase = Sprite().attrs {
 			// name = "obj-02",
-			resAnim = res.getResAnim("obj-01"),
+			resAnim = res.get("obj-01"),
 			pivot = vec2(0.5, 0.9),
 			pos = vec2(@width/2 - 210, @elevatorInside.y + @elevatorInside.height + 60),
 			parent = this,
