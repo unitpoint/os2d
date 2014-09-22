@@ -1,4 +1,12 @@
 #include "ox-binder.h"
+#include <sstream>
+
+/*
+oxygine-framework merge state
+SHA 4c78fa96 
+by dmuratshin, 20.09.2014 15:49
+*/
+
 
 #ifdef OX_WITH_OBJECTSCRIPT
 
@@ -1237,26 +1245,24 @@ static bool __registerResources = addRegFunc(registerResources);
 
 OS2D * os;
 
-} // namespace ObjectScript
-
-void registerOSCallback(oxygine::EventDispatcher * ed, int id, int funcId)
+void registerCallback(Object * obj, int id, const char * name, int funcId, const char * internalFuncName)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
-	if(!ed->osValueId && funcId){
-		ObjectScript::pushCtypeValue(os, ed);
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
+	if(!obj->osValueId && funcId){
+		ObjectScript::pushCtypeValue(os, obj);
+		OX_ASSERT(obj->osValueId);
 		os->pop();
 	}
-	if(ed->osValueId && funcId){
+	if(obj->osValueId && funcId){
 #ifdef OS_DEBUG
-		ObjectScript::pushCtypeValue(os, ed);
-		OX_ASSERT(os->getValueId() == ed->osValueId);
+		ObjectScript::pushCtypeValue(os, obj);
+		OX_ASSERT(os->getValueId() == obj->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(ed->osValueId); // this
-		os->getProperty(-1, "_registerExternalCallback"); // func
+		os->pushValueById(obj->osValueId); // this
+		os->getProperty(-1, internalFuncName ? internalFuncName : "_registerExternalCallback"); // func
 		OX_ASSERT(os->isFunction());
-		os->pushNumber(id);
+		name ? os->pushString(name) : os->pushNumber(id);
 		os->pushValueById(funcId);
 		OX_ASSERT(os->isFunction());
 		os->callTF(2);
@@ -1264,20 +1270,19 @@ void registerOSCallback(oxygine::EventDispatcher * ed, int id, int funcId)
 	}
 }
 
-void unregisterOSCallback(oxygine::EventDispatcher * ed, int id, int funcId)
+void unregisterCallback(Object * obj, int id, const char * name, int funcId, const char * internalFuncName)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
-	if(ed->osValueId && funcId){
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
+	if(obj->osValueId && funcId){
 #ifdef OS_DEBUG
-		ObjectScript::pushCtypeValue(os, ed);
-		OX_ASSERT(os->getValueId() == ed->osValueId);
+		ObjectScript::pushCtypeValue(os, obj);
+		OX_ASSERT(os->getValueId() == obj->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(ed->osValueId); // this
-		os->getProperty(-1, "_unregisterExternalCallback"); // func
+		os->pushValueById(obj->osValueId); // this
+		os->getProperty(-1, internalFuncName ? internalFuncName : "_unregisterExternalCallback"); // func
 		OX_ASSERT(os->isFunction());
-		os->pushNumber(id);
+		name ? os->pushString(name) : os->pushNumber(id);
 		os->pushValueById(funcId);
 		OX_ASSERT(os->isFunction());
 		os->callTF(2);
@@ -1285,38 +1290,66 @@ void unregisterOSCallback(oxygine::EventDispatcher * ed, int id, int funcId)
 	}
 }
 
-void registerOSEventCallback(EventDispatcher * ed, int id, const EventCallback& cb)
+void registerCallback(oxygine::Object * obj, const char * name, int funcId)
 {
-	registerOSCallback(ed, id, cb.os_func_id);
+	registerCallback(obj, 0, name, funcId, NULL);
 }
 
-void unregisterOSEventCallback(EventDispatcher * ed, int id, const EventCallback& cb)
+void unregisterCallback(oxygine::Object * obj, const char * name, int funcId)
 {
-	unregisterOSCallback(ed, id, cb.os_func_id);
+	unregisterCallback(obj, 0, name, funcId, NULL);
 }
 
-void unregisterOSAllEventCallbacks(EventDispatcher * ed)
+void registerCallback(Object * obj, int id, int funcId)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
-	if(ed->osValueId){
+	registerCallback(obj, id, NULL, funcId, NULL);
+}
+
+void unregisterCallback(Object * obj, int id, int funcId)
+{
+	unregisterCallback(obj, id, NULL, funcId, NULL);
+}
+
+void registerEventCallback(Object * obj, const char * name, const EventCallback& cb)
+{
+	registerCallback(obj, 0, name, cb.os_func_id, "_registerExternalEventCallback");
+}
+
+void unregisterEventCallback(Object * obj, const char * name, const EventCallback& cb)
+{
+	unregisterCallback(obj, 0, name, cb.os_func_id, "_unregisterExternalEventCallback");
+}
+
+void registerEventCallback(Object * obj, int id, const EventCallback& cb)
+{
+	registerCallback(obj, id, NULL, cb.os_func_id, "_registerExternalEventCallback");
+}
+
+void unregisterEventCallback(Object * obj, int id, const EventCallback& cb)
+{
+	unregisterCallback(obj, id, NULL, cb.os_func_id, "_unregisterExternalEventCallback");
+}
+
+void unregisterAllEventCallbacks(Object * obj)
+{
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
+	if(obj->osValueId){
 #ifdef OS_DEBUG
-		ObjectScript::pushCtypeValue(os, ed);
-		OX_ASSERT(os->getValueId() == ed->osValueId);
+		ObjectScript::pushCtypeValue(os, obj);
+		OX_ASSERT(os->getValueId() == obj->osValueId);
 		os->pop();
 #endif
-		os->pushValueById(ed->osValueId); // this
-		os->getProperty(-1, "_unregisterAllExternalCallbacks"); // func
+		os->pushValueById(obj->osValueId); // this
+		os->getProperty(-1, "_unregisterAllExternalEventCallbacks"); // func
 		OX_ASSERT(os->isFunction());
 		os->callTF();
 		os->handleException();
 	}
 }
 
-void registerOSTween(Object * a, Tween * t)
+void registerTween(Object * a, Tween * t)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
 	ObjectScript::pushCtypeValue(os, a); // this
 	OX_ASSERT(os->getValueId() == a->osValueId);
 	os->getProperty(-1, "_registerExternalTween"); // func
@@ -1327,10 +1360,9 @@ void registerOSTween(Object * a, Tween * t)
 	os->handleException();
 }
 
-void unregisterOSTween(Object * a, Tween * t)
+void unregisterTween(Object * a, Tween * t)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
 	if(a->osValueId && t->osValueId){
 #ifdef OS_DEBUG
 		ObjectScript::pushCtypeValue(os, a);
@@ -1350,10 +1382,9 @@ void unregisterOSTween(Object * a, Tween * t)
 	}
 }
 
-void unregisterOSAllTweens(Object * a)
+void unregisterAllTweens(Object * a)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
 	if(a->osValueId){
 #ifdef OS_DEBUG
 		ObjectScript::pushCtypeValue(os, a);
@@ -1368,10 +1399,9 @@ void unregisterOSAllTweens(Object * a)
 	}
 }
 
-void registerOSActorChild(Actor * a, Actor * child)
+void registerActorChild(Actor * a, Actor * child)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
 	ObjectScript::pushCtypeValue(os, a); // this
 	OX_ASSERT(os->getValueId() == a->osValueId);
 	os->getProperty(-1, "_registerExternalChild"); // func
@@ -1382,10 +1412,9 @@ void registerOSActorChild(Actor * a, Actor * child)
 	os->handleException();
 }
 
-void unregisterOSActorChild(Actor * a, Actor * child)
+void unregisterActorChild(Actor * a, Actor * child)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
 	if(a->osValueId && child->osValueId){
 #ifdef OS_DEBUG
 		ObjectScript::pushCtypeValue(os, a);
@@ -1405,10 +1434,9 @@ void unregisterOSActorChild(Actor * a, Actor * child)
 	}
 }
 
-void unregisterOSAllActorChildren(Actor * a)
+void unregisterAllActorChildren(Actor * a)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
 	if(a->osValueId){
 #ifdef OS_DEBUG
 		ObjectScript::pushCtypeValue(os, a);
@@ -1423,11 +1451,10 @@ void unregisterOSAllActorChildren(Actor * a)
 	}
 }
 
-void callOSEventFunction(int func_id, Event * ev)
+void callEventFunction(int func_id, Event * ev)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::OS * os = ObjectScript::os;
-
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
+	
 	int is_stack_event = !ev->_ref_counter; // ((intptr_t)ev < (intptr_t)&ev) ^ ObjectScript::Oxygine::stackOrder;
 	if(is_stack_event){
 		// ev = ev->clone();
@@ -1457,53 +1484,19 @@ void callOSEventFunction(int func_id, Event * ev)
 	}
 }
 
-void handleOSErrorPolicyVa(const char *format, va_list args)
+void handleErrorPolicyVa(const char *format, va_list args)
 {
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::os->handleErrorPolicyVa(format, args);
+	OX_ASSERT(dynamic_cast<OS2D*>(os));
+	os->handleErrorPolicyVa(format, args);
 }
 
-/*
-void OS2D::destroyValueById(int id)
-{
-#if 0
-	Core::GCValue * value = core->values.get(id);
-	if(value){
-		core->saveFreeCandidateValue(value);
-	}
-#else
-	pushValueById(id);
-	const OS_ClassInfo& classinfo = Object::getClassInfoStatic();
-	ObjectScript::OXObjectInfo * info = (ObjectScript::OXObjectInfo*)toUserdata(classinfo.instance_id, -1, classinfo.class_id);
-	if(info){
-		OX_ASSERT(info->obj->osValueId == id);
-		info->obj = NULL;
-	}
-	pop();
-	Core::GCValue * value = core->values.get(id);
-	if(value){
-		core->clearValue(value);
-	}
-#endif
-}
-
-void destroyOSValueById(int id)
-{
-	OX_ASSERT(dynamic_cast<OS2D*>(ObjectScript::os));
-	ObjectScript::os->destroyValueById(id);
-}
-*/
-
-#include <sstream>
 
 static int OS_maxAllocatedBytes = 0;
 static int OS_maxUsedBytes = 0;
 static int OS_maxNumValues = 0;
 
-std::string getOSDebugStr()
+::std::string getDebugStr()
 {
-	std::stringstream s;
-	OS2D * os = ObjectScript::os;
 	if(os){
 		if(OS_maxAllocatedBytes < os->getAllocatedBytes()){
 			OS_maxAllocatedBytes = os->getAllocatedBytes();
@@ -1514,14 +1507,17 @@ std::string getOSDebugStr()
 		if(OS_maxNumValues < os->getNumValues()){
 			OS_maxNumValues = os->getNumValues();
 		}
-		s << endl;
-		s << "OS GC max values: " << OS_maxNumValues << endl;
-		s << "OS MEM (Kb) max";
-		s << " allocated:" << (OS_maxAllocatedBytes / 1024);
-		s << " used:" << (OS_maxUsedBytes / 1024);
-		// s << endl;
+		char buf[256];
+		sprintf(buf, "\n"
+			"OS GC max values:%d\n"
+			"OS (Kb) max allocated:%d used:%d"
+			, OS_maxNumValues, (OS_maxAllocatedBytes / 1024), (OS_maxUsedBytes / 1024)
+			);
+		return buf;
 	}
-	return s.str();
+	return "";
 }
+
+} // namespace ObjectScript
 
 #endif // OX_WITH_OBJECTSCRIPT

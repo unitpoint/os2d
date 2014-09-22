@@ -3,7 +3,6 @@
 *.opensdf
 *.pyc
 data-ram
-oxygine-sound
 
 examples/AngryMonsters/data/ext
 examples/AngryMonsters/proj.android/obj
@@ -60,10 +59,14 @@ examples/SeqTween/proj.win32/Debug
 examples/SeqTween/proj.win32/Release
 
 oxygine-framework/oxygine/SDL/win32/ipch
-oxygine-framework/oxygine/SDL/win32/Debug
-oxygine-framework/oxygine/SDL/win32/Release
+oxygine-framework/oxygine/SDL/win32/Debug*
+oxygine-framework/oxygine/SDL/win32/Release*
 
 oxygine-framework/oxygine/SDL/android/lib/bin
 oxygine-framework/oxygine/SDL/android/lib/gen
+
+oxygine-sound/proj.win32/ipch
+oxygine-sound/proj.win32/Debug*
+oxygine-sound/proj.win32/Release*
 
 examples/DemoFloor/gamedev-doc

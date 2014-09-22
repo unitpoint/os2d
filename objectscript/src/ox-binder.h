@@ -11,25 +11,31 @@
 
 namespace oxygine { class EventCallback; class Event; }
 
-void registerOSCallback(oxygine::EventDispatcher*, int id, int funcId);
-void unregisterOSCallback(oxygine::EventDispatcher*, int id, int funcId);
+/* namespace ObjectScript {
 
-void registerOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
-void unregisterOSEventCallback(oxygine::EventDispatcher*, int id, const oxygine::EventCallback&);
-void unregisterOSAllEventCallbacks(oxygine::EventDispatcher*);
+void registerCallback(oxygine::Object*, const char * name, int funcId);
+void unregisterCallback(oxygine::Object*, const char * name, int funcId);
 
-void registerOSTween(oxygine::Object*, oxygine::Tween*);
-void unregisterOSTween(oxygine::Object*, oxygine::Tween*);
-void unregisterOSAllTweens(oxygine::Object*);
+void registerCallback(oxygine::Object*, int id, int funcId);
+void unregisterCallback(oxygine::Object*, int id, int funcId);
 
-void registerOSActorChild(oxygine::Actor*, oxygine::Actor*);
-void unregisterOSActorChild(oxygine::Actor*, oxygine::Actor*);
-void unregisterOSAllActorChildren(oxygine::Actor*);
+void registerEventCallback(oxygine::Object*, int id, const oxygine::EventCallback&);
+void unregisterEventCallback(oxygine::Object*, int id, const oxygine::EventCallback&);
+void unregisterAllEventCallbacks(oxygine::Object*);
 
-void callOSEventFunction(int func_id, oxygine::Event * ev);
-void handleOSErrorPolicyVa(const char *format, va_list args);
-// void destroyOSValueById(int);
-std::string getOSDebugStr();
+void registerTween(oxygine::Object*, oxygine::Tween*);
+void unregisterTween(oxygine::Object*, oxygine::Tween*);
+void unregisterAllTweens(oxygine::Object*);
+
+void registerActorChild(oxygine::Actor*, oxygine::Actor*);
+void unregisterActorChild(oxygine::Actor*, oxygine::Actor*);
+void unregisterAllActorChildren(oxygine::Actor*);
+
+void callEventFunction(int func_id, oxygine::Event * ev);
+void handleErrorPolicyVa(const char *format, va_list args);
+std::string getDebugStr();
+
+} // namespace ObjectScript */
 
 using namespace oxygine;
 
@@ -867,9 +873,9 @@ public:
 	const EventCallback& getUpdateCallback() const { return updateCallback; }
 	void setUpdateCallback(const EventCallback& cb)
 	{ 
-		unregisterOSEventCallback(this, (intptr_t)this, updateCallback);
+		unregisterEventCallback(this, "updateCallback", updateCallback);
 		updateCallback = cb;
-		registerOSEventCallback(this, (intptr_t)this, updateCallback);
+		registerEventCallback(this, "updateCallback", updateCallback);
 	}
 
 	float getInterval() const
@@ -983,7 +989,6 @@ struct SaveStackSize
 	}
 	~SaveStackSize()
 	{
-		// ObjectScript::OS * os = ObjectScript::os;
 		OX_ASSERT(os->getStackSize() >= stackSize);
 		os->pop(os->getStackSize() - stackSize);
 	}
