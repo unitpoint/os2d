@@ -10,6 +10,11 @@ by dmuratshin, 20.09.2014 15:49
 
 #ifdef OX_WITH_OBJECTSCRIPT
 
+#ifdef OXYGINE_SDL
+namespace oxygine { extern SDL_Window * _window; }
+extern Rect viewport; extern Renderer renderer;
+#endif
+
 namespace ObjectScript {
 
 // =====================================================================
@@ -65,6 +70,41 @@ static void registerGlobal(OS * os)
 			os->setSetting(OS_SETTING_CREATE_TEXT_OPCODES, os->toBool(-params+0));
 			return 0;
 		}
+
+		static int setWindowSize(OS * os, int params, int, int, void*)
+		{
+#ifdef OXYGINE_SDL
+			int width = (int)getStage()->getWidth();
+			int height = (int)getStage()->getHeight();
+			if(os->isObject(-params+0)){
+				width = (os->getProperty(-params+0, "x"), os->popInt(width));
+				height = (os->getProperty(-params+0, "y"), os->popInt(height));
+			}else{
+				width = os->toInt(-params+0, width);
+				height = os->toInt(-params+0, height);
+			}
+
+			SDL_SetWindowSize(oxygine::_window, width, height);
+			SDL_GetWindowSize(oxygine::_window, &width, &height);
+
+			viewport = Rect(0, 0, width, height);
+			renderer.initCoordinateSystem(width, height);
+#endif
+			return 0;
+		}
+
+		static int getWindowSize(OS * os, int params, int, int, void*)
+		{
+			int width, height;
+#ifdef OXYGINE_SDL
+			SDL_GetWindowSize(oxygine::_window, &width, &height);
+#else
+			width = (int)getStage()->getWidth();
+			height = (int)getStage()->getHeight();
+#endif
+			pushCtypeValue(os, Vector2((float)width, (float)height));
+			return 1;
+		}
 	};
 
 	OS::FuncDef funcs[] = {
@@ -73,6 +113,9 @@ static void registerGlobal(OS * os)
 
 		{"__get@settingCreateTextOpcodesFile", &Lib::getSettingCreateTextOpcodesFile},
 		{"__set@settingCreateTextOpcodesFile", &Lib::setSettingCreateTextOpcodesFile},
+
+		{"setWindowSize", &Lib::setWindowSize},
+		{"getWindowSize", &Lib::getWindowSize},
 		{}
 	};
 	os->pushGlobals();
@@ -1519,5 +1562,55 @@ static int OS_maxNumValues = 0;
 }
 
 } // namespace ObjectScript
+
+#ifdef WIN32
+#include <windows.h>
+#include <core\STDFileSystem.h>
+
+static std::vector<std::string> argv;
+
+std::vector<std::string>& parseCommandLine()
+{
+	const char * cmd = GetCommandLineA();
+	while(*cmd){
+		if(*cmd == '\"'){
+			const char * start = ++cmd;
+			for(; *cmd && *cmd != '\"'; cmd++);
+			// int len = cmd - start;
+			const char * end = cmd; if(*cmd) cmd++;
+			argv.push_back(std::string(start, end));
+		}else{
+			const char * start = cmd++;
+			for(; *cmd && !OS_IS_SPACE(*cmd); cmd++);
+			const char * end = cmd;
+			argv.push_back(std::string(start, end));
+		}
+		for(; *cmd && OS_IS_SPACE(*cmd); cmd++);
+	}
+	return argv;
+}
+
+static std::vector<file::STDFileSystem*> fsAdded;
+
+void addFileSystem(const std::string& folder)
+{
+	file::STDFileSystem * fs = new file::STDFileSystem(true);
+	fs->setPath(file::fs().getFullPath(folder.c_str()).c_str());
+	fsAdded.push_back(fs);
+	file::mount(fs);
+}
+
+void shutdownAddedFileSystems()
+{
+	std::vector<file::STDFileSystem*>::iterator it = fsAdded.begin();
+	for(; it != fsAdded.end(); ++it){
+		file::STDFileSystem * fs = *it;
+		file::unmount(fs);
+		delete fs;
+	}
+	fsAdded.clear();
+}
+
+#endif
 
 #endif // OX_WITH_OBJECTSCRIPT

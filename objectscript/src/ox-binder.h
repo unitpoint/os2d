@@ -159,7 +159,7 @@ public:
 
 	virtual void echo(const void * buf, int size)
 	{
-#ifdef _WIN32
+#ifdef WIN32
 		FileHandle * f = openFile(OUTPUT_FILENAME, "a");
 		OS_ASSERT(f);
 		writeFile((const char*)buf, size, f);
@@ -172,6 +172,24 @@ public:
 		oxygine::log::message(str);
 		free(str);
 #endif
+	}
+
+	void triggerShutdownFunctions()
+	{
+		resetTerminated();
+		getGlobal("triggerShutdownFunctions");
+		OS_ASSERT(isFunction() || isNull());
+		pushGlobals();
+		call();
+	}
+
+	void triggerCleanupFunctions()
+	{
+		resetTerminated();
+		getGlobal("triggerCleanupFunctions");
+		OS_ASSERT(isFunction() || isNull());
+		pushGlobals();
+		call();
 	}
 };
 
@@ -1012,6 +1030,20 @@ struct Oxygine
 			file::deleteFile(OUTPUT_FILENAME, ep_ignore_error);
 		}
 
+#ifdef WIN32
+		extern std::vector<std::string>& parseCommandLine();
+		extern void addFileSystem(const std::string& folder);
+
+		std::vector<std::string>& argv = parseCommandLine();
+		for(int i = 1; i < (int)argv.size();){
+			if(argv[i] == "-a" && i+1 < (int)argv.size()){
+				addFileSystem(argv[i+1]);
+				i += 2;
+			}else
+				i++;
+		}
+#endif
+
 		std::vector<RegisterFunction>::iterator it = registerFunctions->begin();
 		for(; it != registerFunctions->end(); ++it){
 			RegisterFunction func = *it;
@@ -1044,7 +1076,14 @@ struct Oxygine
 
 	static void shutdown()
 	{
+		os->triggerShutdownFunctions();
+		os->triggerCleanupFunctions();
 		os->release();
+
+#ifdef WIN32
+		extern void shutdownAddedFileSystems();
+		shutdownAddedFileSystems();
+#endif
 	}
 
 	static void run()
