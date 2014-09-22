@@ -48,7 +48,7 @@ The main ObjectScript file is <code>Demo\data\main.os</code> of Demo example.
 	// remove actions by name
 	sprite.removeActionsByName("rotate-action")
 		
-	// handle events
+	// handle event
 	sprite.addEventListener(TouchEvent.CLICK, function(ev){  
 		// your code here
 	})
@@ -58,11 +58,11 @@ The main ObjectScript file is <code>Demo\data\main.os</code> of Demo example.
 		// your code here
 	})
 	
-	// dispatch user events
+	// dispatch user event
 	sprite.dispatchEvent{"hide", prop1 = "prop1", prop2 = 100}
 	
 	// short syntax of initialization
-	// you could any properties you want
+	// you could use any properties you want
 	sprite = Sprite().attrs {
 		resAnim = res.getResAnim("plus"),
 		scale = 0.5f,
@@ -97,6 +97,10 @@ The main ObjectScript file is <code>Demo\data\main.os</code> of Demo example.
 	
 ## Examples
 
+### CastleMonster
+
+[![Opensource CastleMonster example made with OS2D](https://raw.githubusercontent.com/unitpoint/CastleMonster-bin-win/master/CastleMonster-youtube.jpg)](http://www.youtube.com/watch?v=YCaGgk8xEKA)
+
 ### SeqTween
 
 [![Opensource SeqTween example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/SeqTween/SeqTween-youtube.jpg)](http://www.youtube.com/watch?v=p5zzlDh7DuI)
@@ -116,10 +120,6 @@ The main ObjectScript file is <code>Demo\data\main.os</code> of Demo example.
 ### ElasticTransition
 
 ![Opensource ElasticTransition example made with OS2D](https://raw.githubusercontent.com/unitpoint/os2d-bin-win/master/ElasticTransition/ElasticTransition.jpg)
-
-### CastleMonster
-
-[![Opensource CastleMonster example made with OS2D](https://raw.githubusercontent.com/unitpoint/CastleMonster-bin-win/master/CastleMonster-youtube.jpg)](http://www.youtube.com/watch?v=YCaGgk8xEKA)
 
 ## Resources
 
