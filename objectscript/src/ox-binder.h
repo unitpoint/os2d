@@ -428,10 +428,10 @@ extern std::vector<RegisterFunction> * registerFunctions;
 bool addRegFunc(RegisterFunction func);
 
 #define DEF_GET(prop, type, func_post) \
-	def("__get@" #prop, &type::get ## func_post)
+	def("__get@" prop, &type::get ## func_post)
 
 #define DEF_SET(prop, type, func_post) \
-	def("__set@" #prop, &type::set ## func_post)
+	def("__set@" prop, &type::set ## func_post)
 
 #define DEF_PROP(prop, type, func_post) \
 	DEF_GET(prop, type, func_post), \
@@ -765,7 +765,9 @@ struct CtypeValue<TextStyle>
 			type t;
 			
 			os->getProperty(offs, "resFont");
-			t.resFont = CtypeValue<ResFont*>::getArg(os, -1);
+			if(!os->isNull()){
+				t.resFont = CtypeValue<ResFont*>::getArg(os, -1);
+			}
 			os->pop();
 
 			t.hAlign = (TextStyle::HorizontalAlign)(os->getProperty(offs, "hAlign"), os->popInt(t.hAlign));
@@ -776,7 +778,9 @@ struct CtypeValue<TextStyle>
 			t.breakLongWords = (os->getProperty(offs, "breakLongWords"), os->popBool(t.breakLongWords));
 
 			os->getProperty(offs, "color");
-			t.color = CtypeValue<Color>::getArg(os, -1);
+			if(!os->isNull()){
+				t.color = CtypeValue<Color>::getArg(os, -1);
+			}
 			os->pop();
 
 			t.fontSize2Scale = (os->getProperty(offs, "fontSize2Scale"), os->popInt(t.fontSize2Scale));
@@ -825,6 +829,41 @@ OS_DECL_CTYPE_ENUM(EaseFunction::EaseType);
 
 OS_DECL_OX_CLASS(TweenQueue);
 // OS_DECL_OX_CLASS(TweenAnim);
+
+// =====================================================================
+
+DECLARE_SMART(KeyboardEvent, spKeyboardEvent);
+class KeyboardEvent: public Event
+{
+public:
+	OS_DECLARE_CLASSINFO(KeyboardEvent);
+
+	enum {
+		DOWN = makefourcc('K', 'E', 'D', 'O'),
+		UP = makefourcc('K', 'E', 'U', 'P'),
+		TEXTEDITING = makefourcc('K', 'E', 'T', 'E'),
+		TEXTINPUT = makefourcc('K', 'E', 'T', 'I')
+	};
+
+	SDL_KeyboardEvent key;
+	char str[5];
+
+	KeyboardEvent(int type);
+	KeyboardEvent(int type, const SDL_KeyboardEvent&);
+
+	SDL_Scancode getScancode() const { return key.keysym.scancode; }
+	SDL_Keycode getSym() const { return key.keysym.sym; }
+	int getMod() const { return key.keysym.mod; }
+	
+	void makeStr();
+	const char * getStr() const { return str; }
+
+	static void process(Event*, EventDispatcher*);
+};
+
+OS_DECL_OX_CLASS(KeyboardEvent);
+OS_DECL_CTYPE_ENUM(SDL_Scancode);
+// OS_DECL_CTYPE_ENUM(SDL_Keycode);
 
 // =====================================================================
 
@@ -973,7 +1012,8 @@ public:
 
 	void setDuration(float duration)
 	{
-		init((timeMS)(duration * 1000.0f));
+		timeMS delay = (timeMS)(duration * 1000.0f);
+		init(delay > 1 ? delay : 1);
 	}
 
 protected:
@@ -990,6 +1030,7 @@ OS_DECL_OX_CLASS(Actor);
 OS_DECL_OX_CLASS(VStyleActor);
 OS_DECL_OX_CLASS(TextField);
 OS_DECL_OX_CLASS(Sprite);
+OS_DECL_OX_CLASS(ColorRectSprite);
 OS_DECL_OX_CLASS(Button);
 OS_DECL_OX_CLASS(Stage);
 OS_DECL_OX_CLASS(Resources);

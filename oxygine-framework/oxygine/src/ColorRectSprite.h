@@ -9,6 +9,7 @@ namespace oxygine
 	class ColorRectSprite: public Sprite
 	{
 	public:
+		OS_DECLARE_CLASSINFO(ColorRectSprite);
 		DECLARE_COPYCLONE_NEW(ColorRectSprite);
 		ColorRectSprite();
 		~ColorRectSprite();

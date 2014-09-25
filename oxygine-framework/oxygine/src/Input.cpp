@@ -77,7 +77,7 @@ namespace oxygine
 	{
 
 	}
-	
+
 	void Input::cleanup()
 	{
 	}

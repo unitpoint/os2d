@@ -156,7 +156,10 @@ void unregisterActorChild(oxygine::Actor*, oxygine::Actor*);
 void unregisterAllActorChildren(oxygine::Actor*);
 
 void callEventFunction(int func_id, oxygine::Event * ev);
+
+void processKeyboardEvent(oxygine::Event*, oxygine::EventDispatcher*);
 void handleErrorPolicyVa(const char *format, va_list args);
+
 std::string getDebugStr();
 
 } // namespace ObjectScript

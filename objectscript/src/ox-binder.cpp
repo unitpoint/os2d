@@ -126,17 +126,17 @@ static bool __registerGlobal = addRegFunc(registerGlobal);
 
 // =====================================================================
 
+static int getUnknown(OS * os, int params, int, int, void*)
+{
+	os->setException(OS::String::format(os, "property \"%s\" not found in \"%s\"", 
+		os->toString(-params+0).toChar(),
+		os->getValueNameOrClassname(-params-1).toChar()));
+	return 0;
+}
+
 static void registerObject(OS * os)
 {
 	struct Lib {
-		static int get(OS * os, int params, int, int, void*)
-		{
-			os->setException(OS::String::format(os, "property \"%s\" not found in \"%s\"", 
-				os->toString(-params+0).toChar(),
-				os->getValueNameOrClassname(-params-1).toChar()));
-			return 0;
-		}
-
 		static int cmp(OS * os, int params, int, int, void*)
 		{
 			OS_GET_SELF(Object*);
@@ -165,7 +165,7 @@ static void registerObject(OS * os)
 	};
 
 	OS::FuncDef funcs[] = {
-		{"__get", &Lib::get},
+		{"__get", &getUnknown},
 		{"__cmp", &Lib::cmp},
 		{"__get@name", &Lib::getName},
 		{"__set@name", &Lib::setName},
@@ -208,10 +208,10 @@ static void registerClock(OS * os)
 	};
 
 	OS::FuncDef funcs[] = {
-		DEF_GET(time, Clock, Time),
-		DEF_GET(pauseCounter, Clock, PauseCounter),
-		DEF_PROP(fixedStep, Clock, FixedStep),
-		DEF_PROP(multiplier, Clock, Multiplier),
+		DEF_GET("time", Clock, Time),
+		DEF_GET("pauseCounter", Clock, PauseCounter),
+		DEF_PROP("fixedStep", Clock, FixedStep),
+		DEF_PROP("multiplier", Clock, Multiplier),
 		def("pause", &Clock::pause),
 		def("resume", &Clock::resume),
 		def("resetPause", &Clock::resetPause),
@@ -238,10 +238,10 @@ static void registerEvent(OS * os)
 
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
-		DEF_PROP(type, Event, Type),
-		DEF_PROP(phase, Event, Phase),
-		DEF_PROP(target, Event, Target),
-		DEF_PROP(currentTarget, Event, CurrentTarget),
+		DEF_PROP("type", Event, Type),
+		DEF_PROP("phase", Event, Phase),
+		DEF_PROP("target", Event, Target),
+		DEF_PROP("currentTarget", Event, CurrentTarget),
 		def("stopPropagation", &Event::stopPropagation),
 		def("stopImmediatePropagation", &Event::stopImmediatePropagation),
 		{}
@@ -258,11 +258,13 @@ static void registerTouchEvent(OS * os)
 	};
 
 	OS::FuncDef funcs[] = {
-		DEF_PROP(localPosition, TouchEvent, LocalPosition),
-		DEF_PROP(position, TouchEvent, Position),
-		DEF_PROP(pressure, TouchEvent, Pressure),
-		DEF_PROP(mouseButton, TouchEvent, MouseButton),
-		DEF_PROP(index, TouchEvent, Index),
+		DEF_PROP("localPosition", TouchEvent, LocalPosition),	// deprecated
+		DEF_PROP("position", TouchEvent, Position),				// deprecated
+		DEF_PROP("localPos", TouchEvent, LocalPosition),
+		DEF_PROP("pos", TouchEvent, Position),
+		DEF_PROP("pressure", TouchEvent, Pressure),
+		DEF_PROP("mouseButton", TouchEvent, MouseButton),
+		DEF_PROP("index", TouchEvent, Index),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -290,9 +292,9 @@ static void registerTweenEvent(OS * os)
 	};
 
 	OS::FuncDef funcs[] = {
-		DEF_GET(actor, TweenEvent, Actor),
-		DEF_GET(tween, TweenEvent, Tween),
-		DEF_GET(us, TweenEvent, UpdateState),
+		DEF_GET("actor", TweenEvent, Actor),
+		DEF_GET("tween", TweenEvent, Tween),
+		DEF_GET("us", TweenEvent, UpdateState),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -425,7 +427,7 @@ static void registerEventDispatcher(OS * os)
 
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
-		DEF_GET(listenersCount, EventDispatcher, ListenersCount),
+		DEF_GET("listenersCount", EventDispatcher, ListenersCount),
 		{"addEventListener", &Lib::addEventListener},
 		{"removeEventListener", &Lib::removeEventListener},
 		def("removeAllEventListeners", &EventDispatcher::removeAllEventListeners),
@@ -565,22 +567,22 @@ static void registerTween(OS * os)
 	OS::FuncDef funcs[] = {
 		// def("__newinstance", &Lib::__newinstance),
 		// {"createTween", &Lib::myCreateTween},
-		DEF_PROP(loops, Tween, Loops),
+		DEF_PROP("loops", Tween, Loops),
 		{"__get@duration", &Lib::getDuration},
-		DEF_PROP(ease, Tween, Ease),
-		DEF_PROP(delay, Tween, Delay),
-		DEF_PROP(client, Tween, Client),
-		DEF_GET(percent, Tween, Percent),
-		DEF_PROP(dataObject, Tween, DataObject),
-		DEF_GET(nextSibling, Tween, NextSibling),
-		DEF_GET(prevSibling, Tween, PrevSibling),
+		DEF_PROP("ease", Tween, Ease),
+		DEF_PROP("delay", Tween, Delay),
+		DEF_PROP("client", Tween, Client),
+		DEF_GET("percent", Tween, Percent),
+		DEF_PROP("dataObject", Tween, DataObject),
+		DEF_GET("nextSibling", Tween, NextSibling),
+		DEF_GET("prevSibling", Tween, PrevSibling),
 		def("__get@isStarted", &Tween::isStarted),
 		def("__get@isDone", &Tween::isDone),
 		// {"addDoneCallback", &Lib::addDoneCallback},
 		def("addDoneCallback", &Tween::addDoneCallback),
-		DEF_PROP(doneCallback, Tween, DoneCallback),
-		DEF_PROP(detachActor, Tween, DetachActor),
-		DEF_PROP(detachTarget, Tween, DetachActor),
+		DEF_PROP("doneCallback", Tween, DoneCallback),
+		DEF_PROP("detachActor", Tween, DetachActor),
+		DEF_PROP("detachTarget", Tween, DetachActor),
 		// virtual void complete(timeMS deltaTime = std::numeric_limits<int>::max()/2);
 		// void start(Actor &actor);
 		// void update(Actor &actor, const UpdateState &us);	
@@ -660,6 +662,7 @@ static void registerEase(OS * os)
 		}
 	};
 	OS::FuncDef funcs[] = {
+		{"__get", &getUnknown},
 		{"run", &Lib::run},
 		def("getReverseType", &EaseFunction::getReverseType),
 		{}
@@ -768,6 +771,92 @@ static void registerTweenAnim(OS * os)
 }
 static bool __registerTweenAnim = addRegFunc(registerTweenAnim);
 */
+
+// =====================================================================
+
+KeyboardEvent::KeyboardEvent(int type): Event(type)
+{
+}
+
+KeyboardEvent::KeyboardEvent(int type, const SDL_KeyboardEvent& p_key): Event(type), key(p_key)
+{
+	makeStr();
+}
+
+void KeyboardEvent::makeStr()
+{
+	int code = key.keysym.sym;
+	str[0] = (char)(code & 0xff);
+	str[1] = (char)((code>>8) & 0xff);
+	str[2] = (char)((code>>16) & 0xff);
+	str[3] = (char)((code>>24) & 0xff);
+	str[4] = '\0';
+}
+
+void KeyboardEvent::process(Event * p_ev, EventDispatcher * ed)
+{
+	struct Lib
+	{
+		static void dispatchEvent(EventDispatcher * ed, int type, const SDL_KeyboardEvent& key)
+		{
+			KeyboardEvent keyEvent(type, key);
+			ed->dispatchEvent(&keyEvent);
+		}
+	};
+
+	SDL_Event * ev = dynamic_cast<SDL_Event*>((SDL_Event*)p_ev->userData);
+	if(!ev){
+		OX_ASSERT(false);
+		return;
+	}
+	switch(ev->type){
+	case SDL_KEYDOWN:
+		Lib::dispatchEvent(ed, DOWN, ev->key);
+		break;
+
+	case SDL_KEYUP:
+		Lib::dispatchEvent(ed, UP, ev->key);
+		break;
+
+	case SDL_TEXTEDITING:
+		Lib::dispatchEvent(ed, TEXTEDITING, ev->key);
+		break;
+
+	case SDL_TEXTINPUT:
+		Lib::dispatchEvent(ed, TEXTINPUT, ev->key);
+		break;
+	}
+}
+
+static void registerKeyboardEvent(OS * os)
+{
+	struct Lib {
+		static KeyboardEvent * __newinstance()
+		{
+			return new KeyboardEvent(0);
+		}
+	};
+
+	OS::FuncDef funcs[] = {
+		def("__newinstance", &Lib::__newinstance),
+		DEF_GET("scancode", KeyboardEvent, Scancode),
+		DEF_GET("sym", KeyboardEvent, Sym),
+		DEF_GET("mod", KeyboardEvent, Mod),
+		DEF_GET("str", KeyboardEvent, Str),
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{"DOWN", KeyboardEvent::DOWN},
+		{"UP", KeyboardEvent::UP},
+		{"TEXTEDITING", KeyboardEvent::TEXTEDITING},
+		{"TEXTINPUT", KeyboardEvent::TEXTINPUT},
+#include "KeyboardEventCodes.inc"
+		{}
+	};
+	registerOXClass<KeyboardEvent, Event>(os, funcs, nums, true OS_DBG_FILEPOS);
+}
+static bool __registerKeyboardEvent = addRegFunc(registerKeyboardEvent);
+
 // =====================================================================
 
 static void registerUpdateEvent(OS * os)
@@ -781,10 +870,10 @@ static void registerUpdateEvent(OS * os)
 	};
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
-		DEF_PROP(us, UpdateEvent, UpdateState),
-		DEF_PROP(tween, UpdateEvent, Tween),
-		DEF_PROP(dt, UpdateEvent, Dt),
-		DEF_PROP(time, UpdateEvent, Time),
+		DEF_PROP("us", UpdateEvent, UpdateState),
+		DEF_PROP("tween", UpdateEvent, Tween),
+		DEF_PROP("dt", UpdateEvent, Dt),
+		DEF_PROP("time", UpdateEvent, Time),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -808,8 +897,8 @@ static void registerBaseUpdateTween(OS * os)
 	};
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
-		DEF_PROP(updateCallback, BaseUpdateTween, UpdateCallback),
-		DEF_PROP(interval, BaseUpdateTween, Interval),
+		DEF_PROP("updateCallback", BaseUpdateTween, UpdateCallback),
+		DEF_PROP("interval", BaseUpdateTween, Interval),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -832,7 +921,7 @@ static void registerBaseDoneTween(OS * os)
 	};
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
-		DEF_SET(duration, BaseDoneTween, Duration), 
+		DEF_SET("duration", BaseDoneTween, Duration), 
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -957,70 +1046,70 @@ static void registerActor(OS * os)
 		{"__get@numChildren", &Lib::numChildren},
 		// {"childAt", &Lib::childAt},
 
-		DEF_GET(firstChild, Actor, FirstChild),
-		DEF_GET(lastChild, Actor, LastChild),
-		DEF_GET(nextSibling, Actor, NextSibling),
-		DEF_GET(prevSibling, Actor, PrevSibling),
+		DEF_GET("firstChild", Actor, FirstChild),
+		DEF_GET("lastChild", Actor, LastChild),
+		DEF_GET("nextSibling", Actor, NextSibling),
+		DEF_GET("prevSibling", Actor, PrevSibling),
 		def("getDescendant", &Actor::getDescendant),
 		{"getChild", &Lib::getChild},
 		def("getTween", &Actor::getTween),
-		DEF_GET(firstTween, Actor, FirstTween),
-		DEF_GET(lastTween, Actor, LastTween),
+		DEF_GET("firstTween", Actor, FirstTween),
+		DEF_GET("lastTween", Actor, LastTween),
 		
 		// deprecated
-		DEF_GET(anchor, Actor, Anchor),
+		DEF_GET("anchor", Actor, Anchor),
 		def("__set@anchor", (void(Actor::*)(const Vector2 &))&Actor::setAnchor),
 		def("__get@isAnchorInPixels", &Actor::getIsAnchorInPixels),
 
-		DEF_GET(pivot, Actor, Anchor),
+		DEF_GET("pivot", Actor, Anchor),
 		def("__set@pivot", (void(Actor::*)(const Vector2 &))&Actor::setAnchor),
 		def("__get@isPivotInPixels", &Actor::getIsAnchorInPixels),
 
 		def("__get@pos", &Actor::getPosition),
 		def("__set@pos", (void(Actor::*)(const Vector2 &))&Actor::setPosition),
-		DEF_PROP(x, Actor, X),
-		DEF_PROP(y, Actor, Y),
+		DEF_PROP("x", Actor, X),
+		DEF_PROP("y", Actor, Y),
 		
-		DEF_GET(scale, Actor, Scale),
+		DEF_GET("scale", Actor, Scale),
 		def("__set@scale", (void(Actor::*)(const Vector2 &))&Actor::setScale),
-		DEF_PROP(scaleX, Actor, ScaleX),
-		DEF_PROP(scaleY, Actor, ScaleY),
+		DEF_PROP("scaleX", Actor, ScaleX),
+		DEF_PROP("scaleY", Actor, ScaleY),
 
-		DEF_PROP(rotation, Actor, Rotation),
-		DEF_PROP(rotationDegrees, Actor, RotationDegrees),
-		DEF_PROP(angle, Actor, RotationDegrees),
+		DEF_PROP("rotation", Actor, Rotation),					// deprecated
+		DEF_PROP("rotationDegrees", Actor, RotationDegrees),	// deprecated
+		DEF_PROP("angle", Actor, RotationDegrees),
 
-		DEF_PROP(priority, Actor, Priority),
-		DEF_PROP(visible, Actor, Visible),
-		DEF_PROP(cull, Actor, Cull),
+		DEF_PROP("priority", Actor, Priority),
+		DEF_PROP("visible", Actor, Visible),
+		DEF_PROP("cull", Actor, Cull),
 
 		def("__get@parent", &Actor::getParent),
 		// def("__set@parent", (void(Actor::*)(Actor*))&Actor::attachTo),
 		{"__set@parent", &Lib::setParent},
 
-		DEF_GET(size, Actor, Size),
+		DEF_GET("size", Actor, Size),
 		def("__set@size", (void(Actor::*)(const Vector2 &))&Actor::setSize),
-		DEF_PROP(width, Actor, Width),
-		DEF_PROP(height, Actor, Height),
+		DEF_PROP("width", Actor, Width),
+		DEF_PROP("height", Actor, Height),
 
-		DEF_PROP(opacity, Actor, Opacity),
-		DEF_PROP(alpha, Actor, Alpha),
+		DEF_PROP("opacity", Actor, Opacity),
+		DEF_PROP("alpha", Actor, Alpha),
 		// {"__get@alpha", &Lib::getAlpha},
 		// {"__set@alpha", &Lib::setAlpha},
 
-		DEF_PROP(clock, Actor, Clock),
+		DEF_PROP("clock", Actor, Clock),
 
 		// virtual RectF		getDestRect() const;
 
-		DEF_PROP(touchEnabled, Actor, TouchEnabled),
-		DEF_PROP(touchChildrenEnabled, Actor, TouchChildrenEnabled),
-		DEF_PROP(childrenRelative, Actor, ChildrenRelative),
+		DEF_PROP("touchEnabled", Actor, TouchEnabled),
+		DEF_PROP("touchChildrenEnabled", Actor, TouchChildrenEnabled),
+		DEF_PROP("childrenRelative", Actor, ChildrenRelative),
 
 		// const Renderer::transform&		getTransform() const;
 		// const Renderer::transform&		getTransformInvert() const;
 		// void setTransform(const AffineTransform &tr);
 
-		DEF_PROP(extendedClickArea, Actor, ExtendedClickArea),
+		DEF_PROP("extendedClickArea", Actor, ExtendedClickArea),
 
 		def("isOn", &Actor::isOn),
 		def("isDescendant", &Actor::isDescendant),
@@ -1038,8 +1127,8 @@ static void registerActor(OS * os)
 		// it's virtual method
 		// def("dispatchEvent", &Actor::dispatchEvent),
 
-		DEF_PROP(pressedTouchIndex, Actor, Pressed),
-		DEF_PROP(overedTouchIndex, Actor, Overed),
+		DEF_PROP("pressedTouchIndex", Actor, Pressed),
+		DEF_PROP("overedTouchIndex", Actor, Overed),
 
 		def("updateState", &Actor::updateState),
 
@@ -1079,8 +1168,8 @@ static void registerVStyleActor(OS * os)
 
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
-		DEF_PROP(blendMode, Sprite, BlendMode),
-		DEF_PROP(color, Sprite, Color),
+		DEF_PROP("blendMode", Sprite, BlendMode),
+		DEF_PROP("color", Sprite, Color),
 		{}
 	};
 	registerOXClass<VStyleActor, Actor>(os, funcs, NULL, true OS_DBG_FILEPOS);
@@ -1185,15 +1274,45 @@ static void registerSprite(OS * os)
 			os->pushNumber(os->toInt());
 			return 1;
 		}
+
+		static int setAnimFrameRect(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Sprite*);
+			AnimationFrame frame = self->getAnimFrame();
+			float w = (float)frame.getDiffuse().base->getWidth();
+			float h = (float)frame.getDiffuse().base->getHeight();
+			ResAnim * resAnim = frame.getResAnim();
+			float sc = resAnim ? resAnim->getScaleFactor() : 1.0f;
+			RectF rect = frame.getSrcRect() * Vector2(w, h);
+			if(params == 4){
+				rect.pos.x += os->toFloat(-params+0) * sc;
+				rect.pos.y += os->toFloat(-params+1) * sc;
+				rect.size.x = os->toFloat(-params+2);
+				rect.size.y = os->toFloat(-params+3);
+			}else if(params == 2){
+				rect.pos += CtypeValue<Vector2>::getArg(os, -params+0);
+				rect.size = CtypeValue<Vector2>::getArg(os, -params+1);
+			}else{
+				os->setException("two or four arguments required");
+				return 0;
+			}
+			if(!os->isExceptionSet()){
+				frame.setSrcRect(rect / Vector2(w, h));
+				// frame.setFrameSize(rect.size);
+				self->setAnimFrame(frame);
+			}
+			return 0;
+		}
 	};
 
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
 		def("setResAnim", &Sprite::setResAnim),
-		DEF_SET(resAnim, Sprite, ResAnim),
+		DEF_SET("resAnim", Sprite, ResAnim),
 		{"__get@resAnim", &Lib::getResAnim},
 		{"__get@resAnimFrameNum", &Lib::getResAnimFrameNum},
 		{"__set@resAnimFrameNum", &Lib::setResAnimFrameNum},
+		{"setAnimFrameRect", &Lib::setAnimFrameRect},
 		{}
 	};
 	registerOXClass<Sprite, VStyleActor>(os, funcs, NULL, true OS_DBG_FILEPOS);
@@ -1202,10 +1321,40 @@ static bool __registerSprite = addRegFunc(registerSprite);
 
 // =====================================================================
 
+static void registerColorRectSprite(OS * os)
+{
+	struct Lib
+	{
+		static ColorRectSprite * __newinstance()
+		{
+			return new ColorRectSprite();
+		}
+	};
+	OS::FuncDef funcs[] = {
+		def("__newinstance", &Lib::__newinstance),
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<ColorRectSprite, Sprite>(os, funcs, nums, true OS_DBG_FILEPOS);
+}
+static bool __registerColorRectSprite = addRegFunc(registerColorRectSprite);
+
+// =====================================================================
+
 static void registerButton(OS * os)
 {
+	struct Lib
+	{
+		static Button * __newinstance()
+		{
+			return new Button();
+		}
+	};
 	OS::FuncDef funcs[] = {
-		DEF_PROP(row, Button, Row), 
+		def("__newinstance", &Lib::__newinstance),
+		DEF_PROP("row", Button, Row), 
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -1527,12 +1676,16 @@ void callEventFunction(int func_id, Event * ev)
 	}
 }
 
+void processKeyboardEvent(Event * ev, EventDispatcher * ed)
+{
+	KeyboardEvent::process(ev, ed);
+}
+
 void handleErrorPolicyVa(const char *format, va_list args)
 {
 	OX_ASSERT(dynamic_cast<OS2D*>(os));
 	os->handleErrorPolicyVa(format, args);
 }
-
 
 static int OS_maxAllocatedBytes = 0;
 static int OS_maxUsedBytes = 0;

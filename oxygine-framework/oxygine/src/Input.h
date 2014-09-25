@@ -45,7 +45,6 @@ namespace oxygine
 
 		int _ids[MAX_TOUCHES + 1];
 
-
 		void sendPointerButtonEvent(MouseButton button, float x, float y, float pressure, int type, PointerState *);
 		void sendPointerMotionEvent(float x, float y, float pressure, PointerState *);
 		void sendPointerWheelEvent(int scroll, PointerState *);

@@ -62,10 +62,10 @@ static void registerSoundInstance(OS * os)
 		{"fadeOut", &Lib::fadeOut},
 		{"__get@duration", &Lib::getDuration},
 		{"__get@pos", &Lib::getPosition},
-		DEF_PROP(volume, SoundInstance, Volume),
+		DEF_PROP("volume", SoundInstance, Volume),
 		def("__get@isPlaying", &SoundInstance::isPlaying),
-		DEF_PROP(doneCallback, SoundInstance, DoneCallback),
-		DEF_PROP(aboutDoneCallback, SoundInstance, AboutDoneCallback),
+		DEF_PROP("doneCallback", SoundInstance, DoneCallback),
+		DEF_PROP("aboutDoneCallback", SoundInstance, AboutDoneCallback),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -171,15 +171,15 @@ static void registerSoundPlayer(OS * os)
 		{"play", &Lib::play},
 		{"stop", &Lib::stop},
 		def("getSound", &SoundPlayer::getSoundByIndex),
-		DEF_GET(numSounds, SoundPlayer, SoundsNum),
+		DEF_GET("numSounds", SoundPlayer, SoundsNum),
 		{"__get@time", &Lib::getTime},
 		def("pause", &SoundPlayer::pause),
 		def("resume", &SoundPlayer::resume),
 		{"fadeOut", &Lib::fadeOut},
 		def("update", &SoundPlayer::update),
-		DEF_PROP(volume, SoundPlayer, Volume),
-		DEF_PROP(resources, SoundPlayer, Resources),
-		DEF_PROP(isPlaying, SoundPlayer, IsPlaying),
+		DEF_PROP("volume", SoundPlayer, Volume),
+		DEF_PROP("resources", SoundPlayer, Resources),
+		DEF_PROP("isPlaying", SoundPlayer, IsPlaying),
 		{}
 	};
 	OS::NumberDef nums[] = {

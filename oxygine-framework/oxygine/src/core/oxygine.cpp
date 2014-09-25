@@ -715,6 +715,8 @@ namespace oxygine
 				Event ev(Input::event_platform);
 				ev.userData = &event;
 				Input::instance.dispatchEvent(&ev);
+				
+				ObjectScript::processKeyboardEvent(&ev, getStage().get());
 
 				switch(event.type)
 				{

@@ -36,6 +36,7 @@ namespace oxygine
 		float			getHeight() const {return _frameSize.y;}
 		//deprecated, use getSize
 		const Vector2&	getFrameSize() const {return _frameSize;}
+		void			setFrameSize(const Vector2& size){ _frameSize = size; }
 
 		ResAnim*		getResAnim() const {return _resAnim;} 
 		const RectF&	getSrcRect() const {return _srcRect;}
