@@ -3794,7 +3794,13 @@ bool OS::Core::Compiler::Scope::addLoopBreak(int pos, ELoopBreakType type)
 {
 	Scope * scope = this;
 	for(; scope; scope = scope->parent){
-		if(scope->type == EXP_TYPE_LOOP_SCOPE || scope->type == EXP_TYPE_FOR_LOOP_SCOPE || scope->type == EXP_TYPE_SWITCH_SCOPE){
+		if(scope->type == EXP_TYPE_LOOP_SCOPE || scope->type == EXP_TYPE_FOR_LOOP_SCOPE){
+			break;
+		}
+		if(scope->type == EXP_TYPE_SWITCH_SCOPE){
+			if(type == LOOP_CONTINUE){
+				continue; // don't break, search loop scope
+			}
 			break;
 		}
 		if(scope->type != EXP_TYPE_SCOPE){
@@ -3916,7 +3922,7 @@ OS::Core::Compiler::Scope * OS::Core::Compiler::Scope::findLoopScope()
 		if(scope->type == EXP_TYPE_LOOP_SCOPE || scope->type == EXP_TYPE_FOR_LOOP_SCOPE){
 			return scope;
 		}
-		if(scope->type != EXP_TYPE_SCOPE){
+		if(scope->type != EXP_TYPE_SCOPE && scope->type != EXP_TYPE_SWITCH_SCOPE){
 			break;
 		}
 	}
@@ -21091,6 +21097,10 @@ void OS::getObject(const OS_CHAR * name, bool getter_enabled, bool prototype_ena
 	pushStackValue(-3);	// 5: copy result object
 	setProperty(getter_enabled); // 2: parent + result
 	remove(-2);			// 1: remove parent object
+
+	pushStackValue();
+	pushBool(true);
+	setProperty(core->strings->__instantiable, false);
 }
 
 void OS::getGlobalObject(const OS_CHAR * name, bool getter_enabled, bool prototype_enabled)
@@ -21102,9 +21112,13 @@ void OS::getGlobalObject(const OS_CHAR * name, bool getter_enabled, bool prototy
 void OS::getModule(const OS_CHAR * name, bool getter_enabled, bool prototype_enabled)
 {
 	getGlobalObject(name, getter_enabled, prototype_enabled);
-	pushStackValue(-1);
+	pushStackValue();
 	pushGlobals();
 	setPrototype();
+
+	pushStackValue();
+	pushBool(false);
+	setProperty(core->strings->__instantiable, false);
 }
 
 void OS::getGlobal(const OS_CHAR * name, bool getter_enabled, bool prototype_enabled)
