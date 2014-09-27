@@ -472,10 +472,10 @@ static void registerResAnim(OS * os)
 		// void init(MemoryTexture *original, int columns = 1, int rows = 1, float scaleFactor = 1.0f);
 		// void init(animationFrames &frames, int columns, float scaleFactor = 1.0f);
 		// void init(spNativeTexture texture, const Point &originalSize, int columns, int rows, float scaleFactor);		
-		def("scaleFactor", &ResAnim::getScaleFactor),
-		def("columns", &ResAnim::getColumns),
-		def("rows", &ResAnim::getRows),
-		def("totalFrames", &ResAnim::getTotalFrames),
+		DEF_GET("scaleFactor", ResAnim, ScaleFactor),
+		DEF_GET("columns", ResAnim, Columns),
+		DEF_GET("rows", ResAnim, Rows),
+		DEF_GET("totalFrames", ResAnim, TotalFrames),
 		// const AnimationFrame&	getFrame(int col, int row) const;
 		// const AnimationFrame&	getFrame(int index) const;
 		// Resource*				getAtlas(){return _atlas;}
