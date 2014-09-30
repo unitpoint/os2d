@@ -8,6 +8,7 @@ TweenAction = extends IntervalAction {
 			@name = prop.name; delete prop.name
 			@detachTarget = prop.detachTarget; delete prop.detachTarget
 			@doneCallback = prop.doneCallback; delete prop.doneCallback
+			@tickCallback = prop.tickCallback; delete prop.tickCallback
 		}else{
 			@duration = duration
 		}
@@ -41,13 +42,17 @@ TweenAction = extends IntervalAction {
 				}
 			}
 		}
+		// print "TweenAction created: ${this}"
 	},
 
     //
     // Overrides
     //
     clone = function(){
-		var props = {}
+		var props = {
+			doneCallback = @doneCallback,
+			tickCallback = @tickCallback,
+		}
 		for(var prop, values in @_props){
 			props[prop] = {
 				from = values.from, to = values.to, 
@@ -59,7 +64,10 @@ TweenAction = extends IntervalAction {
 	},
 	
 	reverse = function(){
-		var props = {}
+		var props = {
+			doneCallback = @doneCallback,
+			tickCallback = @tickCallback,
+		}
 		for(var prop, values in @_props){
 			props[prop] = {
 				from = values.to, to = values.from, 
@@ -96,6 +104,7 @@ TweenAction = extends IntervalAction {
 		for(var prop, values in @_props){
 			var time = values.ease ? Ease.run(t, values.ease) : t
 			@_target[prop] = values.to - values.delta * (1 - time)
+			@tickCallback()
 		}
 	},
 }

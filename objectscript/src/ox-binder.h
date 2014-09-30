@@ -99,6 +99,7 @@ public:
 	{
 		String str = String::formatVa(this, format, va);
 		setException(str);
+		handleException();
 	}
 
 	// void destroyValueById(int id);

@@ -126,13 +126,15 @@ static bool __registerGlobal = addRegFunc(registerGlobal);
 
 // =====================================================================
 
-static int getUnknown(OS * os, int params, int, int, void*)
+// Object.__get is implemented in "std.os"
+
+/* static int getUnknown(OS * os, int params, int, int, void*)
 {
 	os->setException(OS::String::format(os, "property \"%s\" not found in \"%s\"", 
 		os->toString(-params+0).toChar(),
 		os->getValueNameOrClassname(-params-1).toChar()));
 	return 0;
-}
+} */
 
 static void registerObject(OS * os)
 {
@@ -165,7 +167,7 @@ static void registerObject(OS * os)
 	};
 
 	OS::FuncDef funcs[] = {
-		{"__get", &getUnknown},
+		// {"__get", &getUnknown},
 		{"__cmp", &Lib::cmp},
 		{"__get@name", &Lib::getName},
 		{"__set@name", &Lib::setName},
@@ -662,7 +664,7 @@ static void registerEase(OS * os)
 		}
 	};
 	OS::FuncDef funcs[] = {
-		{"__get", &getUnknown},
+		// {"__get", &getUnknown},
 		{"run", &Lib::run},
 		def("getReverseType", &EaseFunction::getReverseType),
 		{}

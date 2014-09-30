@@ -2,7 +2,12 @@ CustomEvent = extends Event {
 	__construct = function(type, params){
 		if(objectOf(type)){
 			params && throw "2rd argument should be null here"
-			type, params = type.shift(), type
+			if("type" in type){
+				params = type
+				type = params.type; delete params.type
+			}else{
+				type, params = type.shift(), type
+			}
 		}
 		// @type = type
 		@setProperty("type", type)

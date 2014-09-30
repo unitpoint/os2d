@@ -447,8 +447,14 @@ namespace oxygine
                 desc.w = 960;
                 desc.h = 640;
             }
+			if(desc.maximized){
+				flags |= SDL_WINDOW_MAXIMIZED;
+			}
 			if(desc.fullscreen){
 				flags |= SDL_WINDOW_FULLSCREEN;
+			}
+			if(desc.fulldesktop){
+				flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 			}
 
             log::messageln("creating window %d %d", desc.w, desc.h);

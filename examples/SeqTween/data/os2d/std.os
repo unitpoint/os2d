@@ -12,6 +12,13 @@ function __get(name){
 	throw "unknown class or global property \"${name}\""
 }
 
+function Object.__get(name){
+	if(@prototype !== Object || @getProperty("__instantiable", false) !== null){
+		throw "unknown \"${name}\" property in ${@__name || @classname}"
+	}
+	return null
+}
+
 function printBackTrace(skipFuncs){
 	for(var i, t in arrayOf(skipFuncs) || debugBackTrace((skipFuncs || 0) + 1)){ // skip printBackTrace
 		printf("#${i} ${t.file}%s: %s, args: ${t.arguments}\n",
@@ -428,8 +435,8 @@ function Actor.__get@_internalActions(){
 			// print "after step: ${action.elapsed}, ${action.duration}, ${action.isDone}"
 			if(action.isDone){
 				action.detachTarget && action.target.detach()
-				action.doneCallback()
 				self.removeAction(action)
+				action.doneCallback()
 			}
 		}
 	})
@@ -505,7 +512,7 @@ function Actor.addTimeout(delay, func){
 }
 
 function Actor.removeTimeout(t){
-	@removeTween(t)
+	t && @removeTween(t)
 }
 
 function Actor.addUpdate(dt, func){
@@ -516,7 +523,7 @@ function Actor.addUpdate(dt, func){
 }
 
 function Actor.removeUpdate(t){
-	@removeTween(t)
+	t && @removeTween(t)
 }
 
 function OS2DObject.__get@_externalChildren(){
@@ -541,11 +548,11 @@ function OS2DObject.__len(){
 	return #@_externalChildren
 }
 
-function OS2DObject.__get(i){
+function OS2DObject.__get(name){
 	if(typeOf(i) === "number"){
 		return @getChild(i) || throw "child at index ${i} not exist in ${@__name || @classname}"
 	}
-	throw "property \"${i}\" not found in ${@__name || @classname}"
+	return super(name)
 }
 
 function OS2DObject.__set(i, value){
