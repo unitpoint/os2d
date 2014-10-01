@@ -81,7 +81,7 @@ namespace oxygine
 		btn->addEventListener(TouchEvent::CLICK, CLOSURE(this, &DebugActor::_btnClicked));
 	}
 
-	DebugActor::DebugActor():_frames(0), _startTime(0), _corner(0), _showTexel2PixelErrors(false), _showTouchedActor(false)
+	DebugActor::DebugActor():_frames(0), _startTime(0), _corner(4), _showTexel2PixelErrors(false), _showTouchedActor(false)
 	{
 		DebugActor::initialize();
 
@@ -300,6 +300,10 @@ namespace oxygine
 		case 3:
 			setX(0);
 			setY(parentSize.y - realSize.y);
+			break;
+		case 4:
+			setX(parentSize.x/2 - realSize.x/2);
+			setY(0);
 			break;
 		}
 	}
