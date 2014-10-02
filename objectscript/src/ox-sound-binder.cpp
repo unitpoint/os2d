@@ -119,7 +119,7 @@ static void registerSoundPlayer(OS * os)
 			bool paused = (os->getProperty(-params+0, "paused"), os->popBool(false));
 			int fadeInMS = (int)(os->getProperty(-params+0, "fadeIn"), os->popFloat(0.0f) * 1000.0f); if(fadeInMS < 0) fadeInMS = 0;
 			int fadeOutMS = (int)(os->getProperty(-params+0, "fadeOut"), os->popFloat(0.0f) * 1000.0f); if(fadeOutMS < 0) fadeOutMS = 0;
-			float primaryVolume = (os->getProperty(-params+0, "primaryVolume"), os->popFloat(-1.0f));
+			float primaryVolume = (os->getProperty(-params+0, "volume"), os->popFloat(-1.0f));
 
 			if(sound){
 				pushCtypeValue(os, self->play(sound, looping, fadeInMS, fadeOutMS, primaryVolume, paused));
