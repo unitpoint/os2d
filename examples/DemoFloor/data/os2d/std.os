@@ -549,8 +549,8 @@ function OS2DObject.__len(){
 }
 
 function OS2DObject.__get(name){
-	if(typeOf(i) === "number"){
-		return @getChild(i) || throw "child at index ${i} not exist in ${@__name || @classname}"
+	if(typeOf(name) === "number"){
+		return @getChild(name) || throw "child at index ${name} not exist in ${@__name || @classname}"
 	}
 	return super(name)
 }

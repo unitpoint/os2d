@@ -274,12 +274,12 @@ Level = extends Scene {
 	},	
 	
 	prepareRotateByTouchEvent = function(actor, ev){
-		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
+		actor.prevTouchPoint = actor.parent.localToGlobal(ev.localPosition)
 	},
 	
 	rotateByTouchEvent = function(actor, ev, minAngle, maxAngle){
 		var pos = actor.pos
-		var prevAngle = @dirToAngle(actor.parent.global2local(actor.prevTouchPoint) - pos)
+		var prevAngle = @dirToAngle(actor.parent.globalToLocal(actor.prevTouchPoint) - pos)
 		var curAngle = @dirToAngle(ev.localPosition - pos)
 		var newAngle = actor.angle - prevAngle + curAngle
 		if(minAngle){
@@ -293,18 +293,18 @@ Level = extends Scene {
 			}
 		}
 		actor.angle = newAngle
-		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
+		actor.prevTouchPoint = actor.parent.localToGlobal(ev.localPosition)
 	},
 	
 	prepareMoveByTouchEvent = function(actor, ev){
-		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
+		actor.prevTouchPoint = actor.parent.localToGlobal(ev.localPosition)
 	},
 	
 	horizMoveByTouchEvent = function(actor, ev){
-		var prevPos = actor.parent.global2local(actor.prevTouchPoint)
+		var prevPos = actor.parent.globalToLocal(actor.prevTouchPoint)
 		var newPos = ev.localPosition
 		actor.x = actor.x - prevPos.x + newPos.x
-		actor.prevTouchPoint = actor.parent.local2global(ev.localPosition)
+		actor.prevTouchPoint = actor.parent.localToGlobal(ev.localPosition)
 	},
 	
 	initSlotObject = function(obj, params){

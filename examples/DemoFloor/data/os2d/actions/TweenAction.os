@@ -11,6 +11,7 @@ TweenAction = extends IntervalAction {
 			@tickCallback = prop.tickCallback; delete prop.tickCallback
 		}else{
 			@duration = duration
+			@tickCallback = null
 		}
 		if(prop.prototype === Object){
 			@_props = {}
@@ -50,6 +51,7 @@ TweenAction = extends IntervalAction {
     //
     clone = function(){
 		var props = {
+			duration = @duration,
 			doneCallback = @doneCallback,
 			tickCallback = @tickCallback,
 		}
@@ -60,11 +62,12 @@ TweenAction = extends IntervalAction {
 				ease = values.ease,
 			}
 		}
-		return TweenAction(@_duration, props)
+		return TweenAction(props)
 	},
 	
 	reverse = function(){
 		var props = {
+			duration = @duration,
 			doneCallback = @doneCallback,
 			tickCallback = @tickCallback,
 		}
@@ -75,7 +78,7 @@ TweenAction = extends IntervalAction {
 				ease = values.ease,
 			}
 		}
-		return TweenAction(@_duration, props)
+		return TweenAction(props)
 	},
 	
     start = function(){
