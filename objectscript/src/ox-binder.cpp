@@ -118,8 +118,22 @@ static void registerGlobal(OS * os)
 		{"getWindowSize", &Lib::getWindowSize},
 		{}
 	};
+	OS::NumberDef nums[] = {
+		{"TEXT_HALIGN_DEFAULT", TextStyle::HALIGN_DEFAULT},
+		{"TEXT_HALIGN_LEFT", TextStyle::HALIGN_LEFT},
+		{"TEXT_HALIGN_MIDDLE", TextStyle::HALIGN_MIDDLE},
+		{"TEXT_HALIGN_CENTER", TextStyle::HALIGN_CENTER},
+		{"TEXT_HALIGN_RIGHT", TextStyle::HALIGN_RIGHT},
+		{"TEXT_VALIGN_DEFAULT", TextStyle::VALIGN_DEFAULT},
+		{"TEXT_VALIGN_BASELINE", TextStyle::VALIGN_BASELINE},
+		{"TEXT_VALIGN_TOP", TextStyle::VALIGN_TOP},
+		{"TEXT_VALIGN_MIDDLE", TextStyle::VALIGN_MIDDLE},
+		{"TEXT_VALIGN_BOTTOM", TextStyle::VALIGN_BOTTOM},
+		{}
+	};
 	os->pushGlobals();
 	os->setFuncs(funcs);
+	os->setNumbers(nums);
 	os->pop();
 }
 static bool __registerGlobal = addRegFunc(registerGlobal);
@@ -1320,6 +1334,33 @@ static void registerSprite(OS * os)
 	registerOXClass<Sprite, VStyleActor>(os, funcs, NULL, true OS_DBG_FILEPOS);
 }
 static bool __registerSprite = addRegFunc(registerSprite);
+
+// =====================================================================
+
+static void registerBox9Sprite(OS * os)
+{
+	struct Lib
+	{
+		static Box9Sprite * __newinstance()
+		{
+			return new Box9Sprite();
+		}
+	};
+	OS::FuncDef funcs[] = {
+		def("__newinstance", &Lib::__newinstance),
+		DEF_PROP("verticalMode", Box9Sprite, VerticalMode),
+		DEF_PROP("horizontalMode", Box9Sprite, HorizontalMode),
+		def("setGuides", &Box9Sprite::setGuides),
+		def("setVerticalGuides", &Box9Sprite::setVerticalGuides),
+		def("setHorizontalGuides", &Box9Sprite::setHorizontalGuides),
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<Box9Sprite, Sprite>(os, funcs, nums, true OS_DBG_FILEPOS);
+}
+static bool __registerBox9Sprite = addRegFunc(registerBox9Sprite);
 
 // =====================================================================
 

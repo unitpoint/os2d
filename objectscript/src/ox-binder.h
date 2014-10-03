@@ -9,33 +9,7 @@
 #include <EaseFunction.h>
 #include <string>
 
-namespace oxygine { class EventCallback; class Event; }
-
-/* namespace ObjectScript {
-
-void registerCallback(oxygine::Object*, const char * name, int funcId);
-void unregisterCallback(oxygine::Object*, const char * name, int funcId);
-
-void registerCallback(oxygine::Object*, int id, int funcId);
-void unregisterCallback(oxygine::Object*, int id, int funcId);
-
-void registerEventCallback(oxygine::Object*, int id, const oxygine::EventCallback&);
-void unregisterEventCallback(oxygine::Object*, int id, const oxygine::EventCallback&);
-void unregisterAllEventCallbacks(oxygine::Object*);
-
-void registerTween(oxygine::Object*, oxygine::Tween*);
-void unregisterTween(oxygine::Object*, oxygine::Tween*);
-void unregisterAllTweens(oxygine::Object*);
-
-void registerActorChild(oxygine::Actor*, oxygine::Actor*);
-void unregisterActorChild(oxygine::Actor*, oxygine::Actor*);
-void unregisterAllActorChildren(oxygine::Actor*);
-
-void callEventFunction(int func_id, oxygine::Event * ev);
-void handleErrorPolicyVa(const char *format, va_list args);
-std::string getDebugStr();
-
-} // namespace ObjectScript */
+// namespace oxygine { class EventCallback; class Event; }
 
 using namespace oxygine;
 
@@ -420,6 +394,7 @@ OS_DECL_CTYPE_ENUM(Tween::EASE);
 OS_DECL_CTYPE_ENUM(blend_mode);
 OS_DECL_CTYPE_ENUM(Event::Phase);
 OS_DECL_CTYPE_ENUM(MouseButton);
+OS_DECL_CTYPE_ENUM(Box9Sprite::StretchMode);
 
 // =====================================================================
 
@@ -1031,6 +1006,7 @@ OS_DECL_OX_CLASS(Actor);
 OS_DECL_OX_CLASS(VStyleActor);
 OS_DECL_OX_CLASS(TextField);
 OS_DECL_OX_CLASS(Sprite);
+OS_DECL_OX_CLASS(Box9Sprite);
 OS_DECL_OX_CLASS(ColorRectSprite);
 OS_DECL_OX_CLASS(Button);
 OS_DECL_OX_CLASS(Stage);

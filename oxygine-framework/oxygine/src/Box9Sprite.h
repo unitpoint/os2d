@@ -8,6 +8,7 @@ namespace oxygine
 	class Box9Sprite: public Sprite
 	{
 	public:
+		OS_DECLARE_CLASSINFO(Box9Sprite);
 		DECLARE_COPYCLONE_NEW(Box9Sprite);
 		enum StretchMode
 		{
