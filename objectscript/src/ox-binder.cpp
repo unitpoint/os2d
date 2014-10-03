@@ -221,9 +221,14 @@ static bool __registerFont = addRegFunc(registerFont);
 static void registerClock(OS * os)
 {
 	struct Lib {
+		static Clock * __newinstance()
+		{
+			return new Clock();
+		}
 	};
 
 	OS::FuncDef funcs[] = {
+		def("__newinstance", &Lib::__newinstance),
 		DEF_GET("time", Clock, Time),
 		DEF_GET("pauseCounter", Clock, PauseCounter),
 		DEF_PROP("fixedStep", Clock, FixedStep),
@@ -249,7 +254,6 @@ static void registerEvent(OS * os)
 		{
 			return new Event(0); // makefourcc('U','N','K','N'));
 		}
-
 	};
 
 	OS::FuncDef funcs[] = {
@@ -1054,6 +1058,139 @@ static void registerActor(OS * os)
 			os->setException("string or number required");
 			return 0;
 		}
+
+		static int localToGlobal(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Actor*);
+			if(params < 1){
+				os->setException("argument required");
+				return 0;
+			}
+			Vector2 pos(0, 0);
+			Actor * root = CtypeValue<Actor*>::getArg(os, -params+0);
+			if(!root){
+				pos = CtypeValue<Vector2>::getArg(os, -params+0);
+				root = CtypeValue<Actor*>::getArg(os, -params+1);
+				/* if(!root){
+					os->setException("Actor required for second argument");
+					return 0;
+				} */
+			}
+			if(os->isExceptionSet()){
+				return 0;
+			}
+			pos = convert_local2stage(self, pos, root);
+			pushCtypeValue(os, pos);
+			return 1;
+		}
+
+		static int globalToLocal(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Actor*);
+			if(params < 1){
+				os->setException("argument required");
+				return 0;
+			}
+			Vector2 pos(0, 0);
+			Actor * root = CtypeValue<Actor*>::getArg(os, -params+0);
+			if(!root){
+				pos = CtypeValue<Vector2>::getArg(os, -params+0);
+				root = CtypeValue<Actor*>::getArg(os, -params+1);
+				/* if(!root){
+					os->setException("Actor required for second argument");
+					return 0;
+				} */
+			}
+			if(os->isExceptionSet()){
+				return 0;
+			}
+			pos = convert_stage2local(self, pos, root);
+			pushCtypeValue(os, pos);
+			return 1;
+		}
+
+		static int localToLocal(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Actor*);
+			if(params < 1){
+				os->setException("argument required");
+				return 0;
+			}
+			Vector2 pos(0, 0);
+			Actor * other = CtypeValue<Actor*>::getArg(os, -params+0);
+			if(!other){
+				pos = CtypeValue<Vector2>::getArg(os, -params+0);
+				other = CtypeValue<Actor*>::getArg(os, -params+1);
+				if(!other){
+					os->setException("Actor required for second argument");
+					return 0;
+				}
+			}
+			if(os->isExceptionSet()){
+				return 0;
+			}
+			pos = convert_local2stage(self, pos);
+			pos = convert_stage2local(other, pos);  
+			pushCtypeValue(os, pos);
+			return 1;
+		}
+
+		static int changeParentAndSavePos(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Actor*);
+			if(params < 1){
+				os->setException("argument required");
+				return 0;
+			}
+			Actor * newParent = CtypeValue<Actor*>::getArg(os, -params+0);
+			if(!newParent){
+				os->setException("Actor argument required");
+				return 0;
+			}
+			changeParentAndSavePosition(NULL, self, newParent);
+			return 0;
+		}
+
+		static spActor findActorByPos(OS * os, spActor self, const Vector2& pos, int funcId)
+		{
+			for(spActor child = self->getFirstChild(); child && !os->isExceptionSet(); child = child->getNextSibling()){
+				Vector2 childPos = child->global2local(pos);
+				if(child->isOn(childPos)){
+					os->pushValueById(funcId);
+					os->pushNull();
+					pushCtypeValue(os, child);
+					os->callFT(1, 1);
+					if(os->toBool()){
+						return child;
+					}
+				}
+				spActor foundChild = findActorByPos(os, child, childPos, funcId);
+				if(foundChild){
+					return foundChild;
+				}
+			}
+			return NULL;
+		}
+
+		static int findActorByPos(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Actor*);
+			if(params < 2){
+				os->setException("two arguments required");
+				return 0;
+			}
+			Vector2 pos = CtypeValue<Vector2>::getArg(os, -params+0);
+			if(os->isExceptionSet()){
+				return 0;
+			}
+			if(!os->isFunction(-params+1)){
+				os->setException("function required for second argument");
+				return 0;
+			}
+			int funcId = os->getValueId(-params+1);
+			pushCtypeValue(os, findActorByPos(os, self, pos, funcId));
+			return 1;
+		}
 	};
 
 	OS::FuncDef funcs[] = {
@@ -1159,8 +1296,12 @@ static void registerActor(OS * os)
 		// virtual void doRender(const RenderState &rs){}
 		// virtual std::string dump(const dumpOptions &opt) const;
 
-		def("global2local", &Actor::global2local),
-		def("local2global", &Actor::local2global),
+		{"globalToLocal", &Lib::globalToLocal},
+		{"localToGlobal", &Lib::localToGlobal},
+		{"localToLocal", &Lib::localToLocal},
+
+		{"changeParentAndSavePos", &Lib::changeParentAndSavePos},
+		{"findActorByPos", &Lib::findActorByPos},
 
 		// void serialize(serializedata* data);
 		// void deserialize(const deserializedata* data);
