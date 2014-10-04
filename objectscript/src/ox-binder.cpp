@@ -1355,6 +1355,20 @@ static void registerTextField(OS * os)
 		{
 			return new TextField();
 		}
+
+		static int getTextPos(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(TextField*);
+			pushCtypeValue(os, self->getTextRect().pos);
+			return 1;
+		}
+
+		static int getTextSize(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(TextField*);
+			pushCtypeValue(os, self->getTextRect().size);
+			return 1;
+		}
 	};
 
 	OS::FuncDef funcs[] = {
@@ -1362,6 +1376,8 @@ static void registerTextField(OS * os)
 		DEF_PROP("style", TextField, Style),
 		// const Rect&					getTextRect();
 		DEF_GET("text", TextField, Text),
+		{"__get@textPos", &Lib::getTextPos},
+		{"__get@textSize", &Lib::getTextSize},
 		def("__set@text", (void(TextField::*)(const string &))&TextField::setText),
 		def("__set@htmlText", (void(TextField::*)(const string &))&TextField::setHtmlText),
 		DEF_PROP("fontSize2Scale", TextField, FontSize2Scale),

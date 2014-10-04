@@ -512,11 +512,13 @@ void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * li
 // =====================================================================
 
 OS_DECL_CTYPE_NAME(Vector2, "vec2");
+OS_DECL_CTYPE_NAME(Point, "vec2");
 
-template <>
-struct CtypeValue<Vector2>
+template <class T>
+struct CtypeValuePoint
 {
-	typedef Vector2 type;
+	typedef T type;
+	typedef typename T::type SubType;
 
 	static bool isValid(const type&){ return true; }
 
@@ -524,25 +526,25 @@ struct CtypeValue<Vector2>
 	static type getArg(ObjectScript::OS * os, int offs)
 	{
 		if(os->isObject(offs)){
-			float x = (os->getProperty(offs, "x"), os->popFloat());
-			float y = (os->getProperty(offs, "y"), os->popFloat());
+			SubType x = (SubType)(os->getProperty(offs, "x"), os->popNumber());
+			SubType y = (SubType)(os->getProperty(offs, "y"), os->popNumber());
 			return type(x, y);
 		}
 		OS_NUMBER v;
 		if(os->isNumber(offs, &v)){
-			return type((float)v, (float)v);
+			return type((SubType)v, (SubType)v);
 		}
 #if 0
 		if(os->isArray(offs)){
 			os->pushStackValue(offs);
 			os->pushNumber(0);
 			os->getProperty();
-			float x = os->popFloat();
+			SubType x = (SubType)os->popNumber();
 		
 			os->pushStackValue(offs);
 			os->pushNumber(1);
 			os->getProperty();
-			float y = os->popFloat();
+			SubType y = (SubType)os->popNumber();
 
 			return type(x, y);
 		}
@@ -574,6 +576,9 @@ struct CtypeValue<Vector2>
 #endif
 	}
 };
+
+template <> struct CtypeValue<Vector2>: public CtypeValuePoint<Vector2> {};
+template <> struct CtypeValue<Point>: public CtypeValuePoint<Point> {};
 
 // =====================================================================
 #if 0
