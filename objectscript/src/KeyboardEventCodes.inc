@@ -3,7 +3,10 @@ AUTO-GENERATED FILE. DO NOT MODIFY.
 */
 
 /******************************************************************************
-* Copyright (C) 2012-2014 Evgeniy Golovin (evgeniy.golovin@unitpoint.ru)
+* Copyright (C) 2014 Evgeniy Golovin (evgeniy.golovin@unitpoint.ru)
+*
+* Please feel free to contact me at anytime, 
+* my email is evgeniy.golovin@unitpoint.ru, skype: egolovin
 *
 * Latest source code: https://github.com/unitpoint/os2d
 *
@@ -26,6 +29,7 @@ AUTO-GENERATED FILE. DO NOT MODIFY.
 * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
+
 {"SCANCODE_UNKNOWN", SDL_SCANCODE_UNKNOWN},
 {"SCANCODE_A", SDL_SCANCODE_A},
 {"SCANCODE_B", SDL_SCANCODE_B},

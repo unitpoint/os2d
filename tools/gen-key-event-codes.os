@@ -10,6 +10,9 @@ AUTO-GENERATED FILE. DO NOT MODIFY.
 /******************************************************************************
 * Copyright (C) 2012-${DateTime.now().format("Y")} Evgeniy Golovin (evgeniy.golovin@unitpoint.ru)
 *
+* Please feel free to contact me at anytime, 
+* my email is evgeniy.golovin@unitpoint.ru, skype: egolovin
+*
 * Latest source code: https://github.com/unitpoint/os2d
 *
 * Permission is hereby granted, free of charge, to any person obtaining
@@ -31,6 +34,7 @@ AUTO-GENERATED FILE. DO NOT MODIFY.
 * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
+
 
 ===END===
 
