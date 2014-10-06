@@ -33,7 +33,7 @@ Monster = extends Sprite {
 			if(callback && animNum == count-1){
 				callback()
 			}
-		}.bind(this))
+		})
 	},
 	stopAnim = function(){
 		@animUpdateHandle && @removeUpdate(@animUpdateHandle)
@@ -96,7 +96,7 @@ Monster = extends Sprite {
 				@moveTo(vec2(x, y))
 				@playAnim("walkRight")
 			}
-		}.bind(this))
+		})
 	},
 	
 	die = function(){ // start dying animations
@@ -111,8 +111,8 @@ Monster = extends Sprite {
 				doneCallback = function(){
 					@detach()
 					stage.dispatchEvent{"onMonsterDead", monster = this}
-				}.bind(this),
+				},
 			}
-		}.bind(this))
+		})
 	},
 }

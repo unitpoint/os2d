@@ -50,7 +50,7 @@ Level = extends Scene {
 			if("selectedBG" in ev.target && ev.target !== @selectedSlot){
 				@selectSlot(ev.target)
 			}
-		}.bind(this))
+		})
 		
 		var wallsName = Sprite().attrs {
 			resAnim = res.get(@wallsName),
@@ -89,7 +89,7 @@ Level = extends Scene {
 			@elevatorInsideButton.addEventListener(TouchEvent.CLICK, {||
 				// print "next level clicked, ${this}"
 				@game.nextLevel(@levelNum + 1)
-			}.bind(this))
+			})
 		}
 	},
 	
@@ -142,7 +142,7 @@ Level = extends Scene {
 					if(@openDoors[0] && @openDoors[1]){
 						@allowNextLevel()
 					}
-				}.bind(this),
+				},
 			}
 		}
 	},
@@ -151,7 +151,8 @@ Level = extends Scene {
 		@selectedSlot.selectedBG.visible = false
 		@selectedSlot = slot
 		@selectedSlot.selectedBG.visible = true
-		@selectedSlot.sceneObject.onSlotSelected()
+		var onSlotSelected = @selectedSlot.sceneObject.onSlotSelected
+		onSlotSelected()
 	},
 	
 	isSlotObjectSelected = function(obj){
@@ -313,21 +314,24 @@ Level = extends Scene {
 			obj, params = obj.shift(), obj
 		}
 		obj.parent.addEventListener(TouchEvent.TOUCH_DOWN, function(ev){
-			if(ev.target === obj && params.onBegin() !== false){
+			var onBegin = params.onBegin
+			if(ev.target === obj && onBegin() !== false){
 				@selectedObject = obj
 			}
-		}.bind(this))
+		})
 		
 		obj.parent.addEventListener(TouchEvent.TOUCH_UP, function(ev){
 			if(@selectedObject === obj){
 				@selectedObject = null
-				params.onEnd(@addSlotObject(obj))
+				var onEnd = params.onEnd
+				onEnd(@addSlotObject(obj))
 			}
-		}.bind(this))
+		})
 		
 		if(!("onSlotSelected" in obj)){
 			obj.onSlotSelected = function(){
-				params.onSlotSelected()
+				var onSlotSelected = params.onSlotSelected
+				onSlotSelected()
 			}
 		}
 	},
@@ -338,25 +342,28 @@ Level = extends Scene {
 			obj, params = obj.shift(), obj
 		}
 		obj.parent.addEventListener(TouchEvent.TOUCH_DOWN, function(ev){
-			if(ev.target === obj && params.onBegin() !== false){
+			var onBegin = params.onBegin
+			if(ev.target === obj && onBegin() !== false){
 				@selectedObject = obj
 				@prepareMoveByTouchEvent(obj, ev)
 			}
-		}.bind(this))
+		})
 		
 		obj.parent.addEventListener(TouchEvent.MOVE, function(ev){
 			if(@selectedObject === obj){
 				@horizMoveByTouchEvent(obj, ev)
-				params.onMove()
+				var onMove = params.onMove
+				onMove()
 			}
-		}.bind(this))
+		})
 		
 		obj.parent.addEventListener(TouchEvent.TOUCH_UP, function(ev){
 			if(@selectedObject === obj){
 				@selectedObject = null
-				params.onEnd()
+				var onEnd = params.onEnd
+				onEnd()
 			}
-		}.bind(this))
+		})
 	},
 	
 	initRotatableObject = function(obj, params){
@@ -365,24 +372,27 @@ Level = extends Scene {
 			obj, params = obj.shift(), obj
 		}
 		obj.parent.addEventListener(TouchEvent.TOUCH_DOWN, function(ev){
-			if(ev.target === obj && params.onBegin() !== false){
+			var onBegin = params.onBegin
+			if(ev.target === obj && onBegin() !== false){
 				@selectedObject = obj
 				@prepareRotateByTouchEvent(obj, ev)
 			}
-		}.bind(this))
+		})
 		
 		obj.parent.addEventListener(TouchEvent.MOVE, function(ev){
 			if(@selectedObject === obj){
 				@rotateByTouchEvent(obj, ev, params.minAngle, params.maxAngle)
-				params.onRotate()
+				var onRotate = params.onRotate
+				onRotate()
 			}
-		}.bind(this))
+		})
 		
 		obj.parent.addEventListener(TouchEvent.TOUCH_UP, function(ev){
 			if(@selectedObject === obj){
 				@selectedObject = null
-				params.onEnd()
+				var onEnd = params.onEnd
+				onEnd()
 			}
-		}.bind(this))
+		})
 	},
 }

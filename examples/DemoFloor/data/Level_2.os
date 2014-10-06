@@ -23,7 +23,7 @@ Level_2 = extends Level {
 				@findSlotObject(@screwdriver) || @returnSlotObject(@screwdriver)
 				@stopPanelSwing()
 				@selectSlot(null)
-			}.bind(this),
+			},
 			onEnd = function(){
 				if(@state != "GENERIC"){
 					throw "expect GENERIC state, but ${state} found"
@@ -37,12 +37,12 @@ Level_2 = extends Level {
 							// @returnSlotObject(@bolt)
 							@startPanelSwing()
 						}
-					}.bind(this))
+					})
 				}else{
 					// @state = "GENERIC"
 					@startPanelSwing()
 				}
-			}.bind(this),
+			},
 		}
 		
 		@bolt = Sprite().attrs {
@@ -64,9 +64,9 @@ Level_2 = extends Level {
 							@returnSlotObject(@bolt)
 							@startPanelSwing()
 						}
-					}.bind(this))
+					})
 				}
-			}.bind(this),
+			},
 		}
 		@initSlotObject{@bolt}
 		
@@ -93,9 +93,9 @@ Level_2 = extends Level {
 							@returnSlotObject(@screwdriver)
 							@startPanelSwing()
 						}
-					}.bind(this))
+					})
 				}
-			}.bind(this),
+			},
 		}
 		
 		@vase = Sprite().attrs {
@@ -111,10 +111,10 @@ Level_2 = extends Level {
 			@vase,
 			onMove = function(){
 				@checkVasePosToFinish()
-			}.bind(this),
+			},
 			onEnd = function(){
 				@checkVasePosToFinish()
-			}.bind(this),
+			},
 		}
 		
 		@startPanelSwing(1.0)
@@ -169,7 +169,7 @@ Level_2 = extends Level {
 			var normalAction = action
 			action = TimeoutAction(delay, function(){
 				@brokenPanel.addAction(normalAction).name = "panelSwing"
-			}.bind(this))
+			})
 		}
 		@brokenPanel.addAction(action).name = "panelSwing"
 	},

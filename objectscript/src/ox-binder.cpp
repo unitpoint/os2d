@@ -416,13 +416,12 @@ static void registerEventDispatcher(OS * os)
 			}
 			int offs = os->getAbsoluteOffs(-params+0);
 			os->getGlobal("CustomEvent");
-			os->pushGlobals();
 			os->pushStackValue(offs);
 			if(params == 1 || os->isObject(offs)){
-				os->call(1, 1);
+				os->callF(1, 1);
 			}else{
 				os->pushStackValue(offs+1);
-				os->call(2, 1);
+				os->callF(2, 1);
 			}
 			os->handleException();
 			ev = CtypeValue<Event*>::getArg(os, -1);
@@ -1157,9 +1156,8 @@ static void registerActor(OS * os)
 				Vector2 childPos = child->global2local(pos);
 				if(child->isOn(childPos)){
 					os->pushValueById(funcId);
-					os->pushNull();
 					pushCtypeValue(os, child);
-					os->callFT(1, 1);
+					os->callF(1, 1);
 					if(os->toBool()){
 						return child;
 					}
@@ -1851,14 +1849,14 @@ void callEventFunction(int func_id, Event * ev)
 	if(is_stack_event){
 		// ev = ev->clone();
 		ev->_ref_counter++;
+		OX_ASSERT(!ev->osValueId);
 	}
 	
 	os->pushValueById(func_id);
 	if(os->isFunction()){
-		os->pushNull(); // this
 		pushCtypeValue(os, ev);
-		// int eventId = os->getValueId();
-		os->call(1);
+		OX_ASSERT(ev->osValueId);
+		os->callF(1);
 		os->handleException();
 	}else{
 		os->pop();

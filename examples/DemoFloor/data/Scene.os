@@ -18,7 +18,7 @@ Scene = extends Actor {
 			opacity = 1,
 			doneCallback = function(){
 				@sceneTransition = null
-			}.bind(this),
+			},
 		}
 	},
 	
@@ -31,7 +31,7 @@ Scene = extends Actor {
 			detachTarget = true,
 			doneCallback = function(){
 				@sceneTransition = null
-			}.bind(this),
+			},
 		}
 	},
 }

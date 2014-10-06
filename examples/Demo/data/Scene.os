@@ -7,7 +7,7 @@ Scene = extends EventDispatcher {
 		@addEventListener("hidden", function(ev){
 			print "catch event: hidden, ${ev}"
 			// @view.detach()
-		}.bind(this))
+		})
 		
 		@view.opacity = 0
 		@transition = null
@@ -28,7 +28,7 @@ Scene = extends EventDispatcher {
 			doneCallback = function(){
 				@transition = null
 				// @dispatchEvent{"hidden", value = "text", xyz = 123}
-			}.bind(this),
+			},
 		}
 	},
 	
@@ -42,7 +42,7 @@ Scene = extends EventDispatcher {
 			doneCallback = function(){
 				@transition = null
 				@dispatchEvent{"hidden", value = "text", xyz = 123}
-			}.bind(this),
+			},
 		}
 	},
 }

@@ -183,7 +183,7 @@ public:
 		getGlobal("triggerShutdownFunctions");
 		OS_ASSERT(isFunction() || isNull());
 		pushGlobals();
-		call();
+		callFT();
 	}
 
 	void triggerCleanupFunctions()
@@ -192,7 +192,7 @@ public:
 		getGlobal("triggerCleanupFunctions");
 		OS_ASSERT(isFunction() || isNull());
 		pushGlobals();
-		call();
+		callFT();
 	}
 };
 
@@ -589,7 +589,7 @@ struct CtypeValuePoint
 		os->pushGlobals();
 		os->pushNumber(p.x);
 		os->pushNumber(p.y);
-		os->call(2, 1);
+		os->callFT(2, 1);
 		os->handleException();
 #else
 		os->newObject();
@@ -662,7 +662,7 @@ struct CtypeValue<UpdateState>
 		os->pushNumber(p.time / 1000.0f);
 		os->pushNumber(p.dt / 1000.0f);
 		os->pushNumber(p.iteration);
-		os->call(3, 1);
+		os->callFT(3, 1);
 		os->handleException();
 	}
 };
@@ -737,7 +737,7 @@ struct CtypeValue<Color>
 		os->pushNumber(color.g / 255.0);
 		os->pushNumber(color.b / 255.0);
 		os->pushNumber(color.a / 255.0);
-		os->call(4, 1);
+		os->callFT(4, 1);
 		os->handleException();
 	}
 };

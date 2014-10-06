@@ -14,13 +14,13 @@ GameScene = extends Scene {
 			}
 			btnNext.addEventListener(TouchEvent.CLICK, function(){
 				@nextLevel(@level.levelNum + 1)
-			}.bind(this))
+			})
 		}
 		
 		// debug, check mem leaks
 		false && @addUpdate(1/5, function(){
 			@nextLevel(@level.levelNum + 1)
-		}.bind(this))
+		})
 	},
 	
 	configFilename = "config.json",
