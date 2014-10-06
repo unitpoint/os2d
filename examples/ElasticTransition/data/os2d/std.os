@@ -1,3 +1,31 @@
+/******************************************************************************
+* Copyright (C) 2014 Evgeniy Golovin (evgeniy.golovin@unitpoint.ru)
+*
+* Please feel free to contact me at anytime, 
+* my email is evgeniy.golovin@unitpoint.ru, skype: egolovin
+*
+* Latest source code: https://github.com/unitpoint/os2d
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal in the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject to
+* the following conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+* CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+******************************************************************************/
+
 require.paths[] = __DIR__.."/actions"
 
 var filesChecked = {}
@@ -10,6 +38,10 @@ function __get(name){
 		}
 	}
 	throw "unknown class or global property \"${name}\""
+}
+
+function _T(text){
+	return text
 }
 
 function Object.__get(name){
@@ -436,7 +468,8 @@ function Actor.__get@_internalActions(){
 			if(action.isDone){
 				action.detachTarget && action.target.detach()
 				self.removeAction(action)
-				action.doneCallback()
+				var doneCallback = action.doneCallback
+				doneCallback() // use function's this instead of current object
 			}
 		}
 	})
@@ -549,8 +582,8 @@ function OS2DObject.__len(){
 }
 
 function OS2DObject.__get(name){
-	if(typeOf(i) === "number"){
-		return @getChild(i) || throw "child at index ${i} not exist in ${@__name || @classname}"
+	if(typeOf(name) === "number"){
+		return @getChild(name) || throw "child at index ${name} not exist in ${@__name || @classname}"
 	}
 	return super(name)
 }
