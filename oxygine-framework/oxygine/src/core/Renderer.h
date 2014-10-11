@@ -21,6 +21,7 @@ namespace oxygine
 		blend_premultiplied_alpha,
 		blend_alpha,
 		blend_add,
+		blend_multiply,
 		//blend_xor,
 
 		//gles2
@@ -198,10 +199,10 @@ namespace oxygine
 		/**Sets triangles vertex Color.*/
 		void setPrimaryColor(const Color &);
 		/**Accumulates rectangles into batch or render it.*/
-		void draw(const RectF &srcRect, const RectF &destRect);		
-		void draw(const void *data, int size, bvertex_format format);
+		virtual void draw(const RectF &srcRect, const RectF &destRect);		
+		virtual void draw(const void *data, int size, bvertex_format format);
 		/**Draws existing batch immediately.*/
-		void drawBatch();
+		virtual void drawBatch();
 		/**Cleans existing accumulated batch.*/
 		void cleanup();
 
