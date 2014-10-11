@@ -10,6 +10,12 @@
 
 extern "C"
 {
+	PFNGLGETPROGRAMINFOLOGPROC _glGetProgramInfoLog = 0;
+	GLAPI void APIENTRY glGetProgramInfoLog(GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog)
+	{
+		_glGetProgramInfoLog(program, bufSize, length, infoLog);
+	}
+	
 	PFNGLUSEPROGRAMPROC _glUseProgram = 0;
 	GLAPI void APIENTRY glUseProgram(GLuint program)
 	{
@@ -177,6 +183,7 @@ void initGLExtensions(myGetProcAdress func)
     if (_glUseProgram)
         return;
 
+	_glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC)func("glGetProgramInfoLog");
 	_glUseProgram = (PFNGLUSEPROGRAMPROC)func("glUseProgram");
 	_glVertexAttribPointer = (PFNGLVERTEXATTRIBPOINTERPROC)func("glVertexAttribPointer");
 	_glActiveTexture = (PFNGLACTIVETEXTUREPROC)func("glActiveTexture");
