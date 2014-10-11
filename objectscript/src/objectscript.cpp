@@ -25377,6 +25377,31 @@ double OS::Core::getRand(double min, double max)
 	return getRand() * (max - min) + min;
 }
 
+void OS::randInitialize(OS_U32 seed)
+{
+	core->randInitialize(seed);
+}
+
+void OS::randReload()
+{
+	core->randReload();
+}
+
+double OS::getRand()
+{
+	return core->getRand();
+}
+
+double OS::getRand(double up)
+{
+	return core->getRand(up);
+}
+
+double OS::getRand(double min, double max)
+{
+	return core->getRand(min, max);
+}
+
 #define OS_MATH_PI 3.1415926535897932384626433832795
 #define OS_RADIANS_PER_DEGREE (OS_MATH_PI/180.0)
 
