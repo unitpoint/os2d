@@ -70,7 +70,24 @@ namespace oxygine
 		unsigned int id = prog->getID();
 		glUseProgram(id);
 		_program = id;
-        CHECKGL();
+
+		int gl_error = glGetError();
+        if (gl_error != GL_NO_ERROR)
+        {
+            log::error("OpenGL error: %#x\n", gl_error);
+
+			char buf[1024];
+			GLsizei len;
+			glGetProgramInfoLog(id, sizeof(buf)-1, &len, buf);
+			buf[len] = 0;
+			log::error("OpenGL error: %s\n", buf);
+
+            if (gl_error == GL_OUT_OF_MEMORY)
+            {
+                exit(0);
+            }
+        }
+		// CHECKGL();
 	}
 
 	void VideoDriverGLES20::setTexture(int sampler, spNativeTexture t)
