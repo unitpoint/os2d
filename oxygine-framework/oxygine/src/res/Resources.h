@@ -24,7 +24,7 @@ namespace oxygine
 	class CreateResourceContext;
 	class LoadResourcesContext; 
 
-
+	DECLARE_SMART(Resources, spResources);
 	class Resources: public Resource
 	{
 	public:
