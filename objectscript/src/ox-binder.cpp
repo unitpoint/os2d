@@ -1335,6 +1335,7 @@ static void registerVStyleActor(OS * os)
 		{"BLEND_PREMULTIPLIED_ALPHA", blend_premultiplied_alpha},
 		{"BLEND_ALPHA", blend_alpha},
 		{"BLEND_ADD", blend_add},
+		{"BLEND_MULTIPLY", blend_multiply},
 		{"BLEND_SUB", blend_sub},
 		{}
 	};
