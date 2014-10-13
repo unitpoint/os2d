@@ -1152,8 +1152,12 @@ static void registerActor(OS * os)
 
 		static spActor findActorByPos(OS * os, spActor self, const Vector2& pos, int funcId)
 		{
-			for(spActor child = self->getFirstChild(); child && !os->isExceptionSet(); child = child->getNextSibling()){
+			for(spActor child = self->getLastChild(); child && !os->isExceptionSet(); child = child->getPrevSibling()){
 				Vector2 childPos = child->global2local(pos);
+				spActor foundChild = findActorByPos(os, child, childPos, funcId);
+				if(foundChild){
+					return foundChild;
+				}
 				if(child->isOn(childPos)){
 					os->pushValueById(funcId);
 					pushCtypeValue(os, child);
@@ -1161,10 +1165,6 @@ static void registerActor(OS * os)
 					if(os->toBool()){
 						return child;
 					}
-				}
-				spActor foundChild = findActorByPos(os, child, childPos, funcId);
-				if(foundChild){
-					return foundChild;
 				}
 			}
 			return NULL;
