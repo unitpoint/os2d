@@ -73,6 +73,20 @@ namespace oxygine
 		}
 	}
 
+	void SoundInstance::pause()
+	{
+		if(_channel){
+			_channel->pause();
+		}
+	}
+
+	void SoundInstance::resume()
+	{
+		if(_channel){
+			_channel->resume();
+		}
+	}
+
 	void SoundInstance::stop()
 	{
 		if (!_channel)

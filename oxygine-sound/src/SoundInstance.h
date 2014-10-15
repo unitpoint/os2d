@@ -29,6 +29,8 @@ namespace oxygine
 		SoundInstance();
 		~SoundInstance();		
 
+		void pause();
+		void resume();
 		void stop();
 		void fadeOut(int fadeOutMS);
 

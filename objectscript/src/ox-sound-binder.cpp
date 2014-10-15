@@ -36,7 +36,7 @@ static void registerSoundInstance(OS * os)
 	{
 		static int fadeOut(OS * os, int params, int, int, void*)
 		{
-			OS_GET_SELF(SoundPlayer*);
+			OS_GET_SELF(SoundInstance*);
 			int ms = (int)(os->toNumber(-params+0) / 1000.0f);
 			self->fadeOut(ms < 0 ? 0 : ms);
 			return 0;
@@ -58,6 +58,8 @@ static void registerSoundInstance(OS * os)
 	};
 	OS::FuncDef funcs[] = {
 		// def("__newinstance", &Lib::__newinstance),
+		def("pause", &SoundInstance::pause),
+		def("resume", &SoundInstance::resume),
 		def("stop", &SoundInstance::stop),
 		{"fadeOut", &Lib::fadeOut},
 		{"__get@duration", &Lib::getDuration},
