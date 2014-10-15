@@ -689,6 +689,25 @@ OS_CHAR * OS::Utils::numToStr(OS_CHAR * dst, OS_FLOAT a)
 	return dst;
 }
 
+double OS::Utils::round(double a, int precision)
+{
+	if(precision <= 0){
+		if(precision < 0){
+			double p = 10.0;
+			for(int i = -precision-1; i > 0; i--){
+				p *= 10.0;
+			}
+			return ::floor(a / p + 0.5) * p;
+		}
+		return ::floor(a + 0.5);
+	}
+	double p = 10.0;
+	for(int i = precision-1; i > 0; i--){
+		p *= 10.0;
+	}
+	return ::floor(a * p + 0.5) / p;
+}
+
 OS_CHAR * OS::Utils::numToStr(OS_CHAR * dst, OS_FLOAT a, int precision)
 {
 	if(precision <= 0) {
@@ -14956,6 +14975,16 @@ void OS::setMemBreakpointId(int id)
 	memory_manager->setBreakpointId(id);
 }
 
+int OS::getMaxCallStack()
+{
+	return core->max_call_stack;
+}
+
+void OS::setMaxCallStack(int value)
+{
+	core->max_call_stack = value;
+}
+
 bool OS::isTerminated()
 {
 	return core->terminated;
@@ -14968,6 +14997,7 @@ int OS::getTerminatedCode()
 
 void OS::setTerminated(bool terminated, int code)
 {
+	core->call_stack_overflow = false;
 	core->terminated = terminated;
 	core->terminated_code = code;
 	core->setValue(core->terminated_exception, Core::Value());
@@ -14976,6 +15006,7 @@ void OS::setTerminated(bool terminated, int code)
 void OS::resetTerminated()
 {
 	if(core->terminated){
+		core->call_stack_overflow = false;
 		core->terminated = false;
 		core->terminated_code = 0;
 		core->setValue(core->terminated_exception, Core::Value());
@@ -15024,6 +15055,8 @@ void OS::Core::setExceptionValue(Value val)
 			return;
 		}
 	}
+	OS_ASSERT(!call_stack_overflow);
+	call_stack_overflow = false;
 	terminated = false;
 	terminated_code = 0;
 	setValue(terminated_exception, Value());
@@ -15071,6 +15104,7 @@ OS::Core::Core(OS * p_allocator)
 	num_created_values = 0;
 	num_destroyed_values = 0;
 
+	max_call_stack = 80;
 	stack_func = NULL;
 	stack_func_locals = NULL;
 	stack_func_env_index = 0;
@@ -15097,6 +15131,7 @@ OS::Core::Core(OS * p_allocator)
 	rand_seed = 0;
 	rand_left = 0;
 
+	call_stack_overflow = false;
 	terminated = false;
 	terminated_code = 0;
 }
@@ -19475,7 +19510,7 @@ void OS::Core::execute()
 		}
 #endif
 		if(terminated){
-			if(!terminated_exception.isNull()){
+			if(!terminated_exception.isNull() && !call_stack_overflow){
 				for(;;){
 					stack_func = this->stack_func;
 					FunctionDecl * func_decl = stack_func->func->func_decl;
@@ -25310,9 +25345,14 @@ It's port from PHP framework.
 #define OS_RAND_GENERATE_SEED() (((long) (time(0))) ^ ((long) (1000000.0)))
 #endif 
 
-void OS::Core::randInitialize(OS_U32 seed)
+int OS::Core::getRandSeed()
 {
-	rand_seed = seed;
+	return rand_seed;
+}
+
+void OS::Core::setRandSeed(int seed)
+{
+	rand_seed = (OS_U32)seed;
 
 	OS_U32 * s = rand_state;
 	OS_U32 * r = s;
@@ -25353,7 +25393,7 @@ double OS::Core::getRand()
 
 	if(!rand_left){
 		if(!rand_next){
-			randInitialize(OS_RAND_GENERATE_SEED());
+			setRandSeed(OS_RAND_GENERATE_SEED());
 		}else{
 			randReload();
 		}
@@ -25377,29 +25417,34 @@ double OS::Core::getRand(double min, double max)
 	return getRand() * (max - min) + min;
 }
 
-void OS::randInitialize(OS_U32 seed)
+int OS::getRandSeed()
 {
-	core->randInitialize(seed);
+	return core->getRandSeed();
 }
 
-void OS::randReload()
+void OS::setRandSeed(int seed)
+{
+	core->setRandSeed(seed);
+}
+
+/* void OS::randReload()
 {
 	core->randReload();
+} */
+
+double OS::getRand()
+{
+	return core->getRand();
 }
 
-float OS::getRand()
+double OS::getRand(double up)
 {
-	return (float)core->getRand();
+	return core->getRand(up);
 }
 
-float OS::getRand(double up)
+double OS::getRand(double min, double max)
 {
-	return (float)core->getRand(up);
-}
-
-float OS::getRand(double min, double max)
-{
-	return (float)core->getRand(min, max);
+	return core->getRand(min, max);
 }
 
 #define OS_MATH_PI 3.1415926535897932384626433832795
@@ -25474,25 +25519,6 @@ void OS::initMathModule()
 		static double floor(double p)
 		{
 			return ::floor(p);
-		}
-
-		static double round(double a, int precision)
-		{
-			if(precision <= 0){
-				if(precision < 0){
-					double p = 10.0;
-					for(int i = -precision-1; i > 0; i--){
-						p *= 10.0;
-					}
-					return ::floor(a / p + 0.5) * p;
-				}
-				return ::floor(a + 0.5);
-			}
-			double p = 10.0;
-			for(int i = precision-1; i > 0; i--){
-				p *= 10.0;
-			}
-			return ::floor(a * p + 0.5) / p;
 		}
 
 		static double sin(double p)
@@ -25591,14 +25617,14 @@ void OS::initMathModule()
 
 		static int getRandomSeed(OS * os, int params, int, int, void*)
 		{
-			os->pushNumber((OS_NUMBER)os->core->rand_seed);
+			os->pushNumber((OS_NUMBER)os->core->getRandSeed());
 			return 1;
 		}
 
 		static int setRandomSeed(OS * os, int params, int, int, void*)
 		{
 			if(params > 0){
-				os->core->randInitialize((OS_U32)os->toNumber(-params));
+				os->core->setRandSeed((int)os->toNumber(-params));
 			}
 			return 0;
 		}
@@ -25661,7 +25687,7 @@ void OS::initMathModule()
 		def(OS_TEXT("abs"), Math::abs),
 		def(OS_TEXT("ceil"), Math::ceil),
 		def(OS_TEXT("floor"), Math::floor),
-		def(OS_TEXT("round"), Math::round),
+		def(OS_TEXT("round"), Utils::round),
 		def(OS_TEXT("sin"), Math::sin),
 		def(OS_TEXT("sinh"), Math::sinh),
 		def(OS_TEXT("cos"), Math::cos),
@@ -26373,6 +26399,11 @@ void OS::Core::callFT(int start_pos, int call_params, int ret_values, GCValue * 
 
 			reserveStackValues(start_pos + (func_decl->stack_size > ret_values ? func_decl->stack_size : ret_values));
 			
+			if(call_stack_funcs.count >= max_call_stack && !call_stack_overflow){
+				call_stack_overflow = true;
+				allocator->setException("call stack overflow");
+				break;
+			}
 			if(call_stack_funcs.capacity < call_stack_funcs.count+1){
 				call_stack_funcs.capacity = call_stack_funcs.capacity > 0 ? call_stack_funcs.capacity*2 : 8;
 				OS_ASSERT(call_stack_funcs.capacity >= call_stack_funcs.count+1);

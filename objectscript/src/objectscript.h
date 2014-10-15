@@ -164,7 +164,7 @@ inline void operator delete(void *, void *){}
 // uncomment it if need
 // #define OS_INFINITE_LOOP_OPCODES 100000000
 
-#define OS_CALL_STACK_MAX_SIZE 200
+// #define OS_CALL_STACK_MAX_SIZE 200
 
 #define OS_COMPILED_HEADER OS_TEXT("OBJECTSCRIPT")
 #define OS_EXT_SOURCECODE OS_TEXT(".os")
@@ -387,6 +387,8 @@ namespace ObjectScript
 			static int keyToHash(const void * buf1, int size1, const void * buf2, int size2);
 
 			static int cmp(const void * buf1, int len1, const void * buf2, int len2);
+
+			static double round(double a, int precision = 0);
 		};
 
 		class String;
@@ -2605,6 +2607,8 @@ namespace ObjectScript
 			void growStackValues(int new_capacity);
 
 			Vector<StackFunction> call_stack_funcs;
+			int max_call_stack;
+
 			StackFunction * stack_func;
 			Value * stack_func_locals;
 			int stack_func_env_index;
@@ -2660,10 +2664,12 @@ namespace ObjectScript
 			int rand_left;
 
 			bool terminated;
+			bool call_stack_overflow;
 			int terminated_code;
 			Value terminated_exception;
 
-			void randInitialize(OS_U32 seed);
+			int getRandSeed();
+			void setRandSeed(int seed);
 			void randReload();
 			double getRand();
 			double getRand(double up);
@@ -3097,6 +3103,9 @@ namespace ObjectScript
 
 		void setMemBreakpointId(int id);
 
+		int getMaxCallStack();
+		void setMaxCallStack(int);
+
 		bool isTerminated();
 		int getTerminatedCode();
 		void setTerminated(bool = true, int = 0);
@@ -3375,11 +3384,12 @@ namespace ObjectScript
 
 		void appendQuotedString(Core::Buffer& buf, const Core::String& string);
 
-		void randInitialize(OS_U32 seed);
-		void randReload();
-		float getRand();
-		float getRand(double up);
-		float getRand(double min, double max);
+		int getRandSeed();
+		void setRandSeed(int seed);
+		// void randReload();
+		double getRand();
+		double getRand(double up);
+		double getRand(double min, double max);
 	};
 } // namespace ObjectScript
 
