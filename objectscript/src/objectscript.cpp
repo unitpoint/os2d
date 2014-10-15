@@ -25387,19 +25387,19 @@ void OS::randReload()
 	core->randReload();
 }
 
-double OS::getRand()
+float OS::getRand()
 {
-	return core->getRand();
+	return (float)core->getRand();
 }
 
-double OS::getRand(double up)
+float OS::getRand(double up)
 {
-	return core->getRand(up);
+	return (float)core->getRand(up);
 }
 
-double OS::getRand(double min, double max)
+float OS::getRand(double min, double max)
 {
-	return core->getRand(min, max);
+	return (float)core->getRand(min, max);
 }
 
 #define OS_MATH_PI 3.1415926535897932384626433832795
