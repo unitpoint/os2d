@@ -75,6 +75,11 @@ namespace oxygine
 		needRebuild();
 	}
 
+	int TextField::getLinesOffset() const
+	{
+		return _style.linesOffset;
+	}
+
 	void TextField::setLinesOffset(int offset)
 	{
 		_style.linesOffset = offset;

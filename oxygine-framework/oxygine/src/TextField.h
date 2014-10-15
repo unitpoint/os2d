@@ -32,6 +32,7 @@ namespace oxygine
 		const Rect&					getTextRect();
 		/**Returns current text*/
 		const string&				getText() const {return _text;}
+		int							getLinesOffset() const;
 		int							getFontSize2Scale() const;
 		TextStyle::VerticalAlign	getVAlign() const;
 		TextStyle::HorizontalAlign	getHAlign() const;

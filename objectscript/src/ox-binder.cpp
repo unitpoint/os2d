@@ -1384,8 +1384,7 @@ static void registerTextField(OS * os)
 		DEF_PROP("hAlign", TextField, HAlign),
 		DEF_PROP("multiline", TextField, Multiline),
 		DEF_PROP("breakLongWords", TextField, BreakLongWords),
-		DEF_PROP("hAlign", TextField, HAlign),
-		DEF_PROP("hAlign", TextField, HAlign),
+		DEF_PROP("linesOffset", TextField, LinesOffset),
 		DEF_PROP("resFont", TextField, ResFont),
 		{}
 	};
