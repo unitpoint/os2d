@@ -1409,6 +1409,21 @@ static void registerSprite(OS * os)
 			return 1;
 		}
 
+		static int setResAnim(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(Sprite*);
+			ResAnim * resAnim = NULL;
+			if(!os->isNull(-params+0)){
+				resAnim = CtypeOXClass<ResAnim*>::getArg(os, -params+0);
+				if(!resAnim){
+					os->setException("ResAnim required");
+					return 0;
+				}
+			}
+			self->setResAnim(resAnim);
+			return 0;
+		}
+
 		static int setResAnimFrameNum(OS * os, int params, int, int, void*)
 		{
 			OS_GET_SELF(Sprite*);
@@ -1478,9 +1493,10 @@ static void registerSprite(OS * os)
 
 	OS::FuncDef funcs[] = {
 		def("__newinstance", &Lib::__newinstance),
-		def("setResAnim", &Sprite::setResAnim),
-		DEF_SET("resAnim", Sprite, ResAnim),
+		// def("setResAnim", &Sprite::setResAnim),
+		// DEF_SET("resAnim", Sprite, ResAnim),
 		{"__get@resAnim", &Lib::getResAnim},
+		{"__set@resAnim", &Lib::setResAnim},
 		{"__get@resAnimFrameNum", &Lib::getResAnimFrameNum},
 		{"__set@resAnimFrameNum", &Lib::setResAnimFrameNum},
 		{"setAnimFrameRect", &Lib::setAnimFrameRect},
