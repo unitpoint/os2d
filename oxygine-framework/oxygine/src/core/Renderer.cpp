@@ -216,6 +216,15 @@ namespace oxygine
 			case blend_add:
 				_driver->setBlendFunc(IVideoDriver::BT_ONE, IVideoDriver::BT_ONE);
 				break;
+			case blend_add_src_alpha:
+				_driver->setBlendFunc(IVideoDriver::BT_SRC_ALPHA, IVideoDriver::BT_ONE);
+				break;
+			case blend_add_src_color:
+				_driver->setBlendFunc(IVideoDriver::BT_SRC_COLOR, IVideoDriver::BT_ONE);
+				break;
+			case blend_add_dst_color:
+				_driver->setBlendFunc(IVideoDriver::BT_ONE, IVideoDriver::BT_DST_COLOR);
+				break;
 			case blend_multiply:
 				_driver->setBlendFunc(IVideoDriver::BT_DST_COLOR, IVideoDriver::BT_ZERO);
 				break;

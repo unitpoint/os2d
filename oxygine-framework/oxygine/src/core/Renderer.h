@@ -21,6 +21,9 @@ namespace oxygine
 		blend_premultiplied_alpha,
 		blend_alpha,
 		blend_add,
+		blend_add_src_alpha,
+		blend_add_src_color,
+		blend_add_dst_color,
 		blend_multiply,
 		//blend_xor,
 
