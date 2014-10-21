@@ -3,8 +3,8 @@
 
 /*
 oxygine-framework merge state
-SHA 4c78fa96 
-by dmuratshin, 20.09.2014 15:49
+SHA 06446049
+by dmuratshin, 18.10.2014 12:00
 */
 
 
@@ -626,7 +626,7 @@ static void registerTween(OS * os)
 		DEF_EASE(Cubic, CUBIC),
 		DEF_EASE(Quart, QUART),
 		DEF_EASE(Quint, QUINT),
-		DEF_EASE(Sine, SINE),
+		DEF_EASE(Sin, SINE),
 		DEF_EASE(Expo, EXPO),
 		DEF_EASE(Circ, CIRC),
 		DEF_EASE(Back, BACK),
@@ -636,7 +636,7 @@ static void registerTween(OS * os)
 		DEF_EASE_DEPRECATED(Cubic, CUBIC),
 		DEF_EASE_DEPRECATED(Quart, QUART),
 		DEF_EASE_DEPRECATED(Quint, QUINT),
-		DEF_EASE_DEPRECATED(Sine, SINE),
+		DEF_EASE_DEPRECATED(Sin, SINE),
 		DEF_EASE_DEPRECATED(Expo, EXPO),
 		DEF_EASE_DEPRECATED(Circ, CIRC),
 		DEF_EASE_DEPRECATED(Back, BACK),

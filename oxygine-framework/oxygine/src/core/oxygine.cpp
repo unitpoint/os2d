@@ -473,7 +473,7 @@ namespace oxygine
                 return;
             }
 
-			SDL_GL_SetSwapInterval(1);
+			SDL_GL_SetSwapInterval(desc.vsync ? 1 : 0);
 			
 	#else
 

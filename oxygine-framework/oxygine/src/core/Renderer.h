@@ -202,8 +202,8 @@ namespace oxygine
 		/**Sets triangles vertex Color.*/
 		void setPrimaryColor(const Color &);
 		/**Accumulates rectangles into batch or render it.*/
-		virtual void draw(const RectF &srcRect, const RectF &destRect);		
-		virtual void draw(const void *data, int size, bvertex_format format);
+		void draw(const RectF &srcRect, const RectF &destRect);		
+		void draw(const void *data, int size, bvertex_format format, bool worldTransform = false);
 		/**Draws existing batch immediately.*/
 		virtual void drawBatch();
 		/**Cleans existing accumulated batch.*/

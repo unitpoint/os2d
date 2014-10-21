@@ -147,10 +147,10 @@ namespace oxygine
 			ease_inOutQuint,
 			ease_outInQuint,
 
-			ease_inSine,
-			ease_outSine,
-			ease_inOutSine,
-			ease_outInSine,
+			ease_inSin,
+			ease_outSin,
+			ease_inOutSin,
+			ease_outInSin,
 
 			ease_inExpo,
 			ease_outExpo,
@@ -319,4 +319,6 @@ namespace oxygine
 		p->init(duration, loops, twoSides, delay, ease);
 		return p;
 	}
+
+	string ease2String(Tween::EASE ease);
 }

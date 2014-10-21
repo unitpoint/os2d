@@ -1122,12 +1122,13 @@ namespace oxygine
 		while (t)
 		{			
 			spTween c = t;
+			t = t->getNextSibling();
 
 			if (callComplete)
 				c->complete();
+			else
 
-			t = t->getNextSibling();
-			removeTween(c);
+				removeTween(c);
 		}
 	}
 

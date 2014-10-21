@@ -57,14 +57,14 @@ namespace oxygine
 
 	static float outBounce(float t)
 	{
-		if(t < 0.363636363636f){
+		if (t < 0.363636363636f){
 			return 7.5625f * t * t;
 		}
-		if(t < 0.727272727273f) {
+		if (t < 0.727272727273f) {
 			t = t - 0.545454545455f;
 			return 7.5625f * t * t + 0.75f;
 		}
-		if(t < 0.909090909091f) {
+		if (t < 0.909090909091f) {
 			t = t - 0.818181818182f;
 			return 7.5625f * t * t + 0.9375f;
 		}
@@ -77,7 +77,7 @@ namespace oxygine
 	{
 		const float s = 1.70158f;
 
-		switch(ease)
+		switch (ease)
 		{
 		case ease_linear:
 			return t;
@@ -90,15 +90,15 @@ namespace oxygine
 		case ease_inOut ## EasyPost: \
 			return t <= 0.5f ? calcEase(ease_in ## EasyPost, t * 2) / 2 : 1 - calcEase(ease_in ## EasyPost, 2 - t * 2) / 2; \
 		case ease_outIn ## EasyPost: \
-			return 1 - calcEase(ease_inOut ## EasyPost, 1 - t)
+			return t <= 0.5f ? calcEase(ease_in ## EasyPost, t * 2) / 2 : 1 - calcEase(ease_in ## EasyPost, 2 - t * 2) / 2; \
 
 		DEF_EASY_FROM_IN(Quad, t * t);
 		DEF_EASY_FROM_IN(Cubic, t * t * t);
 		DEF_EASY_FROM_IN(Quart, powf(t, 4));
 		DEF_EASY_FROM_IN(Quint, powf(t, 5));
-		DEF_EASY_FROM_IN(Sine, 1.0f - scalar::cos(t * (MATH_PI/2.0f)));
+			DEF_EASY_FROM_IN(Sin, 1.0f - scalar::cos(t * (MATH_PI / 2.0f)));
 		DEF_EASY_FROM_IN(Expo, powf(2, 10 * (t - 1)));
-		DEF_EASY_FROM_IN(Circ, -1.0f * (scalar::sqrt(1 - t * t) - 1));
+			DEF_EASY_FROM_IN(Circ, -1.0f * (sqrt(1 - t * t) - 1) );
 		DEF_EASY_FROM_IN(Back, t * t * ((s + 1) * t - s));
 		DEF_EASY_FROM_IN(Bounce, 1 - outBounce(1 - t));
 
@@ -107,9 +107,45 @@ namespace oxygine
 			break;
 		}
 
+#undef DEF_EASY_FROM_IN
+
 		return t;
 	}
 
+
+	string ease2String(Tween::EASE ease)
+	{
+#define STRINGIFY(x) #x
+#define S(x) STRINGIFY(x)
+
+		switch (ease)
+		{
+		case Tween::ease_linear:
+			return "linear";
+
+#define DEF_EASY_FROM_IN(EasyPost) \
+		case Tween::ease_in ## EasyPost: \
+			return  "in" S(EasyPost);\
+		case Tween::ease_out ## EasyPost: \
+			return "out" S(EasyPost); \
+		case Tween::ease_inOut ## EasyPost: \
+			return "inOut" S(EasyPost); \
+		case Tween::ease_outIn ## EasyPost: \
+			return "outIn" S(EasyPost);
+
+			DEF_EASY_FROM_IN(Quad);
+			DEF_EASY_FROM_IN(Cubic);
+			DEF_EASY_FROM_IN(Quart);
+			DEF_EASY_FROM_IN(Quint);
+			DEF_EASY_FROM_IN(Sin);
+			DEF_EASY_FROM_IN(Expo);
+			DEF_EASY_FROM_IN(Circ);
+			DEF_EASY_FROM_IN(Back);
+			DEF_EASY_FROM_IN(Bounce);
+		}
+
+		return "unknown";
+	}
 	
 	float Tween::_calcEase(float v)
 	{

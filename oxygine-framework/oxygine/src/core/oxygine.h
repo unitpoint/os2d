@@ -65,13 +65,15 @@ namespace oxygine
 
 	/** returns local app time in milliseconds (1sec = 1000ms). Counting starts from zero*/	
 	timeMS			getTimeMS();
+	/** returns UTC time in milliseconds */
 	int64			getTimeUTCMS();
+	/** is any network connection available?*/
 	bool			isNetworkAvaible();
 	/**returns locale. ISO 639-1 */
 	std::string		getLanguage();
 
 
-
+	/**sleep for milliseconds*/
 	void	sleep(timeMS);
 	
 		
@@ -79,20 +81,22 @@ namespace oxygine
 	{
 		struct init_desc
 		{
-			init_desc(): mode24bpp(true), w(-1), h(-1), maximized(false), fullscreen(false), fulldesktop(false), title("Oxygine"){}
+			init_desc(): mode24bpp(true), w(-1), h(-1), vsync(true), fullscreen(false), fulldesktop(false), title("Oxygine"), maximized(false){}
 
 			bool mode24bpp;
 			int w;
 			int h;
-			bool maximized;
+			bool vsync;
 			bool fullscreen;
 			bool fulldesktop;
+			bool maximized;
 			const char *title;
 		};
 
-		/** Initializes engine internal components*/
+		/** Initializes Oxygine*/
 		void init(init_desc *desc = 0);
-		void init2();
+			
+		
 		void release();
 		void requestQuit();
 
@@ -129,4 +133,11 @@ namespace oxygine
 
 
 	void handleErrorPolicy(error_policy ep, const char *format, ...);
+
+
+	namespace core
+	{
+		/**internal usage*/
+		void init2();
+	}
 }
