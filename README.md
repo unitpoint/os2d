@@ -141,7 +141,6 @@ The main ObjectScript file is <code>Demo\data\main.os</code> of Demo example.
 * [ObjectScript Reference](https://github.com/unitpoint/objectscript/wiki/ObjectScript-Reference)
 * [ObjectScript C++ binder generator](https://github.com/unitpoint/objectscript/blob/master/src/os-binder-generator.os)
 
-
 ##Contacts
 
 Please feel free to contact me at anytime, my email is evgeniy.golovin@unitpoint.ru, skype: egolovin
