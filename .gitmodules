@@ -1,6 +1,0 @@
-[submodule "examples/CastleMonster"]
-	path = examples/CastleMonster
-	url = git@github.com:unitpoint/CastleMonster.git
-[submodule "examples/eXeXeXeX"]
-	path = examples/eXeXeXeX
-	url = git@github.com:unitpoint/eXeXeXeX.git
