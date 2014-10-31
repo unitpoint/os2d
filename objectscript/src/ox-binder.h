@@ -542,11 +542,11 @@ void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * li
 OS_DECL_CTYPE_NAME(Vector2, "vec2");
 OS_DECL_CTYPE_NAME(Point, "vec2");
 
-template <class T>
-struct CtypeValuePoint
+template <class T, class SubType>
+struct CtypeValuePointSub
 {
 	typedef T type;
-	typedef typename T::type SubType;
+	// typedef typename T::type SubType;
 
 	static bool isValid(const type&){ return true; }
 
@@ -603,6 +603,11 @@ struct CtypeValuePoint
 		os->setProperty("y", false);
 #endif
 	}
+};
+
+template <class T>
+struct CtypeValuePoint: public CtypeValuePointSub<T, typename T::type>
+{
 };
 
 template <> struct CtypeValue<Vector2>: public CtypeValuePoint<Vector2> {};
