@@ -128,8 +128,8 @@ static void registerPhysWorld(OS * os)
 				/// @return false to terminate the query.
 				virtual bool ReportFixture(b2Fixture* coreFixture)
 				{
-					spPhysBody body = dynamic_cast<PhysBody*>((PhysObject*)coreFixture->GetBody()->GetUserData());
-					spPhysFixture fixture = dynamic_cast<PhysFixture*>((PhysObject*)coreFixture->GetUserData());
+					spPhysBody body = physWorld->getBody(coreFixture->GetBody());
+					spPhysFixture fixture = physWorld->getFixture(coreFixture);
 					if(body){
 						os->pushValueById(funcId);
 						OX_ASSERT(os->isFunction());
@@ -161,6 +161,7 @@ static void registerPhysWorld(OS * os)
 		{"__get@bodyList", &Lib::getBodyList},
 		{"__get@jointList", &Lib::getJointList},
 		{"queryAABB", &Lib::queryAABB},
+		DEF_PROP("persistentDeltaTime", PhysWorld, PersistentDeltaTime),
 		DEF_PROP("gravity", PhysWorld, Gravity),
 		{}
 	};
@@ -170,6 +171,30 @@ static void registerPhysWorld(OS * os)
 	registerOXClass<PhysWorld, PhysObject>(os, funcs, nums, true OS_DBG_FILEPOS);
 }
 static bool __registerPhysWorld = addRegFunc(registerPhysWorld);
+
+// =====================================================================
+
+static void registerPhysContactCache(OS * os)
+{
+	struct Lib
+	{
+	};
+	OS::FuncDef funcs[] = {
+		// def("__newinstance", &Lib::__newinstance),
+		def("getFixture", &PhysContactCache::getFixture),
+		def("getBody", &PhysContactCache::getBody),
+		def("getPoint", &PhysContactCache::getPoint),
+		def("getSeparation", &PhysContactCache::getSeparation),
+		def("__get@normal", &PhysContactCache::getNormal),
+		def("__get@pointCount", &PhysContactCache::getPointCount),
+		{}
+	};
+	OS::NumberDef nums[] = {
+		{}
+	};
+	registerOXClass<PhysContactCache, PhysObject>(os, funcs, nums, false OS_DBG_FILEPOS);
+}
+static bool __registerPhysContactCache = addRegFunc(registerPhysContactCache);
 
 // =====================================================================
 
@@ -330,6 +355,11 @@ static void registerPhysBody(OS * os)
 			self->pushFixtureList(os);
 			return 1;
 		}
+
+		static int defContactCallback(OS * os, int params, int, int, void*)
+		{
+			return 0;
+		}
 	};
 	OS::FuncDef funcs[] = {
 		{"__newinstance", &Lib::__newinstance},
@@ -365,6 +395,8 @@ static void registerPhysBody(OS * os)
 		DEF_PROP("isAwake", PhysBody, IsAwake),
 		DEF_PROP("isActive", PhysBody, IsActive),
 		DEF_PROP("isFixedRotation", PhysBody, IsFixedRotation),
+		{"beginContactCallback", &Lib::defContactCallback},
+		{"endContactCallback", &Lib::defContactCallback},
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -432,21 +464,37 @@ vec2 PhysWorld::fromPhysVec(const b2Vec2 &pos)
 void PhysWorld::pushBodyList(ObjectScript::OS * os)
 {
 	os->newArray();
+#ifdef PHYS_REGISTER_OBJECT
 	std::vector<spPhysBody>::iterator it = bodyList.begin();
 	for(; it != bodyList.end(); ++it){
 		ObjectScript::pushCtypeValue(os, *it);
 		os->addProperty(-2);
 	}
+#else
+	b2Body * coreBody = core->GetBodyList();
+	for(; coreBody; coreBody = coreBody->GetNext()){
+		ObjectScript::pushCtypeValue(os, getBody(coreBody));
+		os->addProperty(-2);
+	}
+#endif
 }
 
 void PhysWorld::pushJointList(ObjectScript::OS * os)
 {
 	os->newArray();
+#ifdef PHYS_REGISTER_OBJECT
 	std::vector<spPhysJoint>::iterator it = jointList.begin();
 	for(; it != jointList.end(); ++it){
 		ObjectScript::pushCtypeValue(os, *it);
 		os->addProperty(-2);
 	}
+#else
+	b2Joint * coreJoint = core->GetJointList();
+	for(; coreJoint; coreJoint = coreJoint->GetNext()){
+		ObjectScript::pushCtypeValue(os, getJoint(coreJoint));
+		os->addProperty(-2);
+	}
+#endif
 }
 
 // =====================================================================
@@ -454,8 +502,9 @@ void PhysWorld::pushJointList(ObjectScript::OS * os)
 PhysWorld::PhysWorld()
 {
 	accumTime = 0.0f;
-	persistentDeltaTime = 1.0f / 30.0f;
+	persistentDeltaTime = 1.0f / 60.0f;
 	updateInProgress = false;
+	physContactCache = new PhysContactCache();
 
 	core = new b2World(b2Vec2(0, 0));
 	core->SetDestructionListener(this);
@@ -483,31 +532,41 @@ void PhysWorld::destroy()
 	}
 }
 
+#ifdef PHYS_REGISTER_OBJECT
 void PhysWorld::registerBody(spPhysBody body)
 {
+#ifdef PHYS_REGISTER_OBJECT
 	OX_ASSERT(std::find(bodyList.begin(), bodyList.end(), body) == bodyList.end());
 	bodyList.push_back(body);
+#endif
 }
 
 void PhysWorld::unregisterBody(spPhysBody body)
 {
+#ifdef PHYS_REGISTER_OBJECT
 	std::vector<spPhysBody>::iterator it = std::find(bodyList.begin(), bodyList.end(), body); 
 	OX_ASSERT(it != bodyList.end());
 	bodyList.erase(it);
+#endif
 }
 
 void PhysWorld::registerJoint(spPhysJoint joint)
 {
+#ifdef PHYS_REGISTER_OBJECT
 	OX_ASSERT(std::find(jointList.begin(), jointList.end(), joint) == jointList.end());
 	jointList.push_back(joint);
+#endif
 }
 
 void PhysWorld::unregisterJoint(spPhysJoint joint)
 {
+#ifdef PHYS_REGISTER_OBJECT
 	std::vector<spPhysJoint>::iterator it = std::find(jointList.begin(), jointList.end(), joint); 
 	OX_ASSERT(it != jointList.end());
 	jointList.erase(it);
+#endif
 }
+#endif
 
 void PhysWorld::destroyAllBodies()
 {
@@ -527,7 +586,8 @@ void PhysWorld::destroyAllJoints()
 		b2Joint * joint = core->GetJointList(), * next;
 		for(; joint; joint = next){
 			next = joint->GetNext();
-			destroyJoint(dynamic_cast<PhysJoint*>((PhysObject*)joint->GetUserData()));
+			// destroyJoint(dynamic_cast<PhysJoint*>((PhysObject*)joint->GetUserData()));
+			core->DestroyJoint(joint);
 		}
 	}
 }
@@ -547,7 +607,9 @@ void PhysWorld::destroyBody(spPhysBody body)
 		return;
 	}
 	if(!body->core){
+#ifdef PHYS_REGISTER_OBJECT
 		OX_ASSERT(std::find(bodyList.begin(), bodyList.end(), body) == bodyList.end());
+#endif
 		return;
 	}
 	OX_ASSERT(std::find(waitBodyListToDestroy.begin(), waitBodyListToDestroy.end(), body->core) == waitBodyListToDestroy.end());
@@ -582,7 +644,9 @@ void PhysWorld::destroyJoint(spPhysJoint joint)
 		return;
 	}
 	if(!joint->core){
+#ifdef PHYS_REGISTER_OBJECT
 		OX_ASSERT(std::find(jointList.begin(), jointList.end(), joint) == jointList.end());
+#endif
 		return;
 	}
 	// OX_ASSERT(std::find(waitJointListToDestroy.begin(), waitJointListToDestroy.end(), joint->core) == waitJointListToDestroy.end());
@@ -605,7 +669,6 @@ void PhysWorld::setPersistentDeltaTime(float value)
 void PhysWorld::update(float timeStep, int velocityIterations, int positionIterations)
 {
 	if(core && !updateInProgress){
-		updateInProgress = true;
 		if(waitBodyListToDestroy.size() > 0){
 			std::vector<b2Body*> waitBodyListToDestroy = this->waitBodyListToDestroy;
 			this->waitBodyListToDestroy.clear();
@@ -616,10 +679,12 @@ void PhysWorld::update(float timeStep, int velocityIterations, int positionItera
 		}
 		accumTime += timeStep;
 		while(accumTime >= persistentDeltaTime){
+			updateInProgress = true;
 			core->Step(persistentDeltaTime, velocityIterations, positionIterations);
+			updateInProgress = false;
 			accumTime -= persistentDeltaTime;
+			dispatchContacts();
 		}
-		updateInProgress = false;
 	}
 }
 
@@ -638,12 +703,74 @@ void PhysWorld::setGravity(const vec2& gravity)
 	}
 }
 
+spPhysFixture PhysWorld::getFixture(b2Fixture * coreFixture)
+{
+	PhysFixture * fixture = dynamic_cast<PhysFixture*>((PhysObject*)coreFixture->GetUserData());
+	return fixture ? fixture : new PhysFixture(this, coreFixture);
+}
+
+spPhysBody PhysWorld::getBody(b2Body * coreBody)
+{
+	PhysBody * body = dynamic_cast<PhysBody*>((PhysObject*)coreBody->GetUserData());
+	return body ? body : new PhysBody(this, coreBody);
+}
+
+spPhysJoint PhysWorld::getJoint(b2Joint * coreJoint)
+{
+	PhysJoint * joint = dynamic_cast<PhysJoint*>((PhysObject*)coreJoint->GetUserData());
+	return joint ? joint : new PhysJoint(this, coreJoint);
+}
+
+void PhysWorld::dispatchContacts()
+{
+	ObjectScript::OS * os = ObjectScript::os;
+	for(int i = 0; i < (int)contactCacheList.size(); i++){
+		ContactCache& contactCache = contactCacheList[i];
+		if(!contactCache.fixtures[0]->getCore() || !contactCache.fixtures[1]->getCore()){
+			continue;
+		}
+		contactCache.bodies[0] = contactCache.fixtures[0]->getBody();
+		contactCache.bodies[1] = contactCache.fixtures[1]->getBody();
+
+		const char * callbackName = contactCache.type == ContactCache::BEGIN ? "beginContactCallback" : "endContactCallback";
+		physContactCache->contactCache = &contactCache;
+		for(int i = 0; i < 2; i++){
+			if(!contactCache.bodies[i]->osValueId){
+				continue;
+			}
+			ObjectScript::pushCtypeValue(os, contactCache.bodies[i]);
+			os->getProperty(callbackName);
+			OX_ASSERT(os->isFunction());
+			ObjectScript::pushCtypeValue(os, physContactCache);
+			ObjectScript::pushCtypeValue(os, 1-i);
+			os->callF(2);
+		}
+	}
+	physContactCache->contactCache = NULL;
+	contactCacheList.clear();
+}
+
+void PhysWorld::registerContactCache(ContactCache::EType type, b2Contact * contact)
+{
+	ContactCache contactCache;
+	contactCache.type = type;
+	OX_ASSERT(contact->GetFixtureA() && contact->GetFixtureB());
+	contactCache.fixtures[0] = getFixture(contact->GetFixtureA());
+	contactCache.fixtures[1] = getFixture(contact->GetFixtureB());
+	OX_ASSERT(contactCache.fixtures[0] && contactCache.fixtures[1]);
+	contactCache.pointCount = contact->GetManifold()->pointCount;
+	contact->GetWorldManifold(&contactCache.worldManifold);
+	contactCacheList.push_back(contactCache);
+}
+
 void PhysWorld::BeginContact(b2Contact* contact)
 {
+	registerContactCache(ContactCache::BEGIN, contact);
 }
 
 void PhysWorld::EndContact(b2Contact* contact)
 {
+	registerContactCache(ContactCache::END, contact);
 }
 
 void PhysWorld::SayGoodbye(b2Joint* coreJoint)
@@ -678,6 +805,65 @@ bool PhysWorld::ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB)
 		OX_ASSERT(false);
 	}
 	return defaultFilter.ShouldCollide(fixtureA, fixtureB);
+}
+
+// =====================================================================
+// =====================================================================
+// =====================================================================
+
+PhysContactCache::PhysContactCache()
+{
+	contactCache = NULL;
+}
+
+PhysContactCache::~PhysContactCache()
+{
+	OX_ASSERT(!contactCache);
+}
+
+spPhysFixture PhysContactCache::getFixture(int i)
+{
+	if(contactCache && i >= 0 && i < 2){
+		return contactCache->fixtures[i];
+	}
+	return NULL;
+}
+
+spPhysBody PhysContactCache::getBody(int i)
+{
+	if(contactCache && i >= 0 && i < 2){
+		return contactCache->bodies[i];
+	}
+	return NULL;
+}
+
+vec2 PhysContactCache::getNormal()
+{
+	if(contactCache){
+		return vec2(contactCache->worldManifold.normal.x, contactCache->worldManifold.normal.y);
+	}
+	return vec2(0, 0);
+}
+
+vec2 PhysContactCache::getPoint(int i)
+{
+	if(contactCache && i >= 0 && i < 2){
+		return PhysWorld::fromPhysVec(contactCache->worldManifold.points[i]);
+	}
+	return vec2(0, 0);
+}
+
+int PhysContactCache::getPointCount()
+{
+	return contactCache ? contactCache->pointCount : 0;
+}
+
+float PhysContactCache::getSeparation(int i)
+{
+	if(contactCache && i >= 0 && i < 2){
+		return PhysWorld::fromPhysValue(contactCache->worldManifold.separations[i]);
+	}
+	return 0;
 }
 
 // =====================================================================
@@ -810,12 +996,14 @@ PhysFixture::PhysFixture(PhysWorld * p_world, b2Fixture * fixture)
 	core = fixture;
 	core->SetUserData(this);
 
+#ifdef PHYS_REGISTER_OBJECT
 	spPhysBody body = dynamic_cast<PhysBody*>((PhysObject*)fixture->GetBody()->GetUserData());
 	if(body){
 		body->registerFixture(this);
 	}else{
 		OX_ASSERT(false);
 	}
+#endif
 }
 
 PhysFixture::~PhysFixture()
@@ -828,33 +1016,50 @@ PhysFixture::~PhysFixture()
 void PhysFixture::unlink()
 {
 	OX_ASSERT(world && core && core->GetUserData() == this);
+#ifdef PHYS_REGISTER_OBJECT
 	spPhysBody body = dynamic_cast<PhysBody*>((PhysObject*)core->GetBody()->GetUserData());
+#endif
 	core->SetUserData(NULL);
 	core = NULL;
 	world = NULL;
+#ifdef PHYS_REGISTER_OBJECT
 	if(body){
 		body->unregisterFixture(this);
 	}else{
 		// OX_ASSERT(false);
 	}
+#endif
 }
 
 void PhysFixture::destroy()
 {
 	if(world){
 		OX_ASSERT(core && core->GetUserData() == this);
+#ifdef PHYS_REGISTER_OBJECT
 		spPhysBody body = dynamic_cast<PhysBody*>((PhysObject*)core->GetBody()->GetUserData());
 		if(body){
 			body->destroyFixture(this);
 		}else{
 			OX_ASSERT(false);
 		}
+#else
+		core->GetBody()->DestroyFixture(core);
+#endif
 	}
+}
+
+b2Fixture * PhysFixture::getCore()
+{
+	return core;
 }
 
 spPhysBody PhysFixture::getBody() const
 {
-	return dynamic_cast<PhysBody*>((PhysObject*)core->GetBody()->GetUserData());
+	if(world){
+		OX_ASSERT(core);
+		return world->getBody(core->GetBody());
+	}
+	return NULL;
 }
 
 // =====================================================================
@@ -874,7 +1079,9 @@ PhysBody::PhysBody(PhysWorld * p_world, b2Body * body)
 	world = p_world;
 	core = body;
 	core->SetUserData(this);
+#ifdef PHYS_REGISTER_OBJECT
 	world->registerBody(this);
+#endif
 }
 
 PhysBody::~PhysBody()
@@ -887,11 +1094,15 @@ PhysBody::~PhysBody()
 void PhysBody::unlink()
 {
 	OX_ASSERT(world && core && core->GetUserData() == this);
+#ifdef PHYS_REGISTER_OBJECT
 	world->unregisterBody(this);
+#endif
 	core->SetUserData(NULL);
 	core = NULL;
 	world = NULL;
+#ifdef PHYS_REGISTER_OBJECT
 	fixtureList.clear();
+#endif
 }
 
 b2Body * PhysBody::getCore()
@@ -906,18 +1117,24 @@ void PhysBody::destroy()
 	}
 }
 
+#ifdef PHYS_REGISTER_OBJECT
 void PhysBody::registerFixture(spPhysFixture fixture)
 {
+#ifdef PHYS_REGISTER_OBJECT
 	OX_ASSERT(std::find(fixtureList.begin(), fixtureList.end(), fixture) == fixtureList.end());
 	fixtureList.push_back(fixture);
+#endif
 }
 
 void PhysBody::unregisterFixture(spPhysFixture fixture)
 {
+#ifdef PHYS_REGISTER_OBJECT
 	std::vector<spPhysFixture>::iterator it = std::find(fixtureList.begin(), fixtureList.end(), fixture); 
 	OX_ASSERT(it != fixtureList.end());
 	fixtureList.erase(it);
+#endif
 }
+#endif
 
 spPhysFixture PhysBody::createFixture(spPhysFixtureDef def)
 {
@@ -925,9 +1142,7 @@ spPhysFixture PhysBody::createFixture(spPhysFixtureDef def)
 		return NULL;
 	}
 	b2Fixture * coreFixture = core->CreateFixture(&def->def);
-	spPhysFixture fixture = new PhysFixture(world, coreFixture);
-	// fixtureList.push_back(fixture);
-	return fixture;
+	return new PhysFixture(world, coreFixture);
 }
 
 void PhysBody::destroyFixture(spPhysFixture fixture)
@@ -936,7 +1151,9 @@ void PhysBody::destroyFixture(spPhysFixture fixture)
 		return;
 	}
 	if(!fixture->core){
+#ifdef PHYS_REGISTER_OBJECT
 		OX_ASSERT(std::find(fixtureList.begin(), fixtureList.end(), fixture) == fixtureList.end());
+#endif
 		return;
 	}
 	b2Fixture * coreFixture = fixture->core;
@@ -947,11 +1164,19 @@ void PhysBody::destroyFixture(spPhysFixture fixture)
 void PhysBody::pushFixtureList(ObjectScript::OS * os)
 {
 	os->newArray();
+#ifdef PHYS_REGISTER_OBJECT
 	std::vector<spPhysFixture>::iterator it = fixtureList.begin();
 	for(; it != fixtureList.end(); ++it){
 		ObjectScript::pushCtypeValue(os, *it);
 		os->addProperty(-2);
 	}
+#else
+	b2Fixture * coreFixture = core->GetFixtureList();
+	for(; coreFixture; coreFixture = coreFixture->GetNext()){
+		ObjectScript::pushCtypeValue(os, world->getFixture(coreFixture));
+		os->addProperty(-2);
+	}
+#endif
 }
 
 void PhysBody::setTransform(const vec2& pos, float angle)
@@ -1276,24 +1501,26 @@ PhysJointDef::~PhysJointDef()
 spPhysBody PhysJointDef::getBodyA() const
 {
 	OX_ASSERT(pdef);
-	return dynamic_cast<PhysBody*>((PhysObject*)pdef->bodyA->GetUserData());
+	return bodies[0]; // dynamic_cast<PhysBody*>((PhysObject*)pdef->bodyA->GetUserData());
 }
 
 void PhysJointDef::setBodyA(spPhysBody body)
 {
 	OX_ASSERT(pdef);
+	bodies[0] = body;
 	pdef->bodyA = body->getCore();
 }
 
 spPhysBody PhysJointDef::getBodyB() const
 {
 	OX_ASSERT(pdef);
-	return dynamic_cast<PhysBody*>((PhysObject*)pdef->bodyB->GetUserData());
+	return bodies[1]; // dynamic_cast<PhysBody*>((PhysObject*)pdef->bodyB->GetUserData());
 }
 
 void PhysJointDef::setBodyB(spPhysBody body)
 {
 	OX_ASSERT(pdef);
+	bodies[1] = body;
 	pdef->bodyB = body->getCore();
 }
 
@@ -1304,7 +1531,9 @@ PhysJoint::PhysJoint(PhysWorld * p_world, b2Joint * joint)
 	world = p_world;
 	core = joint;
 	core->SetUserData(this);
+#ifdef PHYS_REGISTER_OBJECT
 	world->registerJoint(this);
+#endif
 }
 
 PhysJoint::~PhysJoint()
@@ -1317,7 +1546,9 @@ PhysJoint::~PhysJoint()
 void PhysJoint::unlink()
 {
 	OX_ASSERT(world && core && core->GetUserData() == this);
+#ifdef PHYS_REGISTER_OBJECT
 	world->unregisterJoint(this);
+#endif
 	core->SetUserData(NULL);
 	core = NULL;
 	world = NULL;

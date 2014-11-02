@@ -58,15 +58,32 @@ DECLARE_SMART(PhysBodyDef, spPhysBodyDef);
 DECLARE_SMART(PhysBody, spPhysBody);
 DECLARE_SMART(PhysJointDef, spPhysJointDef);
 DECLARE_SMART(PhysJoint, spPhysJoint);
+DECLARE_SMART(PhysContactCache, spPhysContactCache);
 
 // =====================================================================
 
 #define DEF_TO_PHYS_SCALE	(1.0f / 10.0f)
+// #define PHYS_REGISTER_OBJECT
 
 class PhysWorld: public PhysObject, public b2DestructionListener, public b2ContactListener, public b2ContactFilter
 {
 public:
 	OS_DECLARE_CLASSINFO(PhysWorld);
+
+	struct ContactCache
+	{
+		enum EType 
+		{
+			BEGIN,
+			END
+		};
+
+		b2WorldManifold worldManifold;
+		spPhysFixture fixtures[2];
+		spPhysBody bodies[2];
+		int pointCount;
+		EType type;
+	};
 
 	PhysWorld();
 	~PhysWorld();
@@ -107,8 +124,13 @@ public:
 	void pushBodyList(ObjectScript::OS*);
 	void pushJointList(ObjectScript::OS*);
 
+	spPhysFixture getFixture(b2Fixture * coreFixture);
+	spPhysBody getBody(b2Body * coreBody);
+	spPhysJoint getJoint(b2Joint * coreJoint);
+
 protected:
 
+	friend class PhysFixture;
 	friend class PhysBody;
 	friend class PhysJoint;
 
@@ -119,20 +141,30 @@ protected:
 
 	static float toPhysScale;
 
-	std::vector<spPhysBody> bodyList;
 	std::vector<b2Body*> waitBodyListToDestroy;
-
-	std::vector<spPhysJoint> jointList;
 	// std::vector<b2Joint*> waitJointListToDestroy;
+#ifdef PHYS_REGISTER_OBJECT
+	std::vector<spPhysBody> bodyList;
+	std::vector<spPhysJoint> jointList;
+#endif
 
+	std::vector<ContactCache> contactCacheList;
+	spPhysContactCache physContactCache;
+
+	void registerContactCache(ContactCache::EType, b2Contact*);
+
+#ifdef PHYS_REGISTER_OBJECT
 	void registerBody(spPhysBody body);
 	void unregisterBody(spPhysBody body);
 
 	void registerJoint(spPhysJoint joint);
 	void unregisterJoint(spPhysJoint joint);
+#endif
 
 	void destroyAllBodies();
 	void destroyAllJoints();
+
+	void dispatchContacts();
 
 	/// Called when two fixtures begin to touch.
 	void BeginContact(b2Contact* contact); // override b2ContactListener
@@ -151,6 +183,29 @@ protected:
 	/// Return true if contact calculations should be performed between these two shapes.
 	/// @warning for performance reasons this is only called when the AABBs begin to overlap.
 	bool ShouldCollide(b2Fixture* fixtureA, b2Fixture* fixtureB);
+};
+
+// =====================================================================
+
+class PhysContactCache: public PhysObject
+{
+public:
+	OS_DECLARE_CLASSINFO(PhysContactCache);
+
+	PhysWorld::ContactCache * contactCache;
+
+	PhysContactCache();
+	~PhysContactCache();
+
+	spPhysFixture getFixture(int i);
+	spPhysBody getBody(int i);
+
+	vec2 getNormal();
+
+	vec2 getPoint(int);
+	int getPointCount();
+
+	float getSeparation(int);
 };
 
 // =====================================================================
@@ -389,13 +444,17 @@ protected:
 	PhysWorld * world;
 	b2Body * core;
 
+#ifdef PHYS_REGISTER_OBJECT
 	std::vector<spPhysFixture> fixtureList;
+#endif
 	// std::vector<b2Fixture*> waitFixtureListToDestroy;
 
 	void unlink();
 
+#ifdef PHYS_REGISTER_OBJECT
 	void registerFixture(spPhysFixture);
 	void unregisterFixture(spPhysFixture);
+#endif
 };
 
 // =====================================================================
@@ -406,6 +465,7 @@ public:
 	OS_DECLARE_CLASSINFO(PhysJointDef);
 
 	b2JointDef * pdef;
+	spPhysBody bodies[2];
 
 	PhysJointDef();
 	~PhysJointDef();
@@ -509,6 +569,7 @@ OS_DECL_OX_CLASS(PhysBodyDef);
 OS_DECL_OX_CLASS(PhysBody);
 OS_DECL_OX_CLASS(PhysJointDef);
 OS_DECL_OX_CLASS(PhysJoint);
+OS_DECL_OX_CLASS(PhysContactCache);
 
 // #define DEF_GETTER(name, type, prop)
 
