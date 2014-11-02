@@ -27,7 +27,8 @@
 ******************************************************************************/
 
 #ifndef __OX_SOUND_BINDER_H__
-#ifdef OX_WITH_OBJECTSCRIPT
+#define __OX_SOUND_BINDER_H__
+// #ifdef OX_WITH_OBJECTSCRIPT
 
 #include "ox-binder.h"
 #include <SoundPlayer.h>
@@ -36,11 +37,11 @@
 
 namespace ObjectScript {
 
-OS_DECL_OX_CLASS(SoundPlayer);
-OS_DECL_OX_CLASS(SoundInstance);
-OS_DECL_OX_CLASS(ResSound);
+OS_DECL_OX_CLASS(oxygine::SoundPlayer);
+OS_DECL_OX_CLASS(oxygine::SoundInstance);
+OS_DECL_OX_CLASS(oxygine::ResSound);
 
 } // namespace ObjectScript
 
-#endif // OX_WITH_OBJECTSCRIPT
+// #endif // OX_WITH_OBJECTSCRIPT
 #endif // __OX_SOUND_BINDER_H__

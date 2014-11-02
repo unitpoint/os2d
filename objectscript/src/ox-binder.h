@@ -27,7 +27,8 @@
 ******************************************************************************/
 
 #ifndef __OX_BINDER_H__
-#ifdef OX_WITH_OBJECTSCRIPT
+#define __OX_BINDER_H__
+// #ifdef OX_WITH_OBJECTSCRIPT
 
 #include <oxygine-framework.h>
 
@@ -39,7 +40,7 @@
 
 // namespace oxygine { class EventCallback; class Event; }
 
-using namespace oxygine;
+// using namespace oxygine;
 
 #define OUTPUT_FILENAME "out.txt"
 #define OUTPUT_FILENAME2 "out-prev.txt"
@@ -113,7 +114,7 @@ public:
 
 	virtual bool isFileExist(const OS_CHAR * filename)
 	{
-		return file::exists(filename);
+		return oxygine::file::exists(filename);
 	}
 
 	/* virtual int getFileSize(const OS_CHAR * filename)
@@ -126,13 +127,13 @@ public:
 	
 	virtual FileHandle * openFile(const OS_CHAR * filename, const OS_CHAR * mode)
 	{
-		return (FileHandle*)file::open(filename, mode);
+		return (FileHandle*)oxygine::file::open(filename, mode);
 	}
 
 	virtual int readFile(void * buf, int size, FileHandle * f)
 	{
 		if(f){
-			return file::read((file::handle)f, buf, (unsigned)size);
+			return oxygine::file::read((oxygine::file::handle)f, buf, (unsigned)size);
 		}
 		return 0;
 	}
@@ -140,7 +141,7 @@ public:
 	virtual int writeFile(const void * buf, int size, FileHandle * f)
 	{
 		if(f){
-			file::write((file::handle)f, buf, (unsigned)size);
+			oxygine::file::write((oxygine::file::handle)f, buf, (unsigned)size);
 		}
 		return size;
 	}
@@ -148,7 +149,7 @@ public:
 	virtual int seekFile(FileHandle * f, int offset, int whence)
 	{
 		if(f){
-			return file::seek((file::handle)f, offset, whence);
+			return oxygine::file::seek((oxygine::file::handle)f, offset, whence);
 		}
 		return 0;
 	}
@@ -156,7 +157,7 @@ public:
 	virtual void closeFile(FileHandle * f)
 	{
 		if(f){
-			file::close((file::handle)f);
+			oxygine::file::close((oxygine::file::handle)f);
 		}
 	}
 
@@ -200,9 +201,9 @@ namespace ObjectScript {
 
 struct OXObjectInfo
 {
-	Object * obj;
+	oxygine::Object * obj;
 
-	OXObjectInfo(Object * _obj, int id)
+	OXObjectInfo(oxygine::Object * _obj, int id)
 	{
 		obj = _obj;
 		obj->osValueId = id;
@@ -307,17 +308,17 @@ static void destroyOXObjectInfo(OXObjectInfo * info)
 #define OS_DECL_OX_CLASS_DTOR(type) \
 	template <> struct UserDataDestructor<type>{ \
 		static void dtor(ObjectScript::OS * os, void * data, void *){ \
-			OX_ASSERT(data && dynamic_cast<Object*>(((OXObjectInfo*)data)->obj)); \
+			OX_ASSERT(data && dynamic_cast<oxygine::Object*>(((OXObjectInfo*)data)->obj)); \
 			destroyOXObjectInfo((OXObjectInfo*)data); \
 		} \
 	};
 
 #define OS_DECL_OX_CLASS(type) \
 	template <> struct CtypeName<type> { static const OS_CHAR * getName(){ return type::getClassInfoStatic().classname; } }; \
-	template <> struct CtypeName< intrusive_ptr<type> > { static const OS_CHAR * getName(){ return type::getClassInfoStatic().classname; } }; \
+	template <> struct CtypeName< oxygine::intrusive_ptr<type> > { static const OS_CHAR * getName(){ return type::getClassInfoStatic().classname; } }; \
 	template <> struct CtypeValue<type*>: public CtypeOXClass<type*>{}; \
-	template <> struct CtypeValue< intrusive_ptr<type> >: public CtypeOXSmartClass< intrusive_ptr<type> >{}; \
-	template <> struct CtypeValue< intrusive_ptr<type>& >: public CtypeOXSmartClass< intrusive_ptr<type> >{}; \
+	template <> struct CtypeValue< oxygine::intrusive_ptr<type> >: public CtypeOXSmartClass< oxygine::intrusive_ptr<type> >{}; \
+	template <> struct CtypeValue< oxygine::intrusive_ptr<type>& >: public CtypeOXSmartClass< oxygine::intrusive_ptr<type> >{}; \
 	OS_DECL_OX_CLASS_DTOR(type)
 
 // =====================================================================
@@ -417,12 +418,12 @@ struct CtypeEnumNumber
 	OS_DECL_CTYPE(type); \
 	template <> struct CtypeValue<type>: public CtypeEnumNumber<type> {}
 
-OS_DECL_CTYPE_ENUM(error_policy);
-OS_DECL_CTYPE_ENUM(Tween::EASE);
-OS_DECL_CTYPE_ENUM(blend_mode);
-OS_DECL_CTYPE_ENUM(Event::Phase);
-OS_DECL_CTYPE_ENUM(MouseButton);
-OS_DECL_CTYPE_ENUM(Box9Sprite::StretchMode);
+OS_DECL_CTYPE_ENUM(oxygine::error_policy);
+OS_DECL_CTYPE_ENUM(oxygine::Tween::EASE);
+OS_DECL_CTYPE_ENUM(oxygine::blend_mode);
+OS_DECL_CTYPE_ENUM(oxygine::Event::Phase);
+OS_DECL_CTYPE_ENUM(oxygine::MouseButton);
+OS_DECL_CTYPE_ENUM(oxygine::Box9Sprite::StretchMode);
 
 // =====================================================================
 
@@ -443,6 +444,12 @@ bool addRegFunc(RegisterFunction func);
 
 #define DEF_CONST(name) \
 	{ #name, name }
+
+#define READ_PROP_IF_SET(dest, offs, name, type) \
+	if((os->getProperty(offs, name), !os->isNull())){ \
+		dest = CtypeValue<type>::getArg(os, -1); \
+	} \
+	os->pop()
 
 #ifdef OS_DEBUG
 #define OS_DBG_FILEPOS_DECL_DEF , const OS_CHAR * dbg_filename = "unknown", int dbg_line = 0
@@ -539,11 +546,11 @@ void registerOXClass(ObjectScript::OS * os, const ObjectScript::OS::FuncDef * li
 
 // =====================================================================
 
-OS_DECL_CTYPE_NAME(Vector2, "vec2");
-OS_DECL_CTYPE_NAME(Point, "vec2");
+OS_DECL_CTYPE_NAME(oxygine::Vector2, "vec2");
+OS_DECL_CTYPE_NAME(oxygine::Point, "vec2");
 
 template <class T, class SubType>
-struct CtypeValuePointSub
+struct CtypeValuePointOf
 {
 	typedef T type;
 	// typedef typename T::type SubType;
@@ -606,12 +613,12 @@ struct CtypeValuePointSub
 };
 
 template <class T>
-struct CtypeValuePoint: public CtypeValuePointSub<T, typename T::type>
+struct CtypeValuePoint: public CtypeValuePointOf<T, typename T::type>
 {
 };
 
-template <> struct CtypeValue<Vector2>: public CtypeValuePoint<Vector2> {};
-template <> struct CtypeValue<Point>: public CtypeValuePoint<Point> {};
+template <> struct CtypeValue<oxygine::Vector2>: public CtypeValuePoint<oxygine::Vector2> {};
+template <> struct CtypeValue<oxygine::Point>: public CtypeValuePoint<oxygine::Point> {};
 
 // =====================================================================
 #if 0
@@ -636,22 +643,22 @@ static bool __registerUpdateState = addRegFunc(registerUpdateState);
 
 #else
 
-OS_DECL_CTYPE_NAME(UpdateState, "UpdateState");
+OS_DECL_CTYPE_NAME(oxygine::UpdateState, "UpdateState");
 
 template <>
-struct CtypeValue<UpdateState>
+struct CtypeValue<oxygine::UpdateState>
 {
-	typedef UpdateState type;
+	typedef oxygine::UpdateState type;
 
 	static bool isValid(const type&){ return true; }
 
-	static type def(ObjectScript::OS * os){ return UpdateState(); }
+	static type def(ObjectScript::OS * os){ return type(); }
 	static type getArg(ObjectScript::OS * os, int offs)
 	{
 		if(os->isObject(offs)){
-			UpdateState us;
-			us.time = (timeMS)(os->getProperty(offs, "time"), os->popNumber() * 1000.0f);
-			us.dt = (timeMS)(os->getProperty(offs, "dt"), os->popNumber() * 1000.0f);
+			type us;
+			us.time = (oxygine::timeMS)(os->getProperty(offs, "time"), os->popNumber() * 1000.0f);
+			us.dt = (oxygine::timeMS)(os->getProperty(offs, "dt"), os->popNumber() * 1000.0f);
 			us.iteration = (os->getProperty(offs, "iteration"), os->popInt());
 			return us;
 		}
@@ -676,12 +683,12 @@ struct CtypeValue<UpdateState>
 
 // =====================================================================
 
-OS_DECL_CTYPE_NAME(EventCallback, "EventCallback");
+OS_DECL_CTYPE_NAME(oxygine::EventCallback, "EventCallback");
 
 template <>
-struct CtypeValue<EventCallback>
+struct CtypeValue<oxygine::EventCallback>
 {
-	typedef EventCallback type;
+	typedef oxygine::EventCallback type;
 
 	static bool isValid(const type& val){ return val; }
 
@@ -706,12 +713,12 @@ struct CtypeValue<EventCallback>
 
 // =====================================================================
 
-OS_DECL_CTYPE(Color);
+OS_DECL_CTYPE(oxygine::Color);
 
 template <>
-struct CtypeValue<Color>
+struct CtypeValue<oxygine::Color>
 {
-	typedef Color type;
+	typedef oxygine::Color type;
 
 	static bool isValid(const type&){ return true; }
 
@@ -719,15 +726,15 @@ struct CtypeValue<Color>
 	static type getArg(ObjectScript::OS * os, int offs)
 	{
 		if(os->isObject(offs)){
-			unsigned char r = (unsigned char)scalar::clamp((os->getProperty(offs, "r"), os->popFloat(0.0f)) * 255.0f, 0.0f, 255.0f);
-			unsigned char g = (unsigned char)scalar::clamp((os->getProperty(offs, "g"), os->popFloat(0.0f)) * 255.0f, 0.0f, 255.0f);
-			unsigned char b = (unsigned char)scalar::clamp((os->getProperty(offs, "b"), os->popFloat(0.0f)) * 255.0f, 0.0f, 255.0f);
-			unsigned char a = (unsigned char)scalar::clamp((os->getProperty(offs, "a"), os->popFloat(1.0f)) * 255.0f, 0.0f, 255.0f);
+			unsigned char r = (unsigned char)oxygine::scalar::clamp((os->getProperty(offs, "r"), os->popFloat(0.0f)) * 255.0f, 0.0f, 255.0f);
+			unsigned char g = (unsigned char)oxygine::scalar::clamp((os->getProperty(offs, "g"), os->popFloat(0.0f)) * 255.0f, 0.0f, 255.0f);
+			unsigned char b = (unsigned char)oxygine::scalar::clamp((os->getProperty(offs, "b"), os->popFloat(0.0f)) * 255.0f, 0.0f, 255.0f);
+			unsigned char a = (unsigned char)oxygine::scalar::clamp((os->getProperty(offs, "a"), os->popFloat(1.0f)) * 255.0f, 0.0f, 255.0f);
 			return type(r, g, b, a);
 		}
 		OS_NUMBER v;
 		if(os->isNumber(offs, &v)){
-			unsigned char a = (unsigned char)scalar::clamp((float)v * 255.0f, 0.0f, 255.0f);
+			unsigned char a = (unsigned char)oxygine::scalar::clamp((float)v * 255.0f, 0.0f, 255.0f);
 			return type(a, a, a);
 		}
 		os->setException("Color or number required");
@@ -749,26 +756,26 @@ struct CtypeValue<Color>
 
 // =====================================================================
 
-OS_DECL_OX_CLASS(Object);
+OS_DECL_OX_CLASS(oxygine::Object);
 // OS_DECL_OX_CLASS(Font);
-OS_DECL_OX_CLASS(Clock);
-OS_DECL_OX_CLASS(Event);
-OS_DECL_OX_CLASS(TouchEvent);
-OS_DECL_OX_CLASS(TweenEvent);
-OS_DECL_OX_CLASS(EventDispatcher);
-OS_DECL_OX_CLASS(Resource);
-OS_DECL_OX_CLASS(ResAnim);
-OS_DECL_OX_CLASS(ResFont);
+OS_DECL_OX_CLASS(oxygine::Clock);
+OS_DECL_OX_CLASS(oxygine::Event);
+OS_DECL_OX_CLASS(oxygine::TouchEvent);
+OS_DECL_OX_CLASS(oxygine::TweenEvent);
+OS_DECL_OX_CLASS(oxygine::EventDispatcher);
+OS_DECL_OX_CLASS(oxygine::Resource);
+OS_DECL_OX_CLASS(oxygine::ResAnim);
+OS_DECL_OX_CLASS(oxygine::ResFont);
 
-OS_DECL_CTYPE_ENUM(TextStyle::HorizontalAlign);
-OS_DECL_CTYPE_ENUM(TextStyle::VerticalAlign);
+OS_DECL_CTYPE_ENUM(oxygine::TextStyle::HorizontalAlign);
+OS_DECL_CTYPE_ENUM(oxygine::TextStyle::VerticalAlign);
 
-OS_DECL_CTYPE(TextStyle);
+OS_DECL_CTYPE(oxygine::TextStyle);
 
 template <>
-struct CtypeValue<TextStyle>
+struct CtypeValue<oxygine::TextStyle>
 {
-	typedef TextStyle type;
+	typedef oxygine::TextStyle type;
 
 	static bool isValid(const type&){ return true; }
 
@@ -780,12 +787,12 @@ struct CtypeValue<TextStyle>
 			
 			os->getProperty(offs, "resFont");
 			if(!os->isNull()){
-				t.resFont = CtypeValue<ResFont*>::getArg(os, -1);
+				t.resFont = CtypeValue<oxygine::ResFont*>::getArg(os, -1);
 			}
 			os->pop();
 
-			t.hAlign = (TextStyle::HorizontalAlign)(os->getProperty(offs, "hAlign"), os->popInt(t.hAlign));
-			t.vAlign = (TextStyle::VerticalAlign)(os->getProperty(offs, "vAlign"), os->popInt(t.vAlign));
+			t.hAlign = (oxygine::TextStyle::HorizontalAlign)(os->getProperty(offs, "hAlign"), os->popInt(t.hAlign));
+			t.vAlign = (oxygine::TextStyle::VerticalAlign)(os->getProperty(offs, "vAlign"), os->popInt(t.vAlign));
 			t.linesOffset = (os->getProperty(offs, "linesOffset"), os->popInt(t.linesOffset));
 			t.kerning = (os->getProperty(offs, "kerning"), os->popInt(t.kerning));
 			t.multiline = (os->getProperty(offs, "multiline"), os->popBool(t.multiline));
@@ -793,7 +800,7 @@ struct CtypeValue<TextStyle>
 
 			os->getProperty(offs, "color");
 			if(!os->isNull()){
-				t.color = CtypeValue<Color>::getArg(os, -1);
+				t.color = CtypeValue<oxygine::Color>::getArg(os, -1);
 			}
 			os->pop();
 
@@ -837,17 +844,17 @@ struct CtypeValue<TextStyle>
 	}
 };
 
-OS_DECL_OX_CLASS(Tween);
+OS_DECL_OX_CLASS(oxygine::Tween);
 
 OS_DECL_CTYPE_ENUM(EaseFunction::EaseType);
 
-OS_DECL_OX_CLASS(TweenQueue);
+OS_DECL_OX_CLASS(oxygine::TweenQueue);
 // OS_DECL_OX_CLASS(TweenAnim);
 
 // =====================================================================
 
 DECLARE_SMART(KeyboardEvent, spKeyboardEvent);
-class KeyboardEvent: public Event
+class KeyboardEvent: public oxygine::Event
 {
 public:
 	OS_DECLARE_CLASSINFO(KeyboardEvent);
@@ -872,7 +879,7 @@ public:
 	void makeStr();
 	const char * getStr() const { return str; }
 
-	static void process(Event*, EventDispatcher*);
+	static void process(oxygine::Event*, oxygine::EventDispatcher*);
 };
 
 OS_DECL_OX_CLASS(KeyboardEvent);
@@ -882,7 +889,7 @@ OS_DECL_CTYPE_ENUM(SDL_Scancode);
 // =====================================================================
 
 DECLARE_SMART(UpdateEvent, spUpdateEvent);
-class UpdateEvent: public Event
+class UpdateEvent: public oxygine::Event
 {
 public:
 	OS_DECLARE_CLASSINFO(UpdateEvent)
@@ -891,16 +898,16 @@ public:
 		UPDATE = makefourcc('U','D','E','V')
 	};
 
-	UpdateState us;
-	spTween tween;
+	oxygine::UpdateState us;
+	oxygine::spTween tween;
 
 	UpdateEvent(): Event(UPDATE){}
 
-	const UpdateState& getUpdateState() const { return us; }
-	void setUpdateState(const UpdateState& _us){ us = _us; }
+	const oxygine::UpdateState& getUpdateState() const { return us; }
+	void setUpdateState(const oxygine::UpdateState& _us){ us = _us; }
 
-	spTween getTween() const { return tween; }
-	void setTween(const spTween& t){ tween = t; }
+	oxygine::spTween getTween() const { return tween; }
+	void setTween(const oxygine::spTween& t){ tween = t; }
 
 	float getDt() const
 	{
@@ -908,7 +915,7 @@ public:
 	}
 	void setDt(float dt)
 	{
-		us.dt = (timeMS)(dt * 1000.0f);
+		us.dt = (oxygine::timeMS)(dt * 1000.0f);
 	}
 
 	float getTime() const
@@ -917,7 +924,7 @@ public:
 	}
 	void setTime(float time)
 	{
-		us.time = (timeMS)(time * 1000.0f);
+		us.time = (oxygine::timeMS)(time * 1000.0f);
 	}
 };
 
@@ -926,12 +933,12 @@ OS_DECL_OX_CLASS(UpdateEvent);
 // =====================================================================
 
 DECLARE_SMART(BaseUpdateTween, spBaseUpdateTween);
-class BaseUpdateTween: public Tween
+class BaseUpdateTween: public oxygine::Tween
 {
 public:
 	OS_DECLARE_CLASSINFO(BaseUpdateTween);
 
-	EventCallback updateCallback;
+	oxygine::EventCallback updateCallback;
 
 	BaseUpdateTween()
 	{
@@ -941,8 +948,8 @@ public:
 		curInterval = fixInterval = 0;
 	}
 
-	const EventCallback& getUpdateCallback() const { return updateCallback; }
-	void setUpdateCallback(const EventCallback& cb)
+	const oxygine::EventCallback& getUpdateCallback() const { return updateCallback; }
+	void setUpdateCallback(const oxygine::EventCallback& cb)
 	{ 
 		unregisterEventCallback(this, "updateCallback", updateCallback);
 		updateCallback = cb;
@@ -957,7 +964,7 @@ public:
 	void setInterval(float _interval)
 	{ 
 		if(_interval < 0) _interval = 0;
-		interval = (timeMS)(_interval * 1000.0f); 
+		interval = (oxygine::timeMS)(_interval * 1000.0f); 
 		if(curInterval > interval){
 			curInterval = interval;
 		}
@@ -969,13 +976,13 @@ public:
 protected:
 
 	spUpdateEvent ev;
-	timeMS interval;
-	timeMS curInterval;
-	timeMS fixInterval;
+	oxygine::timeMS interval;
+	oxygine::timeMS curInterval;
+	oxygine::timeMS fixInterval;
 
-	virtual void _update(Actor& actor, const UpdateState& us)
+	virtual void _update(oxygine::Actor& actor, const oxygine::UpdateState& us)
 	{
-		timeMS dt = us.dt;
+		oxygine::timeMS dt = us.dt;
 		if(interval > 0){
 			curInterval += us.dt;
 			if(curInterval < interval){
@@ -1017,7 +1024,7 @@ OS_DECL_OX_CLASS(BaseUpdateTween);
 // =====================================================================
 
 DECLARE_SMART(BaseDoneTween, spBaseDoneTween);
-class BaseDoneTween: public Tween
+class BaseDoneTween: public oxygine::Tween
 {
 public:
 	OS_DECLARE_CLASSINFO(BaseDoneTween)
@@ -1026,29 +1033,29 @@ public:
 
 	void setDuration(float duration)
 	{
-		timeMS delay = (timeMS)(duration * 1000.0f);
+		oxygine::timeMS delay = (oxygine::timeMS)(duration * 1000.0f);
 		init(delay > 1 ? delay : 1);
 	}
 
 protected:
 
 	// void init(Actor &){}
-	void update(Actor &, float p, const UpdateState &us){}
+	void update(oxygine::Actor &, float p, const oxygine::UpdateState &us){}
 };
 
 OS_DECL_OX_CLASS(BaseDoneTween);
 
 // =====================================================================
 
-OS_DECL_OX_CLASS(Actor);
-OS_DECL_OX_CLASS(VStyleActor);
-OS_DECL_OX_CLASS(TextField);
-OS_DECL_OX_CLASS(Sprite);
-OS_DECL_OX_CLASS(Box9Sprite);
-OS_DECL_OX_CLASS(ColorRectSprite);
-OS_DECL_OX_CLASS(Button);
-OS_DECL_OX_CLASS(Stage);
-OS_DECL_OX_CLASS(Resources);
+OS_DECL_OX_CLASS(oxygine::Actor);
+OS_DECL_OX_CLASS(oxygine::VStyleActor);
+OS_DECL_OX_CLASS(oxygine::TextField);
+OS_DECL_OX_CLASS(oxygine::Sprite);
+OS_DECL_OX_CLASS(oxygine::Box9Sprite);
+OS_DECL_OX_CLASS(oxygine::ColorRectSprite);
+OS_DECL_OX_CLASS(oxygine::Button);
+OS_DECL_OX_CLASS(oxygine::Stage);
+OS_DECL_OX_CLASS(oxygine::Resources);
 // =====================================================================
 
 extern OS2D * os;
@@ -1080,10 +1087,10 @@ struct Oxygine
 
 	static void postInit()
 	{
-		if(file::exists(OUTPUT_FILENAME)){
-			file::deleteFile(OUTPUT_FILENAME2, ep_ignore_error);
-			file::rename(OUTPUT_FILENAME, OUTPUT_FILENAME2, ep_ignore_error);
-			file::deleteFile(OUTPUT_FILENAME, ep_ignore_error);
+		if(oxygine::file::exists(OUTPUT_FILENAME)){
+			oxygine::file::deleteFile(OUTPUT_FILENAME2, oxygine::ep_ignore_error);
+			oxygine::file::rename(OUTPUT_FILENAME, OUTPUT_FILENAME2, oxygine::ep_ignore_error);
+			oxygine::file::deleteFile(OUTPUT_FILENAME, oxygine::ep_ignore_error);
 		}
 
 #ifdef WIN32
@@ -1145,7 +1152,7 @@ struct Oxygine
 	static void run()
 	{
 		// pushCtypeValue(os, getStage().get());
-		pushCtypeValue(os, getStage());
+		pushCtypeValue(os, oxygine::getStage());
 		os->setGlobal("stage");
 
 		os->require("main.os");
@@ -1155,5 +1162,5 @@ struct Oxygine
 
 } // namespace ObjectScript
 
-#endif // OX_WITH_OBJECTSCRIPT
+// #endif // OX_WITH_OBJECTSCRIPT
 #endif // __OX_BINDER_H__

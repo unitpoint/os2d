@@ -6,7 +6,9 @@ SHA 83fff573
 by dmuratshin, 10.09.2014 16:09
 */
 
-#ifdef OX_WITH_OBJECTSCRIPT
+// #ifdef OX_WITH_OBJECTSCRIPT
+
+using namespace oxygine;
 
 namespace ObjectScript {
 
@@ -194,4 +196,4 @@ static bool __registerSoundPlayer = addRegFunc(registerSoundPlayer);
 
 } // namespace ObjectScript
 
-#endif // OX_WITH_OBJECTSCRIPT
+// #endif // OX_WITH_OBJECTSCRIPT

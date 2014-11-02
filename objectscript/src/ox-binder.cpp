@@ -8,12 +8,14 @@ by dmuratshin, 18.10.2014 12:00
 */
 
 
-#ifdef OX_WITH_OBJECTSCRIPT
+// #ifdef OX_WITH_OBJECTSCRIPT
 
 #ifdef OXYGINE_SDL
 namespace oxygine { extern SDL_Window * _window; }
-extern Rect viewport; extern Renderer renderer;
+extern oxygine::Rect viewport; extern oxygine::Renderer renderer;
 #endif
+
+using namespace oxygine;
 
 namespace ObjectScript {
 
@@ -1980,4 +1982,4 @@ void shutdownAddedFileSystems()
 
 #endif
 
-#endif // OX_WITH_OBJECTSCRIPT
+// #endif // OX_WITH_OBJECTSCRIPT
