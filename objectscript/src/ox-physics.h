@@ -44,6 +44,7 @@ public:
 	PhysObject();
 	virtual ~PhysObject();
 
+	virtual int getId();
 	virtual void destroy();
 
 protected:
@@ -65,32 +66,27 @@ DECLARE_SMART(PhysContactCache, spPhysContactCache);
 #define DEF_TO_PHYS_SCALE	(1.0f / 10.0f)
 // #define PHYS_REGISTER_OBJECT
 
+enum EPhysPreSolveContactType
+{
+	PHYS_CONTACT_ENABLED,
+	PHYS_CONTACT_STEP_ENABLED,
+	PHYS_CONTACT_STEP_DISABLED,
+	PHYS_CONTACT_DISABLED,
+	// internal
+	PHYS_CONTACT_USED_AND_DISABLED,
+};
+
 class PhysWorld: public PhysObject, public b2DestructionListener, public b2ContactListener, public b2ContactFilter
 {
 public:
 	OS_DECLARE_CLASSINFO(PhysWorld);
 
-	struct ContactCache
-	{
-		enum EType 
-		{
-			BEGIN,
-			END
-		};
-
-		b2WorldManifold worldManifold;
-		spPhysFixture fixtures[2];
-		spPhysBody bodies[2];
-		int pointCount;
-		EType type;
-	};
-
 	PhysWorld();
 	~PhysWorld();
 
-	b2World * getCore();
-
+	int getId();
 	void destroy();
+	b2World * getCore();
 
 	spPhysBody createBody(spPhysBodyDef def);
 	void destroyBody(spPhysBody);
@@ -133,6 +129,29 @@ protected:
 	friend class PhysFixture;
 	friend class PhysBody;
 	friend class PhysJoint;
+	friend class PhysContactCache;
+
+	struct ContactCache
+	{
+		enum EType 
+		{
+			PRESOLVE,
+			BEGIN,
+			END,
+		};
+
+		b2WorldManifold worldManifold;
+		spPhysFixture fixtures[2];
+		spPhysBody bodies[2];
+		int numPoints;
+		b2Vec2 contactPoint;
+		float contactSeparation;
+		EType type;
+		int id;
+
+		ContactCache(){}
+		ContactCache(EType _type){ type = _type; }
+	};
 
 	b2World * core;
 	float accumTime;
@@ -148,10 +167,11 @@ protected:
 	std::vector<spPhysJoint> jointList;
 #endif
 
+	std::map<int, EPhysPreSolveContactType> preSolveContactTypeMap;
 	std::vector<ContactCache> contactCacheList;
 	spPhysContactCache physContactCache;
 
-	void registerContactCache(ContactCache::EType, b2Contact*);
+	void initContactCache(ContactCache& contactCache, b2Contact*);
 
 #ifdef PHYS_REGISTER_OBJECT
 	void registerBody(spPhysBody body);
@@ -165,12 +185,25 @@ protected:
 	void destroyAllJoints();
 
 	void dispatchContacts();
+	EPhysPreSolveContactType testPreSolveContact(ContactCache&);
 
 	/// Called when two fixtures begin to touch.
 	void BeginContact(b2Contact* contact); // override b2ContactListener
 
 	/// Called when two fixtures cease to touch.
 	void EndContact(b2Contact* contact); // override b2ContactListener
+
+	/// This is called after a contact is updated. This allows you to inspect a
+	/// contact before it goes to the solver. If you are careful, you can modify the
+	/// contact manifold (e.g. disable contact).
+	/// A copy of the old manifold is provided so that you can detect changes.
+	/// Note: this is called only for awake bodies.
+	/// Note: this is called even when the number of contact points is zero.
+	/// Note: this is not called for sensors.
+	/// Note: if you set the number of contact points to zero, you will not
+	/// get an EndContact callback. However, you may get a BeginContact callback
+	/// the next step.
+	void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
 
 	/// Called when any joint is about to be destroyed due
 	/// to the destruction of one of its attached bodies.
@@ -200,12 +233,15 @@ public:
 	spPhysFixture getFixture(int i);
 	spPhysBody getBody(int i);
 
+	int getId();
 	vec2 getNormal();
-
-	vec2 getPoint(int);
-	int getPointCount();
-
-	float getSeparation(int);
+	int getNumPoints();
+	vec2 getPoint();
+	vec2 getPointA();
+	vec2 getPointB();
+	float getSeparation();
+	float getSeparationA();
+	float getSeparationB();
 };
 
 // =====================================================================
@@ -279,11 +315,43 @@ public:
 	PhysFixture(PhysWorld * world, b2Fixture * fixture);
 	~PhysFixture();
 
+	int getId();
+	void destroy();
 	b2Fixture * getCore();
 
-	void destroy();
+	b2Shape::Type getType() const;
+	// void setType(b2Shape::Type value);
+
+	float getFriction() const;
+	void setFriction(float value);
+
+	float getRestitution() const;
+	void setRestitution(float value);
+
+	float getDensity() const;
+	void setDensity(float value);
+
+	bool getIsSensor() const;
+	void setIsSensor(bool value);
+
+	uint16 getCategoryBits() const;
+	void setCategoryBits(uint16 value);
+
+	uint16 getMaskBits() const;
+	void setMaskBits(uint16 value);
+
+	uint16 getGroupIndex() const;
+	void setGroupIndex(uint16 value);
+
+	void refilter();
 
 	spPhysBody getBody() const;
+	spPhysFixture getNext() const;
+
+	// bool TestPoint(const b2Vec2& p) const;
+	// bool RayCast(b2RayCastOutput* output, const b2RayCastInput& input, int32 childIndex) const;
+	// void GetMassData(b2MassData* massData) const;
+	// const b2AABB& GetAABB(int32 childIndex) const;
 
 protected:
 
@@ -356,9 +424,9 @@ public:
 	PhysBody(PhysWorld * world, b2Body * body);
 	~PhysBody();
 
-	b2Body * getCore();
-
+	int getId();
 	void destroy();
+	b2Body * getCore();
 
 	spPhysFixture createFixture(spPhysFixtureDef def);
 	void destroyFixture(spPhysFixture);
@@ -491,9 +559,9 @@ public:
 	PhysJoint(PhysWorld * world, b2Joint * joint);
 	~PhysJoint();
 
-	b2Joint * getCore();
-
+	int getId();
 	void destroy();
+	b2Joint * getCore();
 
 protected:
 

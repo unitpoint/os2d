@@ -21,6 +21,11 @@ static void registerPhysGlobal(OS * os)
 		{"PHYS_SHAPE_EDGE", b2Shape::e_edge},
 		{"PHYS_SHAPE_POLYGON", b2Shape::e_polygon},
 		{"PHYS_SHAPE_CHAIN", b2Shape::e_chain},
+
+		DEF_CONST(PHYS_CONTACT_ENABLED),
+		DEF_CONST(PHYS_CONTACT_STEP_ENABLED),
+		DEF_CONST(PHYS_CONTACT_STEP_DISABLED),
+		DEF_CONST(PHYS_CONTACT_DISABLED),
 		{}
 	};
 	os->pushGlobals();
@@ -36,10 +41,23 @@ static void registerPhysObject(OS * os)
 {
 	struct Lib
 	{
+		static int cmp(OS * os, int params, int, int, void*)
+		{
+			OS_GET_SELF(PhysObject*);
+			PhysObject * other = CtypeValue<PhysObject*>::getArg(os, -params+0);
+			if(self && other){
+				os->pushNumber(self->getId() - other->getId());
+			}else{
+				os->pushNumber((intptr_t)self - (intptr_t)other);
+			}
+			return 1;
+		}
 	};
 	OS::FuncDef funcs[] = {
 		// def("__newinstance", &Lib::__newinstance),
 		def("destroy", &PhysObject::destroy),
+		def("__get@id", &PhysObject::getId),
+		{"__cmp", &Lib::cmp},
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -183,10 +201,15 @@ static void registerPhysContactCache(OS * os)
 		// def("__newinstance", &Lib::__newinstance),
 		def("getFixture", &PhysContactCache::getFixture),
 		def("getBody", &PhysContactCache::getBody),
-		def("getPoint", &PhysContactCache::getPoint),
-		def("getSeparation", &PhysContactCache::getSeparation),
+		def("__get@id", &PhysContactCache::getId),
 		def("__get@normal", &PhysContactCache::getNormal),
-		def("__get@pointCount", &PhysContactCache::getPointCount),
+		def("__get@numPoints", &PhysContactCache::getNumPoints),
+		def("__get@point", &PhysContactCache::getPoint),
+		def("__get@pointA", &PhysContactCache::getPointA),
+		def("__get@pointB", &PhysContactCache::getPointB),
+		def("__get@separation", &PhysContactCache::getSeparation),
+		def("__get@separationA", &PhysContactCache::getSeparationA),
+		def("__get@separationB", &PhysContactCache::getSeparationB),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -292,7 +315,17 @@ static void registerPhysFixture(OS * os)
 	};
 	OS::FuncDef funcs[] = {
 		{"__newinstance", &Lib::__newinstance},
+		DEF_GET("type", PhysFixture, Type),
+		DEF_PROP("friction", PhysFixture, Friction),
+		DEF_PROP("restitution", PhysFixture, Restitution),
+		DEF_PROP("density", PhysFixture, Density),
+		DEF_PROP("isSensor", PhysFixture, IsSensor),
+		DEF_PROP("categoryBits", PhysFixture, CategoryBits),
+		DEF_PROP("maskBits", PhysFixture, MaskBits),
+		DEF_PROP("groupIndex", PhysFixture, GroupIndex),
+		def("refilter", &PhysFixture::refilter),
 		DEF_GET("body", PhysFixture, Body),
+		DEF_GET("next", PhysFixture, Next),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -397,6 +430,7 @@ static void registerPhysBody(OS * os)
 		DEF_PROP("isFixedRotation", PhysBody, IsFixedRotation),
 		{"beginContactCallback", &Lib::defContactCallback},
 		{"endContactCallback", &Lib::defContactCallback},
+		{"testContactCallback", &Lib::defContactCallback},
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -423,6 +457,11 @@ PhysObject::~PhysObject()
 
 void PhysObject::destroy()
 {
+}
+
+int PhysObject::getId()
+{
+	return (intptr_t)this;
 }
 
 // =====================================================================
@@ -517,11 +556,6 @@ PhysWorld::~PhysWorld()
 	destroy();
 }
 
-b2World * PhysWorld::getCore()
-{
-	return core;
-}
-
 void PhysWorld::destroy()
 {
 	if(core){
@@ -530,6 +564,16 @@ void PhysWorld::destroy()
 		delete core;
 		core = NULL;
 	}
+}
+
+int PhysWorld::getId()
+{
+	return (intptr_t)core;
+}
+
+b2World * PhysWorld::getCore()
+{
+	return core;
 }
 
 #ifdef PHYS_REGISTER_OBJECT
@@ -750,27 +794,159 @@ void PhysWorld::dispatchContacts()
 	contactCacheList.clear();
 }
 
-void PhysWorld::registerContactCache(ContactCache::EType type, b2Contact * contact)
+EPhysPreSolveContactType PhysWorld::testPreSolveContact(ContactCache& contactCache)
 {
-	ContactCache contactCache;
-	contactCache.type = type;
+	EPhysPreSolveContactType res = PHYS_CONTACT_ENABLED;
+	ObjectScript::OS * os = ObjectScript::os;
+	if(!contactCache.fixtures[0]->getCore() || !contactCache.fixtures[1]->getCore()){
+		return PHYS_CONTACT_ENABLED;
+	}
+	contactCache.bodies[0] = contactCache.fixtures[0]->getBody();
+	contactCache.bodies[1] = contactCache.fixtures[1]->getBody();
+
+	const char * callbackName = "testContactCallback";
+	physContactCache->contactCache = &contactCache;
+	for(int i = 0; i < 2; i++){
+		if(!contactCache.bodies[i]->osValueId){
+			continue;
+		}
+		ObjectScript::pushCtypeValue(os, contactCache.bodies[i]);
+		os->getProperty(callbackName);
+		OX_ASSERT(os->isFunction());
+		ObjectScript::pushCtypeValue(os, physContactCache);
+		ObjectScript::pushCtypeValue(os, 1-i);
+		os->callF(2, 1);
+		EPhysPreSolveContactType cur = res;
+		switch(os->getType()){
+		case ObjectScript::OS_VALUE_TYPE_BOOL:
+			cur = os->toBool() ? PHYS_CONTACT_ENABLED : PHYS_CONTACT_DISABLED;
+			break;
+
+		default:
+		case ObjectScript::OS_VALUE_TYPE_NULL:
+			break;
+
+		case ObjectScript::OS_VALUE_TYPE_NUMBER:
+			cur = (EPhysPreSolveContactType)os->toInt();
+			break;
+		}
+		res = (EPhysPreSolveContactType)MathLib::max((int)res, (int)cur);
+		os->pop();
+	}
+	physContactCache->contactCache = NULL;
+	return res;
+}
+
+void PhysWorld::initContactCache(ContactCache& contactCache, b2Contact * contact)
+{
+	contactCache.id = (intptr_t)contact;
 	OX_ASSERT(contact->GetFixtureA() && contact->GetFixtureB());
 	contactCache.fixtures[0] = getFixture(contact->GetFixtureA());
 	contactCache.fixtures[1] = getFixture(contact->GetFixtureB());
 	OX_ASSERT(contactCache.fixtures[0] && contactCache.fixtures[1]);
-	contactCache.pointCount = contact->GetManifold()->pointCount;
-	contact->GetWorldManifold(&contactCache.worldManifold);
-	contactCacheList.push_back(contactCache);
+	contactCache.numPoints = contact->GetManifold()->pointCount;
+	if(contactCache.numPoints > 0){
+		contact->GetWorldManifold(&contactCache.worldManifold);
+		if(contactCache.numPoints == 1){
+			contactCache.contactPoint = contactCache.worldManifold.points[0];
+			contactCache.contactSeparation = contactCache.worldManifold.separations[0];
+		}else{
+			contactCache.contactPoint = contactCache.worldManifold.points[0] + contactCache.worldManifold.points[1];
+			contactCache.contactPoint.x /= 2.0f;
+			contactCache.contactPoint.y /= 2.0f;
+			contactCache.contactSeparation = (contactCache.worldManifold.separations[0] + contactCache.worldManifold.separations[1]) / 2.0f;
+		}
+	}else{
+		OS_MEMSET(&contactCache.worldManifold, 0, sizeof(contactCache.worldManifold));
+		contactCache.contactPoint = b2Vec2(0, 0);
+		contactCache.contactSeparation = 0.0f;
+	}
 }
 
 void PhysWorld::BeginContact(b2Contact* contact)
 {
-	registerContactCache(ContactCache::BEGIN, contact);
+	ContactCache contactCache(ContactCache::BEGIN);
+	initContactCache(contactCache, contact);
+	contactCacheList.push_back(contactCache);
 }
 
 void PhysWorld::EndContact(b2Contact* contact)
 {
-	registerContactCache(ContactCache::END, contact);
+	int id = (intptr_t)contact;
+	std::map<int, EPhysPreSolveContactType>::iterator it = preSolveContactTypeMap.find(id);
+	if(it != preSolveContactTypeMap.end()){
+		EPhysPreSolveContactType type = it->second;
+		preSolveContactTypeMap.erase(it);
+		if(type == PHYS_CONTACT_DISABLED){
+			return;
+		}
+	}
+	ContactCache contactCache(ContactCache::END);
+	initContactCache(contactCache, contact);
+	contactCacheList.push_back(contactCache);
+}
+
+void PhysWorld::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+{
+	int id = (intptr_t)contact;
+	std::map<int, EPhysPreSolveContactType>::iterator it = preSolveContactTypeMap.find(id);
+	if(it != preSolveContactTypeMap.end()){
+		switch(it->second){
+		case PHYS_CONTACT_DISABLED:
+		case PHYS_CONTACT_USED_AND_DISABLED:
+			contact->SetEnabled(false);
+			return;
+
+		case PHYS_CONTACT_ENABLED:
+			return;
+		}
+		ContactCache contactCache(ContactCache::PRESOLVE);
+		initContactCache(contactCache, contact);
+		
+		EPhysPreSolveContactType type = testPreSolveContact(contactCache);
+		switch(type){
+		default:
+		case PHYS_CONTACT_ENABLED:
+		case PHYS_CONTACT_STEP_ENABLED:
+			preSolveContactTypeMap[id] = type;
+			break;
+
+		case PHYS_CONTACT_STEP_DISABLED:
+			preSolveContactTypeMap[id] = type;
+			contact->SetEnabled(false);
+			break;
+
+		case PHYS_CONTACT_DISABLED:
+			preSolveContactTypeMap[id] = PHYS_CONTACT_USED_AND_DISABLED;
+			contact->SetEnabled(false);
+			break;
+		}
+	}else if(contactCacheList.size() > 0){
+		ContactCache& contactCache = contactCacheList[contactCacheList.size()-1];
+		if(contactCache.id == id){
+			OX_ASSERT(contactCache.type == ContactCache::BEGIN);
+
+			EPhysPreSolveContactType type = testPreSolveContact(contactCache);
+			switch(type){
+			case PHYS_CONTACT_ENABLED:
+			case PHYS_CONTACT_STEP_ENABLED:
+				preSolveContactTypeMap[id] = type;
+				break;
+
+			case PHYS_CONTACT_STEP_DISABLED:
+				preSolveContactTypeMap[id] = type;
+				contact->SetEnabled(false);
+				break;
+
+			default:
+			case PHYS_CONTACT_DISABLED:
+				preSolveContactTypeMap[id] = PHYS_CONTACT_DISABLED;
+				contact->SetEnabled(false);
+				contactCacheList.resize(contactCacheList.size()-1);
+				break;
+			}
+		}
+	}
 }
 
 void PhysWorld::SayGoodbye(b2Joint* coreJoint)
@@ -821,6 +997,14 @@ PhysContactCache::~PhysContactCache()
 	OX_ASSERT(!contactCache);
 }
 
+int PhysContactCache::getId()
+{
+	if(contactCache){
+		return contactCache->id;
+	}
+	return 0;
+}
+
 spPhysFixture PhysContactCache::getFixture(int i)
 {
 	if(contactCache && i >= 0 && i < 2){
@@ -845,23 +1029,55 @@ vec2 PhysContactCache::getNormal()
 	return vec2(0, 0);
 }
 
-vec2 PhysContactCache::getPoint(int i)
+int PhysContactCache::getNumPoints()
 {
-	if(contactCache && i >= 0 && i < 2){
-		return PhysWorld::fromPhysVec(contactCache->worldManifold.points[i]);
+	return contactCache ? contactCache->numPoints : 0;
+}
+
+vec2 PhysContactCache::getPoint()
+{
+	if(contactCache){
+		return PhysWorld::fromPhysVec(contactCache->contactPoint);
 	}
 	return vec2(0, 0);
 }
 
-int PhysContactCache::getPointCount()
+vec2 PhysContactCache::getPointA()
 {
-	return contactCache ? contactCache->pointCount : 0;
+	if(contactCache){
+		return PhysWorld::fromPhysVec(contactCache->worldManifold.points[0]);
+	}
+	return vec2(0, 0);
 }
 
-float PhysContactCache::getSeparation(int i)
+vec2 PhysContactCache::getPointB()
 {
-	if(contactCache && i >= 0 && i < 2){
-		return PhysWorld::fromPhysValue(contactCache->worldManifold.separations[i]);
+	if(contactCache){
+		return PhysWorld::fromPhysVec(contactCache->worldManifold.points[1]);
+	}
+	return vec2(0, 0);
+}
+
+float PhysContactCache::getSeparation()
+{
+	if(contactCache){
+		return PhysWorld::fromPhysValue(contactCache->contactSeparation);
+	}
+	return 0;
+}
+
+float PhysContactCache::getSeparationA()
+{
+	if(contactCache){
+		return PhysWorld::fromPhysValue(contactCache->worldManifold.separations[0]);
+	}
+	return 0;
+}
+
+float PhysContactCache::getSeparationB()
+{
+	if(contactCache){
+		return PhysWorld::fromPhysValue(contactCache->worldManifold.separations[1]);
 	}
 	return 0;
 }
@@ -1048,9 +1264,140 @@ void PhysFixture::destroy()
 	}
 }
 
+int PhysFixture::getId()
+{
+	return (intptr_t)core;
+}
+
 b2Fixture * PhysFixture::getCore()
 {
 	return core;
+}
+
+b2Shape::Type PhysFixture::getType() const
+{
+	if(core){
+		return core->GetType();
+	}
+	return b2Shape::e_circle;
+}
+
+float PhysFixture::getFriction() const
+{
+	if(core){
+		return core->GetFriction();
+	}
+	return 0.0f;
+}
+
+void PhysFixture::setFriction(float value)
+{
+	if(core){
+		core->SetFriction(value);
+	}
+}
+
+float PhysFixture::getRestitution() const
+{
+	if(core){
+		return core->GetRestitution();
+	}
+	return 0.0f;
+}
+
+void PhysFixture::setRestitution(float value)
+{
+	if(core){
+		core->SetRestitution(value);
+	}
+}
+
+float PhysFixture::getDensity() const
+{
+	if(core){
+		return core->GetDensity();
+	}
+	return 0.0f;
+}
+
+void PhysFixture::setDensity(float value)
+{
+	if(core){
+		core->SetDensity(value);
+	}
+}
+
+bool PhysFixture::getIsSensor() const
+{
+	if(core){
+		return core->IsSensor();
+	}
+	return false;
+}
+
+void PhysFixture::setIsSensor(bool value)
+{
+	if(core){
+		core->SetSensor(value);
+	}
+}
+
+uint16 PhysFixture::getCategoryBits() const
+{
+	if(core){
+		return core->GetFilterData().categoryBits;
+	}
+	return 0;
+}
+
+void PhysFixture::setCategoryBits(uint16 value)
+{
+	if(core){
+		b2Filter filter = core->GetFilterData();
+		filter.categoryBits = value;
+		core->SetFilterData(filter);
+	}
+}
+
+uint16 PhysFixture::getMaskBits() const
+{
+	if(core){
+		return core->GetFilterData().maskBits;
+	}
+	return 0;
+}
+
+void PhysFixture::setMaskBits(uint16 value)
+{
+	if(core){
+		b2Filter filter = core->GetFilterData();
+		filter.maskBits = value;
+		core->SetFilterData(filter);
+	}
+}
+
+uint16 PhysFixture::getGroupIndex() const
+{
+	if(core){
+		return core->GetFilterData().groupIndex;
+	}
+	return 0;
+}
+
+void PhysFixture::setGroupIndex(uint16 value)
+{
+	if(core){
+		b2Filter filter = core->GetFilterData();
+		filter.groupIndex = value;
+		core->SetFilterData(filter);
+	}
+}
+
+void PhysFixture::refilter()
+{
+	if(core){
+		core->Refilter();
+	}
 }
 
 spPhysBody PhysFixture::getBody() const
@@ -1058,6 +1405,15 @@ spPhysBody PhysFixture::getBody() const
 	if(world){
 		OX_ASSERT(core);
 		return world->getBody(core->GetBody());
+	}
+	return NULL;
+}
+
+spPhysFixture PhysFixture::getNext() const
+{
+	if(world){
+		OX_ASSERT(core);
+		return world->getFixture(core->GetNext());
 	}
 	return NULL;
 }
@@ -1105,16 +1461,21 @@ void PhysBody::unlink()
 #endif
 }
 
-b2Body * PhysBody::getCore()
-{
-	return core;
-}
-
 void PhysBody::destroy()
 {
 	if(world){
 		world->destroyBody(this);
 	}
+}
+
+int PhysBody::getId()
+{
+	return (intptr_t)core;
+}
+
+b2Body * PhysBody::getCore()
+{
+	return core;
 }
 
 #ifdef PHYS_REGISTER_OBJECT
@@ -1559,5 +1920,15 @@ void PhysJoint::destroy()
 	if(world){
 		world->destroyJoint(this);
 	}
+}
+
+int PhysJoint::getId()
+{
+	return (intptr_t)core;
+}
+
+b2Joint * PhysJoint::getCore()
+{
+	return core;
 }
 

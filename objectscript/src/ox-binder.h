@@ -584,7 +584,7 @@ struct CtypeValuePointOf
 			return type(x, y);
 		}
 #endif
-		os->setException("vec2 or number required");
+		os->setException(OS::String(os, "vec2 or number required instead of ") + os->toString(offs));
 		return type(0, 0);
 	}
 
