@@ -291,18 +291,19 @@ public:
 	vec2 getCirclePos() const;
 	void setCirclePos(const vec2& value);
 
-	void setPolygonPointsPhysScale(const std::vector<b2Vec2>& points);
+	void setPolygonPointsInPhysScale(const std::vector<b2Vec2>& points);
 	void setPolygonAsBox(const vec2& halfSize, const vec2& center, float angle);
 	void setPolygonAsBox(const vec2& halfSize);
+	void setPolygonAsBounds(const vec2& a, const vec2& b, float angle);
 
 	void setEdgePoints(const vec2& p1, const vec2& p2);
 
-	void setChainPointsPhysScale(const std::vector<b2Vec2>& points);
-	void setChainLoopPointsPhysScale(const std::vector<b2Vec2>& points);
+	void setChainPointsInPhysScale(const std::vector<b2Vec2>& points);
+	void setChainLoopPointsInPhysScale(const std::vector<b2Vec2>& points);
 	void setChainPrevPoint(const vec2& p);
 	void setChainNextPoint(const vec2& p);
 
-	static void readPointArrayPhysScale(std::vector<b2Vec2>& points, ObjectScript::OS * os, int offs);
+	static void readPointArrayInPhysScale(std::vector<b2Vec2>& points, ObjectScript::OS * os, int offs);
 };
 
 // =====================================================================

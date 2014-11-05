@@ -17350,6 +17350,7 @@ bool OS::Core::pushOpResultValue(OpcodeType opcode, const Value& left_value, con
 	int left_type = OS_VALUE_TYPE(left_value);
 	int right_type = OS_VALUE_TYPE(right_value);
 	bool exist = left_type != OS_VALUE_TYPE_NULL && right_type != OS_VALUE_TYPE_NULL;
+	Value * tempValue;
 
 	switch(left_type){
 	case OS_VALUE_TYPE_NULL:
@@ -17519,7 +17520,14 @@ bool OS::Core::pushOpResultValue(OpcodeType opcode, const Value& left_value, con
 			}
 			if(exist){
 				Lib::pushObjectMethodOpcodeValue(this, strings->__cmp, strings->__rcmp, left_value, right_value);
-				stack_values.lastElement() = valueToNumber(stack_values.lastElement()) == (OS_NUMBER)0.0;
+				switch(OS_VALUE_TYPE(*(tempValue = &stack_values.lastElement()))){
+				case OS_VALUE_TYPE_NUMBER:
+					stack_values.lastElement() = OS_VALUE_NUMBER(*tempValue) == (OS_NUMBER)0.0;
+					break;
+
+				default:
+					stack_values.lastElement() = false;
+				}
 			}else{
 				pushBool(false);
 			}
@@ -17537,7 +17545,15 @@ bool OS::Core::pushOpResultValue(OpcodeType opcode, const Value& left_value, con
 			}
 			if(exist){
 				Lib::pushObjectMethodOpcodeValue(this, strings->__cmp, strings->__rcmp, left_value, right_value);
-				stack_values.lastElement() = valueToNumber(stack_values.lastElement()) >= (OS_NUMBER)0.0;
+				// stack_values.lastElement() = valueToNumber(stack_values.lastElement()) >= (OS_NUMBER)0.0;
+				switch(OS_VALUE_TYPE(*(tempValue = &stack_values.lastElement()))){
+				case OS_VALUE_TYPE_NUMBER:
+					stack_values.lastElement() = OS_VALUE_NUMBER(*tempValue) >= (OS_NUMBER)0.0;
+					break;
+
+				default:
+					stack_values.lastElement() = exist = false;
+				}
 			}else{
 				pushBool(false);
 			}
@@ -17555,7 +17571,15 @@ bool OS::Core::pushOpResultValue(OpcodeType opcode, const Value& left_value, con
 			}
 			if(exist){
 				Lib::pushObjectMethodOpcodeValue(this, strings->__cmp, strings->__rcmp, left_value, right_value);
-				stack_values.lastElement() = valueToNumber(stack_values.lastElement()) > (OS_NUMBER)0.0;
+				// stack_values.lastElement() = valueToNumber(stack_values.lastElement()) > (OS_NUMBER)0.0;
+				switch(OS_VALUE_TYPE(*(tempValue = &stack_values.lastElement()))){
+				case OS_VALUE_TYPE_NUMBER:
+					stack_values.lastElement() = OS_VALUE_NUMBER(*tempValue) > (OS_NUMBER)0.0;
+					break;
+
+				default:
+					stack_values.lastElement() = exist = false;
+				}
 			}else{
 				pushBool(false);
 			}

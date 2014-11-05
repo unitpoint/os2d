@@ -234,8 +234,8 @@ static void registerPhysFixtureDef(OS * os)
 		{
 			OS_GET_SELF(PhysFixtureDef*);
 			std::vector<b2Vec2> points;
-			PhysFixtureDef::readPointArrayPhysScale(points, os, -params+0);
-			self->setPolygonPointsPhysScale(points);
+			PhysFixtureDef::readPointArrayInPhysScale(points, os, -params+0);
+			self->setPolygonPointsInPhysScale(points);
 			return 0;
 		}
 
@@ -244,13 +244,13 @@ static void registerPhysFixtureDef(OS * os)
 			OS_GET_SELF(PhysFixtureDef*);
 			if(params == 1){
 				self->setPolygonAsBox(CtypeValue<vec2>::getArg(os, -params+0));
-			}else if(params == 3){
+			}else if(params >= 2){
 				self->setPolygonAsBox(
 					CtypeValue<vec2>::getArg(os, -params+0),
 					CtypeValue<vec2>::getArg(os, -params+1),
 					os->toFloat(-params+2));
 			}else{
-				os->setException("1 or 3 arguments required");
+				os->setException("1 or 2 arguments required");
 			}
 			return 0;
 		}
@@ -259,8 +259,8 @@ static void registerPhysFixtureDef(OS * os)
 		{
 			OS_GET_SELF(PhysFixtureDef*);
 			std::vector<b2Vec2> points;
-			PhysFixtureDef::readPointArrayPhysScale(points, os, -params+0);
-			self->setChainPointsPhysScale(points);
+			PhysFixtureDef::readPointArrayInPhysScale(points, os, -params+0);
+			self->setChainPointsInPhysScale(points);
 			return 0;
 		}
 
@@ -268,8 +268,8 @@ static void registerPhysFixtureDef(OS * os)
 		{
 			OS_GET_SELF(PhysFixtureDef*);
 			std::vector<b2Vec2> points;
-			PhysFixtureDef::readPointArrayPhysScale(points, os, -params+0);
-			self->setChainLoopPointsPhysScale(points);
+			PhysFixtureDef::readPointArrayInPhysScale(points, os, -params+0);
+			self->setChainLoopPointsInPhysScale(points);
 			return 0;
 		}
 	};
@@ -287,6 +287,7 @@ static void registerPhysFixtureDef(OS * os)
 		DEF_PROP("circlePos", PhysFixtureDef, CirclePos),
 		{"setPolygonPoints", &Lib::setPolygonPoints},
 		{"setPolygonAsBox", &Lib::setPolygonAsBox},
+		def("setPolygonAsBounds", &PhysFixtureDef::setPolygonAsBounds),
 		def("setEdgePoints", &PhysFixtureDef::setEdgePoints),
 		{"setChainPoints", &Lib::setChainPoints},
 		{"setChainLoopPoints", &Lib::setChainLoopPoints},
@@ -1097,6 +1098,7 @@ PhysFixtureDef::~PhysFixtureDef()
 
 void PhysFixtureDef::setType(b2Shape::Type value)
 {
+	if(value != getType())
 	switch(value){
 	default:
 		// TODO: throw exception?
@@ -1127,6 +1129,7 @@ float PhysFixtureDef::getCircleRadius() const
 
 void PhysFixtureDef::setCircleRadius(float value)
 {
+	setType(b2Shape::e_circle);
 	circleShape.m_radius = PhysWorld::toPhysValue(value);
 }
 
@@ -1137,51 +1140,66 @@ vec2 PhysFixtureDef::getCirclePos() const
 
 void PhysFixtureDef::setCirclePos(const vec2& value)
 {
+	setType(b2Shape::e_circle);
 	circleShape.m_p = PhysWorld::toPhysVec(value);
 }
 
-void PhysFixtureDef::setPolygonPointsPhysScale(const std::vector<b2Vec2>& points)
+void PhysFixtureDef::setPolygonPointsInPhysScale(const std::vector<b2Vec2>& points)
 {
+	setType(b2Shape::e_polygon);
 	polygonShape.Set(&points[0], points.size());
 }
 
 void PhysFixtureDef::setPolygonAsBox(const vec2& halfSize, const vec2& center, float angle)
 {
+	setType(b2Shape::e_polygon);
 	polygonShape.SetAsBox(PhysWorld::toPhysValue(halfSize.x), PhysWorld::toPhysValue(halfSize.y), 
 		PhysWorld::toPhysVec(center), angle);
 }
 
 void PhysFixtureDef::setPolygonAsBox(const vec2& halfSize)
 {
+	setType(b2Shape::e_polygon);
 	polygonShape.SetAsBox(PhysWorld::toPhysValue(halfSize.x), PhysWorld::toPhysValue(halfSize.y));
+}
+
+void PhysFixtureDef::setPolygonAsBounds(const vec2& a, const vec2& b, float angle)
+{
+	vec2 halfSize = (b - a) / 2, center = (a + b) / 2;
+	setPolygonAsBox(halfSize, center, angle);
 }
 
 void PhysFixtureDef::setEdgePoints(const vec2& p1, const vec2& p2)
 {
+	setType(b2Shape::e_edge);
 	edgeShape.Set(PhysWorld::toPhysVec(p1), PhysWorld::toPhysVec(p2));
 }
 
-void PhysFixtureDef::setChainPointsPhysScale(const std::vector<b2Vec2>& points)
+void PhysFixtureDef::setChainPointsInPhysScale(const std::vector<b2Vec2>& points)
 {
+	setType(b2Shape::e_chain);
 	chainShape.CreateChain(&points[0], points.size());
 }
 
-void PhysFixtureDef::setChainLoopPointsPhysScale(const std::vector<b2Vec2>& points)
+void PhysFixtureDef::setChainLoopPointsInPhysScale(const std::vector<b2Vec2>& points)
 {
+	setType(b2Shape::e_chain);
 	chainShape.CreateLoop(&points[0], points.size());
 }
 
 void PhysFixtureDef::setChainPrevPoint(const vec2& p)
 {
+	setType(b2Shape::e_chain);
 	chainShape.SetPrevVertex(PhysWorld::toPhysVec(p));
 }
 
 void PhysFixtureDef::setChainNextPoint(const vec2& p)
 {
+	setType(b2Shape::e_chain);
 	chainShape.SetNextVertex(PhysWorld::toPhysVec(p));
 }
 
-void PhysFixtureDef::readPointArrayPhysScale(std::vector<b2Vec2>& points, ObjectScript::OS * os, int offs)
+void PhysFixtureDef::readPointArrayInPhysScale(std::vector<b2Vec2>& points, ObjectScript::OS * os, int offs)
 {
 	points.clear();
 	if(os->isArray(offs)){
