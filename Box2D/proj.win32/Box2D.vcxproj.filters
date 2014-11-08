@@ -14,25 +14,25 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="Файлы исходного кода\Collision">
-      <UniqueIdentifier>{78b8f39c-a7d0-4e31-bcdb-00344d773626}</UniqueIdentifier>
+      <UniqueIdentifier>{68c4b6a9-0132-46b2-aee5-ecf5a3a5162e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Файлы исходного кода\Collision\Shapes">
-      <UniqueIdentifier>{d3951d93-c748-47cf-b2f4-d57b54fd0f55}</UniqueIdentifier>
+      <UniqueIdentifier>{42fad5bf-36af-4583-a33f-1b103d59fe83}</UniqueIdentifier>
     </Filter>
     <Filter Include="Файлы исходного кода\Common">
-      <UniqueIdentifier>{672c32f2-d511-4e94-ae0c-c68654d4405e}</UniqueIdentifier>
+      <UniqueIdentifier>{9655caad-9ed7-482d-8da6-a95942785b3d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Файлы исходного кода\Dynamics">
-      <UniqueIdentifier>{92851466-38e9-4614-8295-4e2a2c2f9e49}</UniqueIdentifier>
+      <UniqueIdentifier>{02050ba1-5f42-496b-b316-51715ee361be}</UniqueIdentifier>
     </Filter>
     <Filter Include="Файлы исходного кода\Dynamics\Contacts">
-      <UniqueIdentifier>{784d9d94-6dfc-4ee1-9e3a-7e7a623525ad}</UniqueIdentifier>
+      <UniqueIdentifier>{7afdfda2-7152-4ef1-ae68-d206302a7822}</UniqueIdentifier>
     </Filter>
     <Filter Include="Файлы исходного кода\Dynamics\Joints">
-      <UniqueIdentifier>{665c59e3-bb93-40ae-9776-b5b5f40644ef}</UniqueIdentifier>
+      <UniqueIdentifier>{030d4a04-17d4-48a6-a324-01aa9948ec9f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Файлы исходного кода\Rope">
-      <UniqueIdentifier>{cb92cce1-2cb9-4815-bbcf-4a175f009b39}</UniqueIdentifier>
+      <UniqueIdentifier>{0d61b74a-f70a-4d85-96a1-a3a42b29f9ee}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +206,9 @@
     <ClInclude Include="..\Box2D\Collision\Shapes\b2Shape.h">
       <Filter>Файлы исходного кода\Collision\Shapes</Filter>
     </ClInclude>
+    <ClInclude Include="..\Box2D\Box2D.h">
+      <Filter>Файлы исходного кода</Filter>
+    </ClInclude>
     <ClInclude Include="..\Box2D\Common\b2BlockAllocator.h">
       <Filter>Файлы исходного кода\Common</Filter>
     </ClInclude>
@@ -310,9 +313,6 @@
     </ClInclude>
     <ClInclude Include="..\Box2D\Dynamics\Joints\b2WheelJoint.h">
       <Filter>Файлы исходного кода\Dynamics\Joints</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Box2D\Box2D.h">
-      <Filter>Файлы исходного кода</Filter>
     </ClInclude>
     <ClInclude Include="..\Box2D\Rope\b2Rope.h">
       <Filter>Файлы исходного кода\Rope</Filter>

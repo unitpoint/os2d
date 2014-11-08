@@ -614,6 +614,8 @@ struct Bounds2
 		return *this;
 	}
 
+	vec2 center() const { return (b[0] + b[1]) / 2.0f; }
+
 	Bounds2& add(const vec2& p)
 	{
 		b[0] = b[0].min(p);

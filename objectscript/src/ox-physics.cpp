@@ -133,12 +133,14 @@ static void registerPhysWorld(OS * os)
 
 				OS * os;
 				PhysWorld * physWorld;
+				b2AABB aabb;
 				int funcId;
 
-				QueryCallback(OS * _os, PhysWorld * _physWorld, int _funcId)
+				QueryCallback(OS * _os, PhysWorld * _physWorld, const b2AABB& _aabb, int _funcId)
 				{
 					os = _os;
 					physWorld = _physWorld;
+					aabb = _aabb;
 					funcId = _funcId;
 				}
 
@@ -146,24 +148,27 @@ static void registerPhysWorld(OS * os)
 				/// @return false to terminate the query.
 				virtual bool ReportFixture(b2Fixture* coreFixture)
 				{
-					spPhysBody body = physWorld->getBody(coreFixture->GetBody());
-					spPhysFixture fixture = physWorld->getFixture(coreFixture);
-					if(body){
-						os->pushValueById(funcId);
-						OX_ASSERT(os->isFunction());
-						pushCtypeValue(os, fixture);
-						pushCtypeValue(os, body);
-						os->callF(2, 1);
-						bool result = os->getType() == OS_VALUE_TYPE_BOOL && !os->toBool() ? false : true;
-						os->pop();
-						os->handleException();
-						return result;
+					b2AABB fixtureAABB;
+					coreFixture->GetShape()->ComputeAABB(&fixtureAABB, coreFixture->GetBody()->GetTransform(), 0);
+					if(!b2TestOverlap(aabb, fixtureAABB)){
+						return true;
 					}
-					return true;
+					os->pushValueById(funcId);
+					OX_ASSERT(os->isFunction());
+					pushCtypeValue(os, physWorld->getFixture(coreFixture));
+					pushCtypeValue(os, physWorld->getBody(coreFixture->GetBody()));
+					os->callF(2, 1);
+					bool result = os->getType() == OS_VALUE_TYPE_BOOL ? os->toBool() : true;
+					os->pop();
+					os->handleException();
+					return result;
 				}
 			};
-			QueryCallback queryCallback(os, self, funcId);
-			self->getCore()->QueryAABB(&queryCallback, aabb);
+
+			if(self->getCore()){
+				QueryCallback queryCallback(os, self, aabb, funcId);
+				self->getCore()->QueryAABB(&queryCallback, aabb);
+			}
 			return 0;
 		}
 	};
@@ -327,6 +332,7 @@ static void registerPhysFixture(OS * os)
 		def("refilter", &PhysFixture::refilter),
 		DEF_GET("body", PhysFixture, Body),
 		DEF_GET("next", PhysFixture, Next),
+		// DEF_GET("aabb", PhysFixture, AABB),
 		{}
 	};
 	OS::NumberDef nums[] = {
@@ -1148,6 +1154,16 @@ void PhysFixtureDef::setPolygonPointsInPhysScale(const std::vector<b2Vec2>& poin
 {
 	setType(b2Shape::e_polygon);
 	polygonShape.Set(&points[0], points.size());
+}
+
+void PhysFixtureDef::setPolygonPoints(const std::vector<vec2>& points)
+{
+	std::vector<b2Vec2> physScalePoints;
+	physScalePoints.reserve(points.size());
+	for(int i = 0; i < (int)points.size(); i++){
+		physScalePoints.push_back(PhysWorld::toPhysVec(points[i]));
+	}
+	setPolygonPointsInPhysScale(physScalePoints);
 }
 
 void PhysFixtureDef::setPolygonAsBox(const vec2& halfSize, const vec2& center, float angle)

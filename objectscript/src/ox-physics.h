@@ -292,6 +292,7 @@ public:
 	void setCirclePos(const vec2& value);
 
 	void setPolygonPointsInPhysScale(const std::vector<b2Vec2>& points);
+	void setPolygonPoints(const std::vector<vec2>& points);
 	void setPolygonAsBox(const vec2& halfSize, const vec2& center, float angle);
 	void setPolygonAsBox(const vec2& halfSize);
 	void setPolygonAsBounds(const vec2& a, const vec2& b, float angle);

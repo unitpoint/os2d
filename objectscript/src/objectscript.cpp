@@ -128,12 +128,10 @@ static void checkFlagClear(int instruction, int flag)
 #else // OS_MAX_GENERIC_CONST_INDEX == 0
 
 #define OS_GETARG_B_VALUE() ((instruction) & OS_OPCODE_CONST_B ? \
-	(stack_func_prog_values[b]) \
-	: (stack_func_locals[b]))
+	(stack_func_prog_values[b]) : (stack_func_locals[b]))
 
 #define OS_GETARG_C_VALUE() ((instruction) & OS_OPCODE_CONST_C ? \
-	(stack_func_prog_values[c]) \
-	: (stack_func_locals[c]))
+	(stack_func_prog_values[c]) : (stack_func_locals[c]))
 
 #endif // OS_MAX_GENERIC_CONST_INDEX == 0
 
@@ -215,12 +213,10 @@ static void checkFlagClear(int instruction, int flag)
 #define OS_MAX_GENERIC_CONST_INDEX ((1<<(OS_SIZE_B-1))-1)
 
 #define OS_GETARG_B_VALUE() ((instruction) & OS_OPCODE_CONST_B ? \
-	(stack_func_prog_values[b]) \
-	: (stack_func_locals[b]))
+	(stack_func_prog_values[b]) : (stack_func_locals[b]))
 
 #define OS_GETARG_C_VALUE() ((instruction) & OS_OPCODE_CONST_C ? \
-	(stack_func_prog_values[c]) \
-	: (stack_func_locals[c]))
+	(stack_func_prog_values[c]) : (stack_func_locals[c]))
 
 #define OS_CASE_OPCODE_ALL(opcode) case ((opcode)<<2): case (((opcode)<<2)|OS_OPCODE_CONST_B): case (((opcode)<<2)|OS_OPCODE_CONST_C): case (((opcode)<<2)|OS_OPCODE_CONST_B|OS_OPCODE_CONST_C)
 #define OS_CASE_OPCODE(opcode) case ((opcode)<<2)
