@@ -77,6 +77,11 @@ vec2 = extends Object {
 		return this
 	},
 	
+	dot = function(b){
+		b is vec2 || throw "vec2 required"
+		return @x*b.x + @y*b.y
+	},
+	
 	__get@rotation = function(){
 		return math.atan2(@y, @x)
 	},
@@ -97,9 +102,12 @@ vec2 = extends Object {
 	
 	__cmp = function(b){
 		b is vec2 || b = vec2(b) // throw "vec2 required"
-		var i = @x <=> b.x 
-		if(i != 0) return i
-		return @y <=> b.y 
+		// print "vec2 cmp: ${@x} ${@y}, other: ${b.x} ${b.y}, cmp: ${@x <=> b.x} ${@y <=> b.y}"
+		var x, y = @x <=> b.x, @y <=> b.y
+		x < 0 && y < 0 && return -1
+		x > 0 && y > 0 && return 1
+		x == 0 && y == 0 && return 0
+		// else is not comparable
 	},
 	
 	__minus = function(){
@@ -110,6 +118,11 @@ vec2 = extends Object {
 		b is vec2 && return vec2(@x + b.x, @y + b.y)
 		b = numberOf(b) || throw "number or vec2 required"
 		return vec2(@x + b, @y + b)
+	},
+	
+	__radd = function(b){
+		b = numberOf(b) || throw "number or vec2 required"
+		return vec2(b + @x, b + @y)
 	},
 	
 	__sub = function(b){
@@ -129,10 +142,20 @@ vec2 = extends Object {
 		return vec2(@x * b, @y * b)
 	},
 	
+	__rmul = function(b){
+		b = numberOf(b) || throw "number or vec2 required"
+		return vec2(b * @x, b * @y)
+	},
+	
 	__div = function(b){
 		b is vec2 && return vec2(@x / b.x, @y / b.y)
 		b = numberOf(b) || throw "number or vec2 required"
 		return vec2(@x / b, @y / b)
+	},
+	
+	__rdiv = function(b){
+		b = numberOf(b) || throw "number or vec2 required"
+		return vec2(b / @x, b / @y)
 	},
 	
 	__get = function(i){

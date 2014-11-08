@@ -46,7 +46,8 @@ function _T(text){
 
 function Object.__get(name){
 	if(@prototype !== Object || @getProperty("__instantiable", false) !== null){
-		throw "unknown \"${name}\" property in ${@__name || @classname}"
+		// throw "unknown \"${name}\" property in ${@__name || @classname}"
+		throw "unknown \"${name}\" property in ${@__name} <${typeOf(this)}#${@__id}:classname=${@classname}>"
 	}
 	return null
 }

@@ -112,8 +112,11 @@ TweenAction = extends IntervalAction {
     start = function(){
 		super()
 		for(var prop, values in @_props){
-			values.delta = (values.to || /*values.to =*/ @_target[prop]) 
-				- (values.from || /*values.from =*/ @_target[prop])
+			/* if(!values.to && !values.from){
+				print "null values: ${values}, this: ${this}"
+			} */
+			values.delta = (values.to || /*values.to =*/ @_target[prop] || throw "${prop} is not set in ${@_target}") 
+				- (values.from || /*values.from =*/ @_target[prop] || throw "${prop} is not set in ${@_target}")
 			if(prop == "angle" && values.fixRotation){
 				var diff = values.delta
 				if(math.abs(diff) > 180){
@@ -132,11 +135,17 @@ TweenAction = extends IntervalAction {
 	},
 	
     update = function(t){
-		var tickCallback = @tickCallback
 		for(var prop, values in @_props){
 			var time = values.ease ? Ease.run(t, values.ease) : t
-			@_target[prop] = values.to - values.delta * (1 - time)
-			tickCallback() // use function's this instead of current object
+			// try{
+			@_target[prop] = (values.to || @_target[prop] || throw "${prop} is not set in ${@_target}") 
+				- values.delta * (1 - time)
+			/* }catch(e){
+				print "exception of values: ${values}, this: ${this}"
+				throw e
+			} */
 		}
+		var tickCallback = @tickCallback
+		tickCallback() // use function's this instead of current object
 	},
 }

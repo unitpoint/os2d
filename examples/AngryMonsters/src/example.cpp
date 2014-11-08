@@ -34,7 +34,7 @@ void example_init()
 
 void example_update()
 {
-	sleep(10);
+	// sleep(10);
 }
 
 void example_destroy()

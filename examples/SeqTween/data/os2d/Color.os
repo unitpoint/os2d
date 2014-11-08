@@ -53,13 +53,11 @@ Color = extends Object {
 	
 	__cmp = function(b){
 		b is Color || throw "Color required"
-		var i = @r <=> b.r 
-		if(i != 0) return i
-		i = @g <=> b.g 
-		if(i != 0) return i
-		i = @b <=> b.b 
-		if(i != 0) return i
-		return @a <=> b.a
+		var r, g, b, a = @r <=> b.r, @g <=> b.g, @b <=> b.b, @a <=> b.a
+		r < 0 && g < 0 && b < 0 && a < 0 && return -1
+		r > 0 && g > 0 && b > 0 && a > 0 && return 1
+		r == 0 && g == 0 && b == 0 && a == 0 && return 0
+		// else is not comparable
 	},
 	
 	__add = function(b){

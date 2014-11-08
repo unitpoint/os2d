@@ -8,7 +8,7 @@ namespace EaseFunction {
 #define easeReverseHelper(t, func) (1.0f - func(1.0f - (t)))
 
 // Linear
-float linear(float time)
+static float linear(float time)
 {
     return time;
 }
@@ -19,29 +19,29 @@ float sineEaseIn(float time)
     return -1 * cosf(time * (float)OS_MATH_PI_2) + 1;
 }
     
-float sineEaseOut(float time)
+static float sineEaseOut(float time)
 {
     return sinf(time * (float)OS_MATH_PI_2);
 }
     
-float sineEaseInOut(float time)
+static float sineEaseInOut(float time)
 {
     return -0.5f * (cosf((float)OS_MATH_PI * time) - 1);
 }
 
 
 // Quad Ease
-float quadEaseIn(float time)
+static float quadEaseIn(float time)
 {
     return time * time;
 }
     
-float quadEaseOut(float time)
+static float quadEaseOut(float time)
 {
     return -1 * time * (time - 2);
 }
     
-float quadEaseInOut(float time)
+static float quadEaseInOut(float time)
 {
     time = time*2;
     if (time < 1)
@@ -51,16 +51,16 @@ float quadEaseInOut(float time)
 }
 
 // Cubic Ease
-float cubicEaseIn(float time)
+static float cubicEaseIn(float time)
 {
     return time * time * time;
 }
-float cubicEaseOut(float time)
+static float cubicEaseOut(float time)
 {
     time -= 1;
     return (time * time * time + 1);
 }
-float cubicEaseInOut(float time)
+static float cubicEaseInOut(float time)
 {
     time = time*2;
     if(time < 1)
@@ -71,18 +71,18 @@ float cubicEaseInOut(float time)
 
 
 // Quart Ease
-float quartEaseIn(float time)
+static float quartEaseIn(float time)
 {
     return time * time * time * time;
 }
     
-float quartEaseOut(float time)
+static float quartEaseOut(float time)
 {
     time -= 1;
     return -(time * time * time * time - 1);
 }
     
-float quartEaseInOut(float time)
+static float quartEaseInOut(float time)
 {
     time = time*2;
     if(time < 1)
@@ -92,18 +92,18 @@ float quartEaseInOut(float time)
 }
 
 // Quint Ease
-float quintEaseIn(float time)
+static float quintEaseIn(float time)
 {
     return time * time * time * time * time;
 }
     
-float quintEaseOut(float time)
+static float quintEaseOut(float time)
 {
     time -=1;
     return (time * time * time * time * time + 1);
 }
     
-float quintEaseInOut(float time)
+static float quintEaseInOut(float time)
 {
     time = time*2;
     if(time < 1)
@@ -114,15 +114,15 @@ float quintEaseInOut(float time)
 
 
 // Expo Ease
-float expoEaseIn(float time)
+static float expoEaseIn(float time)
 {
     return time == 0 ? 0 : powf(2, 10 * (time - 1)) - 1 * 0.001f;
 }
-float expoEaseOut(float time)
+static float expoEaseOut(float time)
 {
     return time == 1 ? 1 : (-powf(2, -10 * time) + 1);
 }
-float expoEaseInOut(float time)
+static float expoEaseInOut(float time)
 {
     time /= 0.5f;
     if(time < 1){
@@ -136,16 +136,16 @@ float expoEaseInOut(float time)
 
 
 // Circ Ease
-float circEaseIn(float time)
+static float circEaseIn(float time)
 {
     return -1 * (sqrt(1 - time * time) - 1);
 }
-float circEaseOut(float time)
+static float circEaseOut(float time)
 {
     time = time - 1;
     return sqrt(1 - time * time);
 }
-float circEaseInOut(float time)
+static float circEaseInOut(float time)
 {
     time = time * 2;
     if(time < 1)
@@ -156,7 +156,7 @@ float circEaseInOut(float time)
 
 
 // Elastic Ease
-float elasticEaseIn(float time, float period)
+static float elasticEaseIn(float time, float period)
 {
     float newT = 0;
     if(time == 0 || time == 1){
@@ -168,7 +168,7 @@ float elasticEaseIn(float time, float period)
     }
     return newT;
 }
-float elasticEaseOut(float time, float period)
+static float elasticEaseOut(float time, float period)
 {
     float newT = 0;
     if(time == 0 || time == 1){
@@ -179,7 +179,7 @@ float elasticEaseOut(float time, float period)
     }
     return newT;
 }
-float elasticEaseInOut(float time, float period)
+static float elasticEaseInOut(float time, float period)
 {
     float newT = 0;
     if(time == 0 || time == 1){
@@ -204,18 +204,18 @@ float elasticEaseInOut(float time, float period)
 
 
 // Back Ease
-float backEaseIn(float time)
+static float backEaseIn(float time)
 {
     float overshoot = 1.70158f;
     return time * time * ((overshoot + 1) * time - overshoot);
 }
-float backEaseOut(float time)
+static float backEaseOut(float time)
 {
     float overshoot = 1.70158f;
     time = time - 1;
     return time * time * ((overshoot + 1) * time + overshoot) + 1;
 }
-float backEaseInOut(float time)
+static float backEaseInOut(float time)
 {
     float overshoot = 1.70158f * 1.525f;
 
@@ -231,7 +231,7 @@ float backEaseInOut(float time)
 
 
 // Bounce Ease
-float bounceTime(float time)
+static float bounceTime(float time)
 {
     if(time < 1 / 2.75){
         return 7.5625f * time * time;
@@ -245,17 +245,17 @@ float bounceTime(float time)
     time -= 2.625f / 2.75f;
     return 7.5625f * time * time + 0.984375f;
 }
-float bounceEaseIn(float time)
+static float bounceEaseIn(float time)
 {
     return 1 - bounceTime(1 - time);
 }
 
-float bounceEaseOut(float time)
+static float bounceEaseOut(float time)
 {
     return bounceTime(time);
 }
 
-float bounceEaseInOut(float time)
+static float bounceEaseInOut(float time)
 {
     float newT = 0;
     if(time < 0.5f){
@@ -267,17 +267,17 @@ float bounceEaseInOut(float time)
     return newT;
 }
 
-float easeIn(float time, float rate)
+static float easeIn(float time, float rate)
 {
     return powf(time, rate);
 }
 
-float easeOut(float time, float rate)
+static float easeOut(float time, float rate)
 {
     return powf(time, 1 / rate);
 }
     
-float easeInOut(float time, float rate)
+static float easeInOut(float time, float rate)
 {
     time *= 2;
     if(time < 1){
@@ -287,17 +287,17 @@ float easeInOut(float time, float rate)
     }
 }
     
-float quadraticIn(float time)
+static float quadraticIn(float time)
 {
     return powf(time,2);
 }
     
-float quadraticOut(float time)
+static float quadraticOut(float time)
 {
     return -time*(time-2);
 }
     
-float quadraticInOut(float time)
+static float quadraticInOut(float time)
 {
     float resultTime = time;
     time = time*2;
@@ -310,13 +310,13 @@ float quadraticInOut(float time)
     return resultTime;
 }
     
-float bezieratFunction( float a, float b, float c, float d, float t )
+static float bezieratFunction( float a, float b, float c, float d, float t )
 {
     return (powf(1-t,3) * a + 3*t*(powf(1-t,2))*b + 3*powf(t,2)*(1-t)*c + powf(t,3)*d );
 }
     
 // Custom Ease
-float customEase(float time, float *easingParam)
+static float customEase(float time, float *easingParam)
 {
     if(easingParam){
         float tt = 1-time;
@@ -325,7 +325,7 @@ float customEase(float time, float *easingParam)
     return time;
 }
 
-float pingPong(float time)
+static float pingPong(float time)
 {
 	if(time < 0.5f){
 		return time * 2.0f;
