@@ -415,6 +415,7 @@ static void registerPhysBody(OS * os)
 		DEF_PROP("angularVelocity", PhysBody, AngularVelocity),
 		def("applyForce", &PhysBody::applyForce),
 		def("applyForceToCenter", &PhysBody::applyForceToCenter),
+		def("applyTorque", &PhysBody::applyTorque),
 		def("applyLinearImpulse", &PhysBody::applyLinearImpulse),
 		def("applyAngularImpulse", &PhysBody::applyAngularImpulse),
 		DEF_GET("mass", PhysBody, Mass),
@@ -1669,7 +1670,7 @@ void PhysBody::applyForceToCenter(const vec2& force, bool wake)
 void PhysBody::applyTorque(float torque, bool wake)
 {
 	if(core){
-		core->ApplyTorque(torque * MathLib::DEG2RAD, wake);
+		core->ApplyTorque(torque * PhysWorld::toPhysScale * PhysWorld::toPhysScale, wake);
 	}
 }
 void PhysBody::applyLinearImpulse(const vec2& impulse, const vec2& point, bool wake)
