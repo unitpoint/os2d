@@ -10309,7 +10309,11 @@ void OS::Core::Compiler::debugPrintSourceLine(Buffer& out, TokenData * token)
 	if(recent_printed_line != token->line && token->line >= 0){
 		recent_printed_line = token->line;
 		String line(allocator, token->text_data->lines[token->line], true, true);
-		out += String::format(allocator, OS_TEXT("\n[%d] %s\n\n"), token->line+1, line.toChar());
+		// line could be very long so DON'T use format because of the format uses temp buffer of 10 Kb
+		// out += String::format(allocator, OS_TEXT("\n[%d] %s\n\n"), token->line+1, line.toChar());
+		out += String::format(allocator, OS_TEXT("\n[%d] "), token->line+1);
+		out += line;
+		out += OS_TEXT("\n\n");
 	}
 	else if(filePrinted){
 		out += String::format(allocator, OS_TEXT("\n"));
