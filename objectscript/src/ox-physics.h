@@ -384,14 +384,14 @@ public:
 	vec2 getPos() const { return PhysWorld::fromPhysVec(def.position); }
 	void setPos(const vec2& value){ def.position = PhysWorld::toPhysVec(value); }
 
-	float getAngle() const { return def.angle; }
-	void setAngle(float value){ def.angle = value; }
+	float getAngle() const { return def.angle * MathLib::RAD2DEG; }
+	void setAngle(float value){	def.angle = value * MathLib::DEG2RAD; }
 
 	vec2 getLinearVelocity() const { return PhysWorld::fromPhysVec(def.linearVelocity); }
 	void setLinearVelocity(const vec2& value){ def.linearVelocity = PhysWorld::toPhysVec(value); }
 
-	float getAngularVelocity() const { return def.angularVelocity; }
-	void setAngularVelocity(float value){ def.angularVelocity = value; }
+	float getAngularVelocity() const { return def.angularVelocity * MathLib::RAD2DEG; }
+	void setAngularVelocity(float value){ def.angularVelocity = value * MathLib::DEG2RAD; }
 
 	float getLinearDamping() const { return def.linearDamping; }
 	void setLinearDamping(float value){ def.linearDamping = value; }
