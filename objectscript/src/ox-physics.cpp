@@ -715,7 +715,7 @@ float PhysWorld::getPersistentDeltaTime() const
 
 void PhysWorld::setPersistentDeltaTime(float value)
 {
-	persistentDeltaTime = MathLib::clamp(value, 0.001f, 0.1f);
+	persistentDeltaTime = value; // MathLib::clamp(value, 0.001f, 0.1f);
 }
 
 void PhysWorld::update(float timeStep, int velocityIterations, int positionIterations)
@@ -730,6 +730,7 @@ void PhysWorld::update(float timeStep, int velocityIterations, int positionItera
 			}
 		}
 		accumTime += timeStep;
+		float persistentDeltaTime = this->persistentDeltaTime > 0 ? this->persistentDeltaTime : accumTime;
 		while(accumTime >= persistentDeltaTime){
 			updateInProgress = true;
 			core->Step(persistentDeltaTime, velocityIterations, positionIterations);
