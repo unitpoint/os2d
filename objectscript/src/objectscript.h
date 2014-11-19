@@ -2902,7 +2902,8 @@ namespace ObjectScript
 
 			bool valueToBool(const Value& val);
 			OS_INT valueToInt(const Value& val, int radix = 0, bool valueof_enabled = false);
-			OS_NUMBER valueToNumber(const Value& val, int radix = 0, bool valueof_enabled = false);
+			OS_NUMBER valueToNumberRadix(const Value& val, int radix, bool valueof_enabled);
+			OS_NUMBER valueToNumber(const Value& val, bool valueof_enabled = false);
 			String valueToString(const Value& val, bool valueof_enabled = false);
 			OS::String valueToStringOS(const Value& val, bool valueof_enabled = false);
 

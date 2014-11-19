@@ -430,7 +430,7 @@ static bool parseSimpleRadix(const OS_CHAR *& p_str, T& p_val, int radix)
 			return false; */
 			break;
 		}
-		val = (val << 4) + 10 + (T)cur;
+		val = val * radix + (T)cur;
 		if(prev_val > val){
 			p_str = start;
 			p_val = 0;
@@ -12986,7 +12986,7 @@ bool OS::Core::valueToBool(const Value& val)
 
 OS_INT OS::Core::valueToInt(const Value& val, int radix, bool valueof_enabled)
 {
-	return (OS_INT)valueToNumber(val, radix, valueof_enabled);
+	return (OS_INT)valueToNumberRadix(val, radix, valueof_enabled);
 }
 
 OS_INT OS::Core::Compiler::Expression::toInt()
@@ -13016,7 +13016,7 @@ OS_NUMBER OS::Core::Compiler::Expression::toNumber()
 	return 0;
 }
 
-OS_NUMBER OS::Core::valueToNumber(const Value& val, int radix, bool valueof_enabled)
+OS_NUMBER OS::Core::valueToNumberRadix(const Value& val, int radix, bool valueof_enabled)
 {
 	switch(OS_VALUE_TYPE(val)){
 	case OS_VALUE_TYPE_NULL:
@@ -13034,7 +13034,30 @@ OS_NUMBER OS::Core::valueToNumber(const Value& val, int radix, bool valueof_enab
 	if(valueof_enabled){
 		pushValueOf(val);
 		struct Pop { Core * core; ~Pop(){ core->pop(); } } pop = {this}; (void)pop;
-		return valueToNumber(stack_values.lastElement(), radix, false);
+		return valueToNumberRadix(stack_values.lastElement(), radix, false);
+	}
+	return 0;
+}
+
+OS_NUMBER OS::Core::valueToNumber(const Value& val, bool valueof_enabled)
+{
+	switch(OS_VALUE_TYPE(val)){
+	case OS_VALUE_TYPE_NULL:
+		return 0; // nan_float;
+
+	case OS_VALUE_TYPE_BOOL:
+		return (OS_NUMBER)OS_VALUE_VARIANT(val).boolean;
+
+	case OS_VALUE_TYPE_NUMBER:
+		return OS_VALUE_NUMBER(val);
+
+	case OS_VALUE_TYPE_STRING:
+		return OS_VALUE_VARIANT(val).string->toNumber(0);
+	}
+	if(valueof_enabled){
+		pushValueOf(val);
+		struct Pop { Core * core; ~Pop(){ core->pop(); } } pop = {this}; (void)pop;
+		return valueToNumber(stack_values.lastElement(), false);
 	}
 	return 0;
 }
