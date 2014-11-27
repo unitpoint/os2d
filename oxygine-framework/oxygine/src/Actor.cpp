@@ -1010,7 +1010,7 @@ namespace oxygine
 				return false;
 		}
 
-		rs.renderer->setTransform(rs.transform);
+		//rs.renderer->setTransform(rs.transform);
 
 		return true;
 	}
@@ -1127,7 +1127,6 @@ namespace oxygine
 			if (callComplete)
 				c->complete();
 			else
-
 				removeTween(c);
 		}
 	}

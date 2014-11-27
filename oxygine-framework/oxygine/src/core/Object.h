@@ -27,10 +27,8 @@ namespace oxygine
 		ObjectBase(bool assignID = true);
 		virtual ~ObjectBase();
 
-#ifdef OX_WITH_OBJECTSCRIPT
-		// const OS_ClassInfo& getClassInfoOfObjectBase(){ static OS_ClassInfo info = {"ObjectBase"}; return info; }
+		// used by ObjectScript
 		virtual const OS_ClassInfo& getClassInfo() = 0;
-#endif
 
 		const std::string&	getName() const;		
 		void*				getUserData() const {return __userData;}

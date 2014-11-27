@@ -22,7 +22,7 @@ namespace oxygine
 		static spStage instance;
 		static Rect	calcCenteredViewport(const Point &displaySize, const Point &gameSize);
 
-		Stage();
+		Stage(bool autoHandleReset = false);
 		~Stage();
 
 		/**Initializes size, scale and position of Stage 
@@ -32,8 +32,10 @@ namespace oxygine
 		void init(const Point &displaySize, const Point &gameSize);
 				
 		void setClipOuterArea(bool clip){_clipOuter = clip;}
-		/**Renders each children*/
+		/**Render all actors*/
 		void render(Renderer &r);
+		/**Render all actors, simplified version*/
+		void render(const Color &clearColor, const Rect &viewport);
 
 		//const Rect	&getArea();
 
@@ -44,9 +46,16 @@ namespace oxygine
 
 		RectF getDestRect() const;
 
+		//bool isActivte() const { return _active; }
+
 		std::string dump(const dumpOptions &opt) const;
 
 	protected:
+		void onDeactivate(Event *);
+		void onActivate(Event *);
+
+		//bool _active;
+
 		bool isOn(const Vector2 &localPosition);
 
 	private:

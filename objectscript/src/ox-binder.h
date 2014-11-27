@@ -28,7 +28,6 @@
 
 #ifndef __OX_BINDER_H__
 #define __OX_BINDER_H__
-// #ifdef OX_WITH_OBJECTSCRIPT
 
 #include <oxygine-framework.h>
 
@@ -1060,21 +1059,6 @@ OS_DECL_OX_CLASS(oxygine::Resources);
 
 extern OS2D * os;
 
-struct SaveStackSize
-{
-	int stackSize;
-
-	SaveStackSize()
-	{
-		stackSize = os->getStackSize();
-	}
-	~SaveStackSize()
-	{
-		OX_ASSERT(os->getStackSize() >= stackSize);
-		os->pop(os->getStackSize() - stackSize);
-	}
-};
-
 struct Oxygine
 {
 	static void init()
@@ -1162,5 +1146,4 @@ struct Oxygine
 
 } // namespace ObjectScript
 
-// #endif // OX_WITH_OBJECTSCRIPT
 #endif // __OX_BINDER_H__

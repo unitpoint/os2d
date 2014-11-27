@@ -3,16 +3,16 @@
 
 /*
 oxygine-framework merge state
-SHA 06446049
-by dmuratshin, 18.10.2014 12:00
+https://github.com/oxygine/oxygine-framework.git 
+SHA 7c18cf21
+by Denis Muratshin, 25.11.2014 16:48
+parent 225fee58
 */
 
 
-// #ifdef OX_WITH_OBJECTSCRIPT
-
 #ifdef OXYGINE_SDL
 namespace oxygine { extern SDL_Window * _window; }
-extern oxygine::Rect viewport; extern oxygine::Renderer renderer;
+// extern oxygine::Rect viewport; extern oxygine::Renderer renderer;
 #endif
 
 using namespace oxygine;
@@ -87,10 +87,9 @@ static void registerGlobal(OS * os)
 			}
 
 			SDL_SetWindowSize(oxygine::_window, width, height);
-			SDL_GetWindowSize(oxygine::_window, &width, &height);
-
-			viewport = Rect(0, 0, width, height);
-			renderer.initCoordinateSystem(width, height);
+			// SDL_GetWindowSize(oxygine::_window, &width, &height);
+			// viewport = Rect(0, 0, width, height);
+			// renderer.initCoordinateSystem(width, height);
 #endif
 			return 0;
 		}
@@ -1981,5 +1980,3 @@ void shutdownAddedFileSystems()
 }
 
 #endif
-
-// #endif // OX_WITH_OBJECTSCRIPT

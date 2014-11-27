@@ -55,6 +55,15 @@ namespace oxygine
 		//log::messageln("initialized DebugActor");
 	}
 
+	void DebugActor::show()
+	{
+		initialize();
+		if (!DebugActor::instance)
+			DebugActor::instance = new DebugActor;
+
+		getStage()->addChild(DebugActor::instance);
+	}
+
 	void DebugActor::release()
 	{
 		instance = 0;
@@ -263,9 +272,7 @@ namespace oxygine
 		s << "textures=" << NativeTexture::created << " ";
 		s << "\nlisteners=" << getStage()->getListenersCount() << "";
 
-#ifdef OX_WITH_OBJECTSCRIPT
 		s << ObjectScript::getDebugStr();
-#endif
 
 		if (!_debugText.empty())
 		{

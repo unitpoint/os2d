@@ -6,7 +6,7 @@ namespace oxygine
 {
 	ShaderProgramGL::ShaderProgramGL():_program(0)
 	{
-
+		_vdecl = NULL;
 	}
 
 	ShaderProgramGL::~ShaderProgramGL()
@@ -17,9 +17,10 @@ namespace oxygine
 	}
 
 
-	void ShaderProgramGL::init(GLuint p)
+	void ShaderProgramGL::init(GLuint p, const VertexDeclarationGL * vdecl)
 	{
 		_program = p;
+		_vdecl = vdecl;
 	}
 
 	unsigned int ShaderProgramGL::getID() const 

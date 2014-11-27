@@ -70,6 +70,8 @@ namespace oxygine{namespace log{void error(const char *format, ...);}}
 
 #define OXYGINE_HAS_RESTORE
 
+#define OXYGINE_RENDERER 2
+
 #ifdef __GNUC__
 #define OXYGINE_DEPRECATED __attribute__((deprecated))
 #elif defined(_MSC_VER)
@@ -79,7 +81,12 @@ namespace oxygine{namespace log{void error(const char *format, ...);}}
 #define OXYGINE_DEPRECATED
 #endif
 
-#ifdef OX_WITH_OBJECTSCRIPT
+
+#ifdef _MSC_VER
+#define OVERRIDE override
+#else
+#define OVERRIDE 
+#endif
 
 #include <objectscript.h>
 
@@ -163,14 +170,5 @@ void handleErrorPolicyVa(const char *format, va_list args);
 std::string getDebugStr();
 
 } // namespace ObjectScript
-
-#else // OX_WITH_OBJECTSCRIPT
-
-#define OS_DECLARE_CLASSINFO_STATIC_NAME(type, name)
-#define OS_DECLARE_CLASSINFO_STATIC(type)
-#define OS_DECLARE_CLASSINFO_NAME(type, name)
-#define OS_DECLARE_CLASSINFO(type)
-
-#endif // OX_WITH_OBJECTSCRIPT
 
 #endif //OXYGINE_INCLUDE

@@ -44,7 +44,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>OX_WITH_OBJECTSCRIPT;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\objectscript\src\;../../oxygine-framework/oxygine/src/;../../oxygine-framework\oxygine\third_party\win32\pthreads\include/;..\dependencies\openal\include\;..\dependencies\tremor\tremor;..\dependencies\libogg\include\;../src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -60,7 +60,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>OX_WITH_OBJECTSCRIPT;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\objectscript\src\;../../oxygine-framework/oxygine/src/;../../oxygine-framework\oxygine\third_party\win32\pthreads\include/;..\dependencies\openal\include\;..\dependencies\tremor\tremor;..\dependencies\libogg\include\;../src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

@@ -56,7 +56,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\..\..\objectscript\src\;..\..\src\;..\..\third_party\win32\zlib;..\..\third_party\win32\libjpeg;..\..\third_party\win32\libpng;..\..\greenlets\src\;..\..\..\..\SDL\include\;..\..\third_party\win32\OGLES;..\..\third_party\win32\glew;../../third_party/win32/pthreads/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OX_WITH_OBJECTSCRIPT;WIN32;_DEBUG;_LIB;OXYGINE_SDL;_WINDOWS;_CRT_SECURE_NO_WARNINGS;OX_HAVE_LIBPNG;OX_HAVE_LIBJPEG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;OXYGINE_SDL;_WINDOWS;_CRT_SECURE_NO_WARNINGS;OX_HAVE_LIBPNG;OX_HAVE_LIBJPEG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -78,7 +78,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\..\..\..\objectscript\src\;..\..\src\;..\..\third_party\win32\zlib;..\..\third_party\win32\libjpeg;..\..\third_party\win32\libpng;..\..\greenlets\src\;..\..\..\..\SDL\include\;..\..\third_party\win32\OGLES;..\..\third_party\win32\glew;../../third_party/win32/pthreads/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OX_WITH_OBJECTSCRIPT;WIN32;NDEBUG;_LIB;OXYGINE_SDL;_WINDOWS;_CRT_SECURE_NO_WARNINGS;OX_HAVE_LIBPNG;OX_HAVE_LIBJPEG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;OXYGINE_SDL;_WINDOWS;_CRT_SECURE_NO_WARNINGS;OX_HAVE_LIBPNG;OX_HAVE_LIBJPEG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>
@@ -139,6 +139,7 @@
     <ClCompile Include="..\..\src\Font.cpp" />
     <ClCompile Include="..\..\src\Input.cpp" />
     <ClCompile Include="..\..\src\InputText.cpp" />
+    <ClCompile Include="..\..\src\MaskedRenderer.cpp" />
     <ClCompile Include="..\..\src\MaskedSprite.cpp" />
     <ClCompile Include="..\..\src\MemoryTexture.cpp" />
     <ClCompile Include="..\..\src\minizip\ioapi.c" />
@@ -161,6 +162,7 @@
     <ClCompile Include="..\..\src\SlidingActor.cpp" />
     <ClCompile Include="..\..\src\Sprite.cpp" />
     <ClCompile Include="..\..\src\Stage.cpp" />
+    <ClCompile Include="..\..\src\STDRenderer.cpp" />
     <ClCompile Include="..\..\src\TextField.cpp" />
     <ClCompile Include="..\..\src\text_utils\Aligner.cpp" />
     <ClCompile Include="..\..\src\text_utils\Node.cpp" />
@@ -235,6 +237,7 @@
     <ClInclude Include="..\..\src\InitActor.h" />
     <ClInclude Include="..\..\src\Input.h" />
     <ClInclude Include="..\..\src\InputText.h" />
+    <ClInclude Include="..\..\src\MaskedRenderer.h" />
     <ClInclude Include="..\..\src\MaskedSprite.h" />
     <ClInclude Include="..\..\src\MemoryTexture.h" />
     <ClInclude Include="..\..\src\minizip\ioapi.h" />
@@ -260,6 +263,7 @@
     <ClInclude Include="..\..\src\SlidingActor.h" />
     <ClInclude Include="..\..\src\Sprite.h" />
     <ClInclude Include="..\..\src\Stage.h" />
+    <ClInclude Include="..\..\src\STDRenderer.h" />
     <ClInclude Include="..\..\src\TextField.h" />
     <ClInclude Include="..\..\src\TextActor.h" />
     <ClInclude Include="..\..\src\TextStyle.h" />

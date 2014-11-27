@@ -16,8 +16,8 @@ namespace oxygine
 		const Color&		getColor() const {return _color;}
 		blend_mode			getBlendMode() const {return _blend;}
 
-		void setColor(const Color &color){_color = color;}
-		void setBlendMode(blend_mode mode){_blend = mode;}
+		void setColor(const Color &color);
+		void setBlendMode(blend_mode mode);
 
 
 		void _apply(const RenderState &rs);

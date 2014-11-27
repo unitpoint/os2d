@@ -81,16 +81,19 @@ namespace oxygine
 	{
 		struct init_desc
 		{
-			init_desc(): mode24bpp(true), w(-1), h(-1), vsync(true), fullscreen(false), fulldesktop(false), title("Oxygine"), maximized(false){}
+			init_desc() : mode24bpp(true), w(-1), h(-1), fullscreen(false), title("Oxygine"), vsync(true), appName(0), comnpanyName(0){}
 
 			bool mode24bpp;
 			int w;
 			int h;
 			bool vsync;
 			bool fullscreen;
-			bool fulldesktop;
-			bool maximized;
 			const char *title;
+
+			/** Application name to be used as part of the file system directory for writable storage. If appName is empty files would be written next to working directory*/
+			const char *appName;
+			/** Company name to be used as part of the file system directory for writable storage*/
+			const char *comnpanyName;
 		};
 
 		/** Initializes Oxygine*/
@@ -107,6 +110,8 @@ namespace oxygine
 
 		/** Update engine*/
 		bool update();
+		/**returns True if device is ready for rendering*/
+		bool beginRendering();
 		/** Swap Video buffers*/
 		void swapDisplayBuffers();
 		void execute(const char *);

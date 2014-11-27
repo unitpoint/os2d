@@ -247,9 +247,7 @@ namespace oxygine
 #ifdef OX_DEBUG
 		__check = 0xABCDEFAB;
 #endif
-#ifdef OX_WITH_OBJECTSCRIPT
-		osValueId = 0;
-#endif
+		osValueId = 0; // used by ObjectScript
 	}
 
 	Object::Object(bool assignUniqueID):ObjectBase(assignUniqueID)

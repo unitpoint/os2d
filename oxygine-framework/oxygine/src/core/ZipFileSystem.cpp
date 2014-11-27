@@ -332,6 +332,11 @@ namespace file
 		return status_error;
 	}
 
+	FileSystem::status ZipFileSystem::_deleteDirectory(const char* file)
+	{
+		return status_error;
+	}
+
 	FileSystem::status ZipFileSystem::_renameFile(const char* src, const char *dest)
 	{
 		return status_error;

@@ -62,9 +62,6 @@ namespace oxygine
 		void setCurrentTarget(spEventDispatcher value){ currentTarget = value; }
 	};
 
-#ifndef OX_WITH_OBJECTSCRIPT
-	typedef Closure<void (Event *ev)> EventCallback;
-#else
 	typedef Closure<void (Event *ev)> OriginEventCallback;
 	class EventCallback: public OriginEventCallback
 	{
@@ -131,7 +128,6 @@ namespace oxygine
 			return !(*this == b);
 		}
 	};
-#endif
 
 	class EventDispatcher: public Object
 	{
